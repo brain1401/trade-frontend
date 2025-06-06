@@ -29,7 +29,7 @@ const TopNavBar = () => {
         >
           {icon}
           {hasDot && (
-            <span className="animate-pulse-subtle absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-[#004E98]"></span>
+            <span className="absolute top-0 right-0 block h-2.5 w-2.5 animate-pulse-subtle rounded-full bg-red-500 ring-2 ring-[#004E98]"></span>
           )}
         </Button>
       </TooltipTrigger>

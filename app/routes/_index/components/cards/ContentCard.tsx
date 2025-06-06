@@ -1,7 +1,7 @@
-import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { ContentCardProps } from "@/types";
+
 // 기본 클래스 상수화
 const CARD_BASE_CLASSES = "mb-4";
 const HEADER_CLASSES =
