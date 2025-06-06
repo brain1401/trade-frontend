@@ -11,8 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type Buttons = { name: string; icon: ReactNode; count?: number };
+
+const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
+const AVATAR_BORDER_CLASSES = "border-2 border-white";
 
 const UserInfoCard = () => {
   const buttons: Buttons[] = [
@@ -31,9 +35,11 @@ const UserInfoCard = () => {
               <AvatarImage
                 src="https://placehold.co/48x48/FFFFFF/004E98?text=A"
                 alt="사용자 프로필"
-                className="border-2 border-white"
+                className={AVATAR_BORDER_CLASSES}
               />
-              <AvatarFallback className="border-2 border-white bg-white text-[#004E98]">
+              <AvatarFallback
+                className={cn(AVATAR_BORDER_CLASSES, "bg-white text-[#004E98]")}
+              >
                 A
               </AvatarFallback>
             </Avatar>
@@ -56,7 +62,7 @@ const UserInfoCard = () => {
           <Button
             variant="link"
             asChild
-            className="h-auto p-0 text-sm text-blue-600 hover:underline"
+            className={cn(LINK_BUTTON_BASE_CLASSES, "text-blue-600")}
           >
             <a href="#" className="flex items-center">
               <LifeBuoy size={16} className="mr-1.5 text-blue-500" /> 문의하기
@@ -65,7 +71,10 @@ const UserInfoCard = () => {
           <Button
             variant="link"
             asChild
-            className="ml-4 h-auto p-0 text-sm text-gray-700 hover:text-blue-600"
+            className={cn(
+              LINK_BUTTON_BASE_CLASSES,
+              "ml-4 text-gray-700 hover:text-blue-600",
+            )}
           >
             <a href="#">프로필 수정</a>
           </Button>

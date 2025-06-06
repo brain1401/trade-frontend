@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+const TEXT_COLOR_CLASSES = "text-slate-700";
+const ICON_BUTTON_COLOR_CLASSES = `${TEXT_COLOR_CLASSES} hover:bg-slate-700 hover:text-slate-200`;
+
 const SearchBarHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const ICON_BUTTON_COLOR_CLASSES =
-    "text-slate-400 hover:bg-slate-700 hover:text-slate-200";
-
   return (
-    <div className="bg-slate-900">
+    <div className={cn("bg-slate-900", TEXT_COLOR_CLASSES)}>
       <header className="flex flex-col items-center justify-center px-4 py-12 md:py-16">
         <div className="w-full max-w-2xl">
           <div className="mb-8 text-center">
@@ -22,14 +22,14 @@ const SearchBarHeader = () => {
               AI 기반 HS Code 분석 및 무역 정보 플랫폼
             </p>
           </div>
-          <div className="relative rounded-xl border border-slate-700 bg-slate-800 p-2 shadow-2xl">
+          <div className="relative rounded-xl border border-slate-700 bg-slate-200 p-2 shadow-2xl">
             <div className="flex items-center">
               <Input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="HS Code, 상품명, 규제 등 무엇이든 물어보세요..."
-                className="w-full border-0 bg-transparent p-3 text-base text-slate-200 placeholder-slate-500 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="w-full border-0 bg-transparent p-3 !text-[1rem] shadow-none placeholder:text-inherit focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <Button
                 variant="ghost"
@@ -72,9 +72,7 @@ const SearchBarHeader = () => {
                   <Paperclip size={18} />
                 </Button>
               </div>
-              <p className="text-xs text-slate-500">
-                Shift+Enter로 줄바꿈하세요!
-              </p>
+              <p className="text-[.8rem]">Shift+Enter로 줄바꿈하세요!</p>
             </div>
           </div>
         </div>

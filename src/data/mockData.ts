@@ -1,10 +1,10 @@
 import type { ExchangeRate, TradeNews, HSCodeNews } from "../types";
 
 export const mockExchangeRates: ExchangeRate[] = [
-  { currency: "USD", rate: 1375.5, change: -0.25, symbol: "$" },
-  { currency: "EUR", rate: 1480.2, change: 0.1, symbol: "€" },
-  { currency: "JPY", rate: 9.25, change: 0.05, symbol: "¥" },
-  { currency: "CNY", rate: 190.8, change: -0.15, symbol: "¥" },
+  { currency: "USD", rate: 1359.4, change: -2.78, symbol: "$" },
+  { currency: "EUR", rate: 1421.5, change: -1.52, symbol: "€" },
+  { currency: "JPY", rate: 9.43, change: -0.08, symbol: "¥" },
+  { currency: "CNY", rate: 188.2, change: -0.85, symbol: "¥" },
 ];
 
 export const mockTradeNews: TradeNews[] = [

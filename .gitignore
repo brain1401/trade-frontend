@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+cursor
+memory-bank
+cursor-memory-bank
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

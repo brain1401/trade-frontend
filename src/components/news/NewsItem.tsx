@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import type { NewsItemProps } from "../../types";
 
+const SOURCE_TEXT_CLASSES = "text-black";
+
 const NewsItem = ({
   title,
   summary,
@@ -36,8 +38,8 @@ const NewsItem = ({
       </a>
 
       <div className="mt-1.5 text-xs text-gray-400">
-        <span className="text-black">{source}</span> |{" "}
-        <span className="text-black">{date}</span>
+        <span className={SOURCE_TEXT_CLASSES}>{source}</span> |{" "}
+        <span className={SOURCE_TEXT_CLASSES}>{date}</span>
       </div>
     </div>
   );

@@ -9,19 +9,6 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 
-// Custom Animation Style
-const CustomAnimationStyle = () => (
-  <style>{`
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-    `}</style>
-);
-
 const TopNavBar = () => {
   const [hasNotification, setHasNotification] = useState(true);
   const [hasBookmarkUpdate, setHasBookmarkUpdate] = useState(true);
@@ -57,7 +44,6 @@ const TopNavBar = () => {
 
   return (
     <>
-      <CustomAnimationStyle />
       <TooltipProvider>
         <nav className="bg-[#004E98] p-3 text-white shadow-md">
           <div className="container mx-auto flex items-center justify-between">
