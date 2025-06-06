@@ -1,9 +1,9 @@
-import MapArrayExam from "./components/MapArrayExam";
+import HomePage from "./components/HomePage";
 
 export default function App() {
   return (
-    <div className="p-5">
-      <MapArrayExam />
+    <div className="">
+      <HomePage />
     </div>
   );
 }
