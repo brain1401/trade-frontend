@@ -1,3 +1,5 @@
+// @ts-check
+
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -11,8 +13,7 @@ const configsWithWarn = recommendedConfigs.map((config) => {
     return config;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const newRules: Record<string, any> = {};
+  const newRules = {};
 
   for (const ruleName in config.rules) {
     const ruleValue = config.rules[ruleName];
