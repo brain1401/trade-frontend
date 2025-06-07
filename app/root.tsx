@@ -1,29 +1,13 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { Links, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 
-import TopNavBar from "./components/layout/TopNavBar";
-import QuickLinksBar from "./components/layout/QuickLinksBar";
-import Footer from "./components/layout/Footer";
+import RootLayout from "./components/layout/RootLayout";
+import GlobalErrorBoundary from "./components/error/GlobalErrorBoundary";
 
 export default function Root() {
-  return (
-    <div className="bg-gray-50 font-nanum_square_neo_variable font-[500]">
-      <TopNavBar />
-      <QuickLinksBar />
-      <main className="container mx-auto max-w-7xl px-6 py-5">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
-  );
+  return <RootLayout />;
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -44,41 +28,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = "Error";
-    details = error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
-  return (
-    <main className="container mx-auto p-4 pt-16">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full overflow-x-auto p-4">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
-  );
+  return <GlobalErrorBoundary error={error} />;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
+export { links } from "./config/links";

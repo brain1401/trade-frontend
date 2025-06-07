@@ -8,7 +8,7 @@ const Footer = () => (
         &copy; {new Date().getFullYear()} 서비스 이름. AI 기반 수출입 전문
         컨설팅 플랫폼.
       </p>
-      <p className="mt-2">
+      <div className="mt-2">
         <div className="flex items-center justify-center gap-x-2">
           <Button
             variant="link"
@@ -34,7 +34,7 @@ const Footer = () => (
             <Link to="#">고객센터</Link>
           </Button>
         </div>
-      </p>
+      </div>
     </div>
   </footer>
 );
