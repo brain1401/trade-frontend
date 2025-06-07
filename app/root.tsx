@@ -15,10 +15,10 @@ import Footer from "./components/layout/Footer";
 
 export default function Root() {
   return (
-    <div className="bg-gray-50 py-[20rem]">
+    <div className="bg-gray-50 font-nanum_square_neo_variable font-[500]">
       <TopNavBar />
       <QuickLinksBar />
-      <main className="container mx-auto max-w-7xl px-6 py-[10rem]">
+      <main className="container mx-auto max-w-7xl px-6 py-5">
         <Outlet />
       </main>
       <Footer />
