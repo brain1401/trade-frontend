@@ -7,11 +7,29 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0efff;
+  --color-brand-200: #c7e1ff;
+  --color-brand-300: #a5cdff;
+  --color-brand-400: #7db0ff;
+  --color-brand-500: #5a94ff;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #004e98;
+  --color-brand-800: #003875;
+  --color-brand-900: #002a5c;
+  --color-brand-950: #001a3d;
+
+  --line-height-relaxed: 1.75;
+  --line-height-comfortable: 1.6;
+}
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* 기존 색상 시스템 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

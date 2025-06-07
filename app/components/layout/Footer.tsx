@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "@/components/ui/Link";
 
 const Footer = () => (
   <footer className="mt-12 bg-slate-800 py-10 text-slate-300">
@@ -14,7 +15,7 @@ const Footer = () => (
             asChild
             className="h-auto p-0 text-slate-300 hover:text-white hover:underline"
           >
-            <a href="#">이용약관</a>
+            <Link to="#">이용약관</Link>
           </Button>
           |
           <Button
@@ -22,7 +23,7 @@ const Footer = () => (
             asChild
             className="mx-2 h-auto p-0 text-slate-300 hover:text-white hover:underline"
           >
-            <a href="#">개인정보처리방침</a>
+            <Link to="#">개인정보처리방침</Link>
           </Button>
           |
           <Button
@@ -30,7 +31,7 @@ const Footer = () => (
             asChild
             className="h-auto p-0 text-slate-300 hover:text-white hover:underline"
           >
-            <a href="#">고객센터</a>
+            <Link to="#">고객센터</Link>
           </Button>
         </div>
       </p>

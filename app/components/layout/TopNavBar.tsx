@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import { Link } from "@/components/ui/Link";
 
 const TopNavBar = () => {
   const [hasNotification, setHasNotification] = useState(true);
@@ -29,7 +30,7 @@ const TopNavBar = () => {
         >
           {icon}
           {hasDot && (
-            <span className="absolute top-0 right-0 block h-2.5 w-2.5 animate-pulse-subtle rounded-full bg-red-500 ring-2 ring-[#004E98]"></span>
+            <span className="absolute top-0 right-0 block h-2.5 w-2.5 animate-pulse-subtle rounded-full bg-red-500 ring-2 ring-brand-700"></span>
           )}
         </Button>
       </TooltipTrigger>
@@ -45,11 +46,11 @@ const TopNavBar = () => {
   return (
     <>
       <TooltipProvider>
-        <nav className="bg-[#004E98] p-3 text-white shadow-md">
+        <nav className="bg-brand-700 p-3 text-white shadow-md">
           <div className="container mx-auto flex items-center justify-between">
-            <a href="#" className="ml-[3rem] text-xl font-bold">
+            <Link to="/" className="ml-[3rem] text-4xl font-bold">
               서비스 이름
-            </a>
+            </Link>
             <div className="flex items-center space-x-5">
               {iconButton("알림", <Bell size={22} />, hasNotification)}
               {iconButton("북마크", <Bookmark size={22} />, hasBookmarkUpdate)}
@@ -66,7 +67,7 @@ const TopNavBar = () => {
                       alt="사용자 프로필"
                       className="border-2 border-blue-200 hover:opacity-90"
                     />
-                    <AvatarFallback className="border-2 border-blue-200 bg-white text-[#004E98]">
+                    <AvatarFallback className="border-2 border-blue-200 bg-white text-brand-700">
                       A
                     </AvatarFallback>
                   </Avatar>

@@ -1,6 +1,7 @@
 import { Filter, Globe, BarChart3, TrendingUp, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { QuickLinkItem } from "@/types";
+import { Link } from "@/components/ui/Link";
 
 const QuickLinksBar = () => {
   const quickLinkItems: QuickLinkItem[] = [
@@ -41,10 +42,10 @@ const QuickLinksBar = () => {
             asChild
             className="hover:text-white!important flex h-auto items-center rounded-md px-2 py-1 text-sm font-medium text-white transition-colors duration-150 hover:bg-blue-500"
           >
-            <a href={item.path}>
+            <Link to={item.path}>
               {item.icon}
               {item.name}
-            </a>
+            </Link>
           </Button>
         ))}
       </div>

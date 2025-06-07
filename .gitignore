@@ -1,9 +1,13 @@
 .DS_Store
-/node_modules/
-
-/cursor-memory-bank/
-/memory-bank/
+node_modules
 
 # React Router
-/.react-router/
-/build/
+.react-router
+build
+
+# Cursor
+cursor-memory-bank
+memory-bank
+
+# vscode
+.vscode
