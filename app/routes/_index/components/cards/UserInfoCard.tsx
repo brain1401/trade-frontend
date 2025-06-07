@@ -80,21 +80,20 @@ const UserInfoCard = () => {
           </Button>
         </div>
         <ul className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
-          {buttons.map((item) => (
-            <li className="flex w-full items-center justify-center">
+          {buttons.map(({ name, icon, count }) => (
+            <li className="flex w-full items-center justify-center" key={name}>
               <Button
-                key={item.name}
                 variant="ghost"
-                className="relative flex h-auto w-[5rem] flex-col items-center justify-center rounded-md p-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                className="relative flex h-auto w-[5rem] flex-col items-center justify-center overflow-visible rounded-md p-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600"
               >
-                <div className="mb-1">{item.icon}</div>
-                <span>{item.name}</span>
-                {item.count && (
+                <div className="mb-1">{icon}</div>
+                <span>{name}</span>
+                {count && (
                   <Badge
                     variant="destructive"
-                    className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 transform px-1.5 py-0.5 text-xs"
+                    className="pointer-events-none absolute top-0 right-0 z-10 translate-x-1/3 -translate-y-1/3 transform px-1.5 py-0.5 text-xs"
                   >
-                    {item.count}
+                    {count}
                   </Badge>
                 )}
               </Button>

@@ -1,6 +1,9 @@
 .DS_Store
 /node_modules/
 
+/cursor-memory-bank/
+/memory-bank/
+
 # React Router
 /.react-router/
 /build/
