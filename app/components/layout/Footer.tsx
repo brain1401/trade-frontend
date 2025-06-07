@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 const Footer = () => (
   <footer className="mt-12 bg-slate-800 py-10 text-slate-300">

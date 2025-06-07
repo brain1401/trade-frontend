@@ -1,7 +1,7 @@
 import { HelpCircle, Book, MessageSquare, Phone, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 export default function HelpPage() {
   const helpSections = [

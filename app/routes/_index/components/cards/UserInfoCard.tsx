@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 type Buttons = { name: string; icon: ReactNode; count?: number; path?: string };
 

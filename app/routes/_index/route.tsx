@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import HSCodeNewsSection from "./components/news/HSCodeNewsSection";
 import ExchangeRateCard from "./components/cards/ExchangeRateCard";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
 const CARD_SPACING_CLASSES = "mt-8";

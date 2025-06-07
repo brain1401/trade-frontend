@@ -1,7 +1,7 @@
 import { Filter, Globe, BarChart3, TrendingUp, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { QuickLinkItem } from "@/types";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 const QuickLinksBar = () => {
   const quickLinkItems: QuickLinkItem[] = [

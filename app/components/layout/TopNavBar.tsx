@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 const TopNavBar = () => {
   const [hasNotification, setHasNotification] = useState(true);

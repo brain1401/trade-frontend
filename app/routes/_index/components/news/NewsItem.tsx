@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { NewsItemProps } from "@/types";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 const SOURCE_TEXT_CLASSES = "text-black";
 

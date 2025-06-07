@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { User, Bookmark, Settings, Bell } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Link } from "@/components/ui/Link";
+import { Link } from "react-router";
 
 export default function UserLayout() {
   return (
