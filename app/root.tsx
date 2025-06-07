@@ -4,10 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLocation,
-  useNavigationType,
 } from "react-router";
-import { useEffect, useRef } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -15,10 +12,6 @@ import "./app.css";
 import TopNavBar from "./components/layout/TopNavBar";
 import QuickLinksBar from "./components/layout/QuickLinksBar";
 import Footer from "./components/layout/Footer";
-import { ScrollArea } from "./components/ui/scroll-area";
-
-// 전역 스크롤 위치 캐시 (React Router 방식과 동일)
-const scrollPositions = new Map<string, number>();
 
 export default function Root() {
   return (
@@ -34,41 +27,6 @@ export default function Root() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-  const navigationType = useNavigationType();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const viewport = scrollAreaRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]",
-    ) as HTMLElement;
-    if (!viewport) return;
-
-    const locationKey = location.key || "default";
-
-    if (navigationType === "POP") {
-      // 뒤로/앞으로 가기 : 저장된 스크롤 위치 복원
-      const savedScrollTop = scrollPositions.get(locationKey);
-      if (savedScrollTop !== undefined) {
-        viewport.scrollTop = savedScrollTop;
-      }
-    } else {
-      // 새로운 내비게이션 (PUSH/REPLACE) : 스크롤 리셋
-      viewport.scrollTop = 0;
-    }
-
-    const handleScroll = () => {
-      scrollPositions.set(locationKey, viewport.scrollTop);
-    };
-
-    viewport.addEventListener("scroll", handleScroll, { passive: true });
-
-    // 정리
-    return () => {
-      viewport.removeEventListener("scroll", handleScroll);
-    };
-  }, [location.pathname, location.key, navigationType]);
-
   return (
     <html lang="ko">
       <head>
@@ -77,16 +35,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <ScrollArea
-          ref={scrollAreaRef}
-          className="h-[100dvh] w-[100dvw]"
-          scrollBarStyles="!bg-brand-500"
-        >
-          {children}
-        </ScrollArea>
+        {children}
+        <ScrollRestoration />
         <Scripts />
-
-        {/* {children} */}
       </body>
     </html>
   );
