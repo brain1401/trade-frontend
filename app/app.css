@@ -29,7 +29,6 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* 기존 색상 시스템 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
