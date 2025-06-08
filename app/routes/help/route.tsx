@@ -3,45 +3,45 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 
-export default function HelpPage() {
-  const helpSections = [
-    {
-      title: "HS Code 검색 방법",
-      icon: <Book className="h-6 w-6" />,
-      description: "HS Code를 효율적으로 검색하고 분류하는 방법을 안내합니다.",
-      items: [
-        "키워드 검색 활용법",
-        "카테고리별 탐색 방법",
-        "유사 품목 비교 기능",
-        "즐겨찾기 관리하기",
-      ],
-    },
-    {
-      title: "무역 규제 정보",
-      icon: <HelpCircle className="h-6 w-6" />,
-      description: "최신 무역 규제 및 변경사항에 대한 정보를 제공합니다.",
-      items: [
-        "수출입 금지/제한 품목",
-        "관세율 변경 알림",
-        "원산지 규정 안내",
-        "FTA 활용 가이드",
-      ],
-    },
-    {
-      title: "통계 및 분석",
-      icon: <MessageSquare className="h-6 w-6" />,
-      description: "무역 통계 데이터 해석 및 활용 방법을 설명합니다.",
-      items: [
-        "수출입 동향 분석",
-        "시장 점유율 확인",
-        "경쟁사 분석 도구",
-        "예측 데이터 활용법",
-      ],
-    },
-  ];
+const helpSections = [
+  {
+    title: "HS Code 검색 방법",
+    icon: <Book className="h-6 w-6" />,
+    description: "HS Code를 효율적으로 검색하고 분류하는 방법을 안내합니다.",
+    items: [
+      "키워드 검색 활용법",
+      "카테고리별 탐색 방법",
+      "유사 품목 비교 기능",
+      "즐겨찾기 관리하기",
+    ],
+  },
+  {
+    title: "무역 규제 정보",
+    icon: <HelpCircle className="h-6 w-6" />,
+    description: "최신 무역 규제 및 변경사항에 대한 정보를 제공합니다.",
+    items: [
+      "수출입 금지/제한 품목",
+      "관세율 변경 알림",
+      "원산지 규정 안내",
+      "FTA 활용 가이드",
+    ],
+  },
+  {
+    title: "통계 및 분석",
+    icon: <MessageSquare className="h-6 w-6" />,
+    description: "무역 통계 데이터 해석 및 활용 방법을 설명합니다.",
+    items: [
+      "수출입 동향 분석",
+      "시장 점유율 확인",
+      "경쟁사 분석 도구",
+      "예측 데이터 활용법",
+    ],
+  },
+];
 
+export default function HelpPage() {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-1 flex-col justify-center space-y-3">
       {/* 도움말 섹션들 */}
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {helpSections.map((section, index) => (
