@@ -23,6 +23,7 @@
   --line-height-relaxed: 1.75;
   --line-height-comfortable: 1.6;
 
+  /* 스크롤바 너비 계산 */
   --spacing-scrollbar: calc(100vw - 100%);
 }
 @theme inline {
