@@ -31,6 +31,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// https://reactrouter.com/how-to/file-route-conventions
+// 위 링크를 참고하여 라우트 파일들을 작성함.
+
 export default function Root() {
   return (
     /*
