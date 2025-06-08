@@ -46,7 +46,7 @@ const TopNavBar = () => {
   return (
     <>
       <TooltipProvider>
-        <nav className="-mr-scrollbar bg-brand-700 py-3 text-white shadow-md">
+        <nav className="bg-brand-700 py-3 text-white shadow-md">
           <div className="container mx-auto flex items-center justify-between">
             <Link to="/" className="ml-[3rem] text-4xl font-bold">
               서비스 이름
