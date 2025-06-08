@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 
 const Footer = () => (
-  <footer className="mt-12 bg-slate-800 py-10 text-slate-300">
+  <footer className="bg-slate-800 py-10 text-slate-300">
     <div className="container mx-auto text-center text-sm">
       <p>
         &copy; {new Date().getFullYear()} 서비스 이름. AI 기반 수출입 전문
