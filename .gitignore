@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+.vscode
+.env
+
+# Cursor
+cursor-memory-bank
+memory-bank
+.cursorrules
