@@ -11,3 +11,6 @@ memory-bank
 
 # vscode
 .vscode
+
+# env
+.env
