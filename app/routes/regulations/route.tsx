@@ -108,7 +108,7 @@ export default function RegulationsPage() {
   ];
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-1 flex-col justify-center space-y-3">
       {/* 통계 카드 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statistics.map(({ icon, title, value }) => (
