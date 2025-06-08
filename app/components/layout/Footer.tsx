@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 
 const Footer = () => (
@@ -10,29 +9,26 @@ const Footer = () => (
       </p>
       <div className="mt-2">
         <div className="flex items-center justify-center gap-x-2">
-          <Button
-            variant="link"
-            asChild
+          <Link
             className="h-auto p-0 text-slate-300 hover:text-white hover:underline"
+            to="#"
           >
-            <Link to="#">이용약관</Link>
-          </Button>
+            이용약관
+          </Link>
           |
-          <Button
-            variant="link"
-            asChild
-            className="mx-2 h-auto p-0 text-slate-300 hover:text-white hover:underline"
-          >
-            <Link to="#">개인정보처리방침</Link>
-          </Button>
-          |
-          <Button
-            variant="link"
-            asChild
+          <Link
             className="h-auto p-0 text-slate-300 hover:text-white hover:underline"
+            to="#"
           >
-            <Link to="#">고객센터</Link>
-          </Button>
+            개인정보처리방침
+          </Link>
+          |
+          <Link
+            className="h-auto p-0 text-slate-300 hover:text-white hover:underline"
+            to="#"
+          >
+            고객센터
+          </Link>
         </div>
       </div>
     </div>
