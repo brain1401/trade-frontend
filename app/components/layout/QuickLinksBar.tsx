@@ -33,7 +33,7 @@ const QuickLinksBar = () => {
   ];
 
   return (
-    <div className="-mr-scrollbar bg-blue-600 text-white shadow-md">
+    <div className="bg-blue-600 text-white shadow-md">
       <div className="container mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-2.5">
         {quickLinkItems.map((item) => (
           <Button
