@@ -16,7 +16,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Links />
       </head>
-      <body>
+      <body className="overflow-x-hidden">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -27,10 +27,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function Root() {
   return (
-    <div className="bg-gray-50 font-nanum_square_neo_variable font-[500]">
+    <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-gray-50 font-nanum_square_neo_variable font-[500]">
       <TopNavBar />
       <QuickLinksBar />
-      <main className="container mx-auto max-w-7xl px-6 py-5">
+      <main className="container mx-auto max-w-7xl flex-1 px-8 py-5">
         <Outlet />
       </main>
       <Footer />
