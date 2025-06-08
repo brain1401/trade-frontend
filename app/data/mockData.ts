@@ -141,8 +141,8 @@ type RecentItem = {
 };
 export const mockRecentItems: RecentItem[] = [
   {
-    text: "HS Code 8517.12 (스마트폰)",
-    hscode: "8517.12",
+    text: "HS Code 8517.13 (스마트폰)",
+    hscode: "8517.13",
   },
   {
     text: "HS Code 3304.99 (기타 화장품)",
