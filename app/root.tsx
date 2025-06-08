@@ -59,7 +59,7 @@ export default function Root() {
     <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-gray-50 font-nanum_square_neo_variable font-[500]">
       <TopNavBar />
       <QuickLinksBar />
-      <main className="container mx-auto max-w-7xl flex-1 px-8 py-5">
+      <main className="container mx-auto flex max-w-7xl flex-1 flex-col px-8 py-5">
         {/* 
         {/* 
           Outlet 컴포넌트
