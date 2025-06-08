@@ -22,6 +22,8 @@
 
   --line-height-relaxed: 1.75;
   --line-height-comfortable: 1.6;
+
+  --spacing-scrollbar: calc(100vw - 100%);
 }
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

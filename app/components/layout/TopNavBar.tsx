@@ -10,43 +10,43 @@ import {
 } from "@/components/ui/tooltip";
 import { Link } from "react-router";
 
+// 각 아이콘 버튼을 Tooltip으로 감싸기
+const iconButton = (
+  title: string,
+  icon: React.ReactNode,
+  hasDot: boolean,
+): React.ReactNode => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        variant="link"
+        size="icon"
+        className="relative h-auto w-auto rounded-full p-1 text-white hover:text-blue-200"
+      >
+        {icon}
+        {hasDot && (
+          <span className="absolute top-0 right-0 block h-2.5 w-2.5 animate-pulse-subtle rounded-full bg-red-500 ring-2 ring-brand-700"></span>
+        )}
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent
+      side="bottom"
+      className="relative z-[100] rounded bg-black p-1 px-2 text-xs text-white"
+    >
+      <p>{title}</p>
+    </TooltipContent>
+  </Tooltip>
+);
+
 const TopNavBar = () => {
   const [hasNotification, setHasNotification] = useState(true);
   const [hasBookmarkUpdate, setHasBookmarkUpdate] = useState(true);
   const [hasChangeDetection, setHasChangeDetection] = useState(false);
 
-  // 각 아이콘 버튼을 Tooltip으로 감싸기
-  const iconButton = (
-    title: string,
-    icon: React.ReactNode,
-    hasDot: boolean,
-  ): React.ReactNode => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="link"
-          size="icon"
-          className="relative h-auto w-auto rounded-full p-1 text-white hover:text-blue-200"
-        >
-          {icon}
-          {hasDot && (
-            <span className="absolute top-0 right-0 block h-2.5 w-2.5 animate-pulse-subtle rounded-full bg-red-500 ring-2 ring-brand-700"></span>
-          )}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent
-        side="bottom"
-        className="relative z-[100] rounded bg-black p-1 px-2 text-xs text-white"
-      >
-        <p>{title}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-
   return (
     <>
       <TooltipProvider>
-        <nav className="bg-brand-700 p-3 text-white shadow-md">
+        <nav className="-mr-scrollbar bg-brand-700 py-3 text-white shadow-md">
           <div className="container mx-auto flex items-center justify-between">
             <Link to="/" className="ml-[3rem] text-4xl font-bold">
               서비스 이름
