@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Book, HelpCircle, Mail, MessageSquare, Phone } from "lucide-react";
@@ -139,8 +140,10 @@ function RouteComponent() {
             </p>
             <p className="mb-2 text-gray-600">24시간 접수 가능</p>
 
-            <Link className="bg-brand-700 hover:bg-brand-800" to="/support">
-              문의하기
+            <Link to="/support">
+              <Button className="bg-brand-700 hover:bg-brand-800">
+                문의하기
+              </Button>
             </Link>
           </CardContent>
         </Card>

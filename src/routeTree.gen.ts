@@ -10,366 +10,432 @@
 
 // Import Routes
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as UserRouteImport } from "./routes/user/route";
-import { Route as IndexImport } from "./routes/index";
-import { Route as UserIndexImport } from "./routes/user/index";
-import { Route as TermsIndexImport } from "./routes/terms/index";
-import { Route as SupportIndexImport } from "./routes/support/index";
-import { Route as StatisticsIndexImport } from "./routes/statistics/index";
-import { Route as RegulationsIndexImport } from "./routes/regulations/index";
-import { Route as PrivacyIndexImport } from "./routes/privacy/index";
-import { Route as PopularHscodesIndexImport } from "./routes/popular-hscodes/index";
-import { Route as NewsIndexImport } from "./routes/news/index";
-import { Route as HelpIndexImport } from "./routes/help/index";
-import { Route as CountryInfoIndexImport } from "./routes/country-info/index";
-import { Route as UserProfileIndexImport } from "./routes/user/profile/index";
-import { Route as UserBookmarksIndexImport } from "./routes/user/bookmarks/index";
-import { Route as HscodeHscodeIndexImport } from "./routes/hscode/$hscode/index";
+import { Route as rootRoute } from './routes/__root'
+import { Route as UserRouteImport } from './routes/user/route'
+import { Route as IndexImport } from './routes/index'
+import { Route as UserIndexImport } from './routes/user/index'
+import { Route as TermsIndexImport } from './routes/terms/index'
+import { Route as SupportIndexImport } from './routes/support/index'
+import { Route as StatisticsIndexImport } from './routes/statistics/index'
+import { Route as RegulationsIndexImport } from './routes/regulations/index'
+import { Route as PrivacyIndexImport } from './routes/privacy/index'
+import { Route as PopularHscodesIndexImport } from './routes/popular-hscodes/index'
+import { Route as NewsIndexImport } from './routes/news/index'
+import { Route as HelpIndexImport } from './routes/help/index'
+import { Route as CountryInfoIndexImport } from './routes/country-info/index'
+import { Route as UserSettingsIndexImport } from './routes/user/settings/index'
+import { Route as UserProfileIndexImport } from './routes/user/profile/index'
+import { Route as UserMessagesIndexImport } from './routes/user/messages/index'
+import { Route as UserBookmarksIndexImport } from './routes/user/bookmarks/index'
+import { Route as UserAnalysisHistoryIndexImport } from './routes/user/analysis-history/index'
+import { Route as HscodeHscodeIndexImport } from './routes/hscode/$hscode/index'
 
 // Create/Update Routes
 
 const UserRouteRoute = UserRouteImport.update({
-  id: "/user",
-  path: "/user",
+  id: '/user',
+  path: '/user',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const IndexRoute = IndexImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const UserIndexRoute = UserIndexImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => UserRouteRoute,
-} as any);
+} as any)
 
 const TermsIndexRoute = TermsIndexImport.update({
-  id: "/terms/",
-  path: "/terms/",
+  id: '/terms/',
+  path: '/terms/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const SupportIndexRoute = SupportIndexImport.update({
-  id: "/support/",
-  path: "/support/",
+  id: '/support/',
+  path: '/support/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const StatisticsIndexRoute = StatisticsIndexImport.update({
-  id: "/statistics/",
-  path: "/statistics/",
+  id: '/statistics/',
+  path: '/statistics/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const RegulationsIndexRoute = RegulationsIndexImport.update({
-  id: "/regulations/",
-  path: "/regulations/",
+  id: '/regulations/',
+  path: '/regulations/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const PrivacyIndexRoute = PrivacyIndexImport.update({
-  id: "/privacy/",
-  path: "/privacy/",
+  id: '/privacy/',
+  path: '/privacy/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const PopularHscodesIndexRoute = PopularHscodesIndexImport.update({
-  id: "/popular-hscodes/",
-  path: "/popular-hscodes/",
+  id: '/popular-hscodes/',
+  path: '/popular-hscodes/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const NewsIndexRoute = NewsIndexImport.update({
-  id: "/news/",
-  path: "/news/",
+  id: '/news/',
+  path: '/news/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const HelpIndexRoute = HelpIndexImport.update({
-  id: "/help/",
-  path: "/help/",
+  id: '/help/',
+  path: '/help/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 const CountryInfoIndexRoute = CountryInfoIndexImport.update({
-  id: "/country-info/",
-  path: "/country-info/",
+  id: '/country-info/',
+  path: '/country-info/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
+
+const UserSettingsIndexRoute = UserSettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => UserRouteRoute,
+} as any)
 
 const UserProfileIndexRoute = UserProfileIndexImport.update({
-  id: "/profile/",
-  path: "/profile/",
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => UserRouteRoute,
-} as any);
+} as any)
+
+const UserMessagesIndexRoute = UserMessagesIndexImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => UserRouteRoute,
+} as any)
 
 const UserBookmarksIndexRoute = UserBookmarksIndexImport.update({
-  id: "/bookmarks/",
-  path: "/bookmarks/",
+  id: '/bookmarks/',
+  path: '/bookmarks/',
   getParentRoute: () => UserRouteRoute,
-} as any);
+} as any)
+
+const UserAnalysisHistoryIndexRoute = UserAnalysisHistoryIndexImport.update({
+  id: '/analysis-history/',
+  path: '/analysis-history/',
+  getParentRoute: () => UserRouteRoute,
+} as any)
 
 const HscodeHscodeIndexRoute = HscodeHscodeIndexImport.update({
-  id: "/hscode/$hscode/",
-  path: "/hscode/$hscode/",
+  id: '/hscode/$hscode/',
+  path: '/hscode/$hscode/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
 // Populate the FileRoutesByPath interface
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/user": {
-      id: "/user";
-      path: "/user";
-      fullPath: "/user";
-      preLoaderRoute: typeof UserRouteImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/country-info/": {
-      id: "/country-info/";
-      path: "/country-info";
-      fullPath: "/country-info";
-      preLoaderRoute: typeof CountryInfoIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/help/": {
-      id: "/help/";
-      path: "/help";
-      fullPath: "/help";
-      preLoaderRoute: typeof HelpIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/news/": {
-      id: "/news/";
-      path: "/news";
-      fullPath: "/news";
-      preLoaderRoute: typeof NewsIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/popular-hscodes/": {
-      id: "/popular-hscodes/";
-      path: "/popular-hscodes";
-      fullPath: "/popular-hscodes";
-      preLoaderRoute: typeof PopularHscodesIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/privacy/": {
-      id: "/privacy/";
-      path: "/privacy";
-      fullPath: "/privacy";
-      preLoaderRoute: typeof PrivacyIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/regulations/": {
-      id: "/regulations/";
-      path: "/regulations";
-      fullPath: "/regulations";
-      preLoaderRoute: typeof RegulationsIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/statistics/": {
-      id: "/statistics/";
-      path: "/statistics";
-      fullPath: "/statistics";
-      preLoaderRoute: typeof StatisticsIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/support/": {
-      id: "/support/";
-      path: "/support";
-      fullPath: "/support";
-      preLoaderRoute: typeof SupportIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/terms/": {
-      id: "/terms/";
-      path: "/terms";
-      fullPath: "/terms";
-      preLoaderRoute: typeof TermsIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/user/": {
-      id: "/user/";
-      path: "/";
-      fullPath: "/user/";
-      preLoaderRoute: typeof UserIndexImport;
-      parentRoute: typeof UserRouteImport;
-    };
-    "/hscode/$hscode/": {
-      id: "/hscode/$hscode/";
-      path: "/hscode/$hscode";
-      fullPath: "/hscode/$hscode";
-      preLoaderRoute: typeof HscodeHscodeIndexImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/user/bookmarks/": {
-      id: "/user/bookmarks/";
-      path: "/bookmarks";
-      fullPath: "/user/bookmarks";
-      preLoaderRoute: typeof UserBookmarksIndexImport;
-      parentRoute: typeof UserRouteImport;
-    };
-    "/user/profile/": {
-      id: "/user/profile/";
-      path: "/profile";
-      fullPath: "/user/profile";
-      preLoaderRoute: typeof UserProfileIndexImport;
-      parentRoute: typeof UserRouteImport;
-    };
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/user': {
+      id: '/user'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof UserRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/country-info/': {
+      id: '/country-info/'
+      path: '/country-info'
+      fullPath: '/country-info'
+      preLoaderRoute: typeof CountryInfoIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/help/': {
+      id: '/help/'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/popular-hscodes/': {
+      id: '/popular-hscodes/'
+      path: '/popular-hscodes'
+      fullPath: '/popular-hscodes'
+      preLoaderRoute: typeof PopularHscodesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/privacy/': {
+      id: '/privacy/'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/regulations/': {
+      id: '/regulations/'
+      path: '/regulations'
+      fullPath: '/regulations'
+      preLoaderRoute: typeof RegulationsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/statistics/': {
+      id: '/statistics/'
+      path: '/statistics'
+      fullPath: '/statistics'
+      preLoaderRoute: typeof StatisticsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/support/': {
+      id: '/support/'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/terms/': {
+      id: '/terms/'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/user/': {
+      id: '/user/'
+      path: '/'
+      fullPath: '/user/'
+      preLoaderRoute: typeof UserIndexImport
+      parentRoute: typeof UserRouteImport
+    }
+    '/hscode/$hscode/': {
+      id: '/hscode/$hscode/'
+      path: '/hscode/$hscode'
+      fullPath: '/hscode/$hscode'
+      preLoaderRoute: typeof HscodeHscodeIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/user/analysis-history/': {
+      id: '/user/analysis-history/'
+      path: '/analysis-history'
+      fullPath: '/user/analysis-history'
+      preLoaderRoute: typeof UserAnalysisHistoryIndexImport
+      parentRoute: typeof UserRouteImport
+    }
+    '/user/bookmarks/': {
+      id: '/user/bookmarks/'
+      path: '/bookmarks'
+      fullPath: '/user/bookmarks'
+      preLoaderRoute: typeof UserBookmarksIndexImport
+      parentRoute: typeof UserRouteImport
+    }
+    '/user/messages/': {
+      id: '/user/messages/'
+      path: '/messages'
+      fullPath: '/user/messages'
+      preLoaderRoute: typeof UserMessagesIndexImport
+      parentRoute: typeof UserRouteImport
+    }
+    '/user/profile/': {
+      id: '/user/profile/'
+      path: '/profile'
+      fullPath: '/user/profile'
+      preLoaderRoute: typeof UserProfileIndexImport
+      parentRoute: typeof UserRouteImport
+    }
+    '/user/settings/': {
+      id: '/user/settings/'
+      path: '/settings'
+      fullPath: '/user/settings'
+      preLoaderRoute: typeof UserSettingsIndexImport
+      parentRoute: typeof UserRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
 interface UserRouteRouteChildren {
-  UserIndexRoute: typeof UserIndexRoute;
-  UserBookmarksIndexRoute: typeof UserBookmarksIndexRoute;
-  UserProfileIndexRoute: typeof UserProfileIndexRoute;
+  UserIndexRoute: typeof UserIndexRoute
+  UserAnalysisHistoryIndexRoute: typeof UserAnalysisHistoryIndexRoute
+  UserBookmarksIndexRoute: typeof UserBookmarksIndexRoute
+  UserMessagesIndexRoute: typeof UserMessagesIndexRoute
+  UserProfileIndexRoute: typeof UserProfileIndexRoute
+  UserSettingsIndexRoute: typeof UserSettingsIndexRoute
 }
 
 const UserRouteRouteChildren: UserRouteRouteChildren = {
   UserIndexRoute: UserIndexRoute,
+  UserAnalysisHistoryIndexRoute: UserAnalysisHistoryIndexRoute,
   UserBookmarksIndexRoute: UserBookmarksIndexRoute,
+  UserMessagesIndexRoute: UserMessagesIndexRoute,
   UserProfileIndexRoute: UserProfileIndexRoute,
-};
+  UserSettingsIndexRoute: UserSettingsIndexRoute,
+}
 
 const UserRouteRouteWithChildren = UserRouteRoute._addFileChildren(
   UserRouteRouteChildren,
-);
+)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/user": typeof UserRouteRouteWithChildren;
-  "/country-info": typeof CountryInfoIndexRoute;
-  "/help": typeof HelpIndexRoute;
-  "/news": typeof NewsIndexRoute;
-  "/popular-hscodes": typeof PopularHscodesIndexRoute;
-  "/privacy": typeof PrivacyIndexRoute;
-  "/regulations": typeof RegulationsIndexRoute;
-  "/statistics": typeof StatisticsIndexRoute;
-  "/support": typeof SupportIndexRoute;
-  "/terms": typeof TermsIndexRoute;
-  "/user/": typeof UserIndexRoute;
-  "/hscode/$hscode": typeof HscodeHscodeIndexRoute;
-  "/user/bookmarks": typeof UserBookmarksIndexRoute;
-  "/user/profile": typeof UserProfileIndexRoute;
+  '/': typeof IndexRoute
+  '/user': typeof UserRouteRouteWithChildren
+  '/country-info': typeof CountryInfoIndexRoute
+  '/help': typeof HelpIndexRoute
+  '/news': typeof NewsIndexRoute
+  '/popular-hscodes': typeof PopularHscodesIndexRoute
+  '/privacy': typeof PrivacyIndexRoute
+  '/regulations': typeof RegulationsIndexRoute
+  '/statistics': typeof StatisticsIndexRoute
+  '/support': typeof SupportIndexRoute
+  '/terms': typeof TermsIndexRoute
+  '/user/': typeof UserIndexRoute
+  '/hscode/$hscode': typeof HscodeHscodeIndexRoute
+  '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
+  '/user/bookmarks': typeof UserBookmarksIndexRoute
+  '/user/messages': typeof UserMessagesIndexRoute
+  '/user/profile': typeof UserProfileIndexRoute
+  '/user/settings': typeof UserSettingsIndexRoute
 }
 
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/country-info": typeof CountryInfoIndexRoute;
-  "/help": typeof HelpIndexRoute;
-  "/news": typeof NewsIndexRoute;
-  "/popular-hscodes": typeof PopularHscodesIndexRoute;
-  "/privacy": typeof PrivacyIndexRoute;
-  "/regulations": typeof RegulationsIndexRoute;
-  "/statistics": typeof StatisticsIndexRoute;
-  "/support": typeof SupportIndexRoute;
-  "/terms": typeof TermsIndexRoute;
-  "/user": typeof UserIndexRoute;
-  "/hscode/$hscode": typeof HscodeHscodeIndexRoute;
-  "/user/bookmarks": typeof UserBookmarksIndexRoute;
-  "/user/profile": typeof UserProfileIndexRoute;
+  '/': typeof IndexRoute
+  '/country-info': typeof CountryInfoIndexRoute
+  '/help': typeof HelpIndexRoute
+  '/news': typeof NewsIndexRoute
+  '/popular-hscodes': typeof PopularHscodesIndexRoute
+  '/privacy': typeof PrivacyIndexRoute
+  '/regulations': typeof RegulationsIndexRoute
+  '/statistics': typeof StatisticsIndexRoute
+  '/support': typeof SupportIndexRoute
+  '/terms': typeof TermsIndexRoute
+  '/user': typeof UserIndexRoute
+  '/hscode/$hscode': typeof HscodeHscodeIndexRoute
+  '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
+  '/user/bookmarks': typeof UserBookmarksIndexRoute
+  '/user/messages': typeof UserMessagesIndexRoute
+  '/user/profile': typeof UserProfileIndexRoute
+  '/user/settings': typeof UserSettingsIndexRoute
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  "/": typeof IndexRoute;
-  "/user": typeof UserRouteRouteWithChildren;
-  "/country-info/": typeof CountryInfoIndexRoute;
-  "/help/": typeof HelpIndexRoute;
-  "/news/": typeof NewsIndexRoute;
-  "/popular-hscodes/": typeof PopularHscodesIndexRoute;
-  "/privacy/": typeof PrivacyIndexRoute;
-  "/regulations/": typeof RegulationsIndexRoute;
-  "/statistics/": typeof StatisticsIndexRoute;
-  "/support/": typeof SupportIndexRoute;
-  "/terms/": typeof TermsIndexRoute;
-  "/user/": typeof UserIndexRoute;
-  "/hscode/$hscode/": typeof HscodeHscodeIndexRoute;
-  "/user/bookmarks/": typeof UserBookmarksIndexRoute;
-  "/user/profile/": typeof UserProfileIndexRoute;
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/user': typeof UserRouteRouteWithChildren
+  '/country-info/': typeof CountryInfoIndexRoute
+  '/help/': typeof HelpIndexRoute
+  '/news/': typeof NewsIndexRoute
+  '/popular-hscodes/': typeof PopularHscodesIndexRoute
+  '/privacy/': typeof PrivacyIndexRoute
+  '/regulations/': typeof RegulationsIndexRoute
+  '/statistics/': typeof StatisticsIndexRoute
+  '/support/': typeof SupportIndexRoute
+  '/terms/': typeof TermsIndexRoute
+  '/user/': typeof UserIndexRoute
+  '/hscode/$hscode/': typeof HscodeHscodeIndexRoute
+  '/user/analysis-history/': typeof UserAnalysisHistoryIndexRoute
+  '/user/bookmarks/': typeof UserBookmarksIndexRoute
+  '/user/messages/': typeof UserMessagesIndexRoute
+  '/user/profile/': typeof UserProfileIndexRoute
+  '/user/settings/': typeof UserSettingsIndexRoute
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/user"
-    | "/country-info"
-    | "/help"
-    | "/news"
-    | "/popular-hscodes"
-    | "/privacy"
-    | "/regulations"
-    | "/statistics"
-    | "/support"
-    | "/terms"
-    | "/user/"
-    | "/hscode/$hscode"
-    | "/user/bookmarks"
-    | "/user/profile";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/user'
+    | '/country-info'
+    | '/help'
+    | '/news'
+    | '/popular-hscodes'
+    | '/privacy'
+    | '/regulations'
+    | '/statistics'
+    | '/support'
+    | '/terms'
+    | '/user/'
+    | '/hscode/$hscode'
+    | '/user/analysis-history'
+    | '/user/bookmarks'
+    | '/user/messages'
+    | '/user/profile'
+    | '/user/settings'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/country-info"
-    | "/help"
-    | "/news"
-    | "/popular-hscodes"
-    | "/privacy"
-    | "/regulations"
-    | "/statistics"
-    | "/support"
-    | "/terms"
-    | "/user"
-    | "/hscode/$hscode"
-    | "/user/bookmarks"
-    | "/user/profile";
+    | '/'
+    | '/country-info'
+    | '/help'
+    | '/news'
+    | '/popular-hscodes'
+    | '/privacy'
+    | '/regulations'
+    | '/statistics'
+    | '/support'
+    | '/terms'
+    | '/user'
+    | '/hscode/$hscode'
+    | '/user/analysis-history'
+    | '/user/bookmarks'
+    | '/user/messages'
+    | '/user/profile'
+    | '/user/settings'
   id:
-    | "__root__"
-    | "/"
-    | "/user"
-    | "/country-info/"
-    | "/help/"
-    | "/news/"
-    | "/popular-hscodes/"
-    | "/privacy/"
-    | "/regulations/"
-    | "/statistics/"
-    | "/support/"
-    | "/terms/"
-    | "/user/"
-    | "/hscode/$hscode/"
-    | "/user/bookmarks/"
-    | "/user/profile/";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/user'
+    | '/country-info/'
+    | '/help/'
+    | '/news/'
+    | '/popular-hscodes/'
+    | '/privacy/'
+    | '/regulations/'
+    | '/statistics/'
+    | '/support/'
+    | '/terms/'
+    | '/user/'
+    | '/hscode/$hscode/'
+    | '/user/analysis-history/'
+    | '/user/bookmarks/'
+    | '/user/messages/'
+    | '/user/profile/'
+    | '/user/settings/'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  UserRouteRoute: typeof UserRouteRouteWithChildren;
-  CountryInfoIndexRoute: typeof CountryInfoIndexRoute;
-  HelpIndexRoute: typeof HelpIndexRoute;
-  NewsIndexRoute: typeof NewsIndexRoute;
-  PopularHscodesIndexRoute: typeof PopularHscodesIndexRoute;
-  PrivacyIndexRoute: typeof PrivacyIndexRoute;
-  RegulationsIndexRoute: typeof RegulationsIndexRoute;
-  StatisticsIndexRoute: typeof StatisticsIndexRoute;
-  SupportIndexRoute: typeof SupportIndexRoute;
-  TermsIndexRoute: typeof TermsIndexRoute;
-  HscodeHscodeIndexRoute: typeof HscodeHscodeIndexRoute;
+  IndexRoute: typeof IndexRoute
+  UserRouteRoute: typeof UserRouteRouteWithChildren
+  CountryInfoIndexRoute: typeof CountryInfoIndexRoute
+  HelpIndexRoute: typeof HelpIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
+  PopularHscodesIndexRoute: typeof PopularHscodesIndexRoute
+  PrivacyIndexRoute: typeof PrivacyIndexRoute
+  RegulationsIndexRoute: typeof RegulationsIndexRoute
+  StatisticsIndexRoute: typeof StatisticsIndexRoute
+  SupportIndexRoute: typeof SupportIndexRoute
+  TermsIndexRoute: typeof TermsIndexRoute
+  HscodeHscodeIndexRoute: typeof HscodeHscodeIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -385,11 +451,11 @@ const rootRouteChildren: RootRouteChildren = {
   SupportIndexRoute: SupportIndexRoute,
   TermsIndexRoute: TermsIndexRoute,
   HscodeHscodeIndexRoute: HscodeHscodeIndexRoute,
-};
+}
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
@@ -418,8 +484,11 @@ export const routeTree = rootRoute
       "filePath": "user/route.tsx",
       "children": [
         "/user/",
+        "/user/analysis-history/",
         "/user/bookmarks/",
-        "/user/profile/"
+        "/user/messages/",
+        "/user/profile/",
+        "/user/settings/"
       ]
     },
     "/country-info/": {
@@ -456,12 +525,24 @@ export const routeTree = rootRoute
     "/hscode/$hscode/": {
       "filePath": "hscode/$hscode/index.tsx"
     },
+    "/user/analysis-history/": {
+      "filePath": "user/analysis-history/index.tsx",
+      "parent": "/user"
+    },
     "/user/bookmarks/": {
       "filePath": "user/bookmarks/index.tsx",
       "parent": "/user"
     },
+    "/user/messages/": {
+      "filePath": "user/messages/index.tsx",
+      "parent": "/user"
+    },
     "/user/profile/": {
       "filePath": "user/profile/index.tsx",
+      "parent": "/user"
+    },
+    "/user/settings/": {
+      "filePath": "user/settings/index.tsx",
       "parent": "/user"
     }
   }
