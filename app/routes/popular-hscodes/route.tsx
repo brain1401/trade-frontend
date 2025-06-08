@@ -62,7 +62,7 @@ export default function PopularHSCodesPage() {
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-1 flex-col justify-center space-y-3">
       {/* 통계 개요 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-lg">
