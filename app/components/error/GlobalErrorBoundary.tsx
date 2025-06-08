@@ -8,12 +8,12 @@ type GlobalErrorBoundaryProps = {
 export default function GlobalErrorBoundary({
   error,
 }: GlobalErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let message = "이런!";
+  let details = "예상치 못한 오류가 발생했습니다.";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = "Error";
+    message = "오류";
     details = error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
@@ -21,11 +21,11 @@ export default function GlobalErrorBoundary({
   }
 
   return (
-    <main className="container mx-auto p-4 pt-16">
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <main className="container mx-auto p-4 pt-16 text-center">
+      <h1 className="mb-4 text-4xl font-bold text-red-500">{message}</h1>
+      <p className="text-lg text-neutral-900">{details}</p>
       {stack && (
-        <pre className="w-full overflow-x-auto p-4">
+        <pre className="mt-6 w-full overflow-x-auto rounded-md bg-gray-800 p-4 text-left text-white">
           <code>{stack}</code>
         </pre>
       )}
