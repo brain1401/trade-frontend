@@ -47,7 +47,7 @@ export default function HelpPage() {
         {helpSections.map((section, index) => (
           <Card
             key={index}
-            className="shadow-lg transition-shadow hover:shadow-xl"
+            className="shadow-lg transition-shadow hover:shadow-xl last:odd:md:col-span-2"
           >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-brand-700">
@@ -84,7 +84,7 @@ export default function HelpPage() {
             </h3>
             <p className="text-gray-600">
               다양한 키워드로 재검색을 시도하거나, 유사 품목 비교 기능을 활용해
-              보세요. 그래도 해결되지 않으면 고객센터로 문의해 주세요.
+              보세요.
             </p>
           </div>
           <div>
@@ -92,8 +92,7 @@ export default function HelpPage() {
               Q. 무역 규제 정보는 얼마나 자주 업데이트되나요?
             </h3>
             <p className="text-gray-600">
-              정부 공식 발표와 동시에 실시간으로 업데이트되며, 중요한 변경사항은
-              알림을 통해 안내해 드립니다.
+              하루마다 변동사항을 감지하여 알림을 보내드립니다.
             </p>
           </div>
           <div>

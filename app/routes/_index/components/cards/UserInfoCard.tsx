@@ -42,7 +42,7 @@ const UserInfoCard = () => {
   ];
 
   return (
-    <Card className="mb-4 overflow-hidden shadow-lg">
+    <Card className="mb-4 overflow-hidden py-0 shadow-lg">
       <div className="bg-blue-600 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">

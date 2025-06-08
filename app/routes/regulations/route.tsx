@@ -9,114 +9,118 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "신규":
+      return "bg-red-100 text-red-800";
+    case "업데이트":
+      return "bg-yellow-100 text-yellow-800";
+    case "해제":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getImpactColor = (impact: string) => {
+  switch (impact) {
+    case "매우 높음":
+      return "text-red-600";
+    case "높음":
+      return "text-orange-600";
+    case "중간":
+      return "text-yellow-600";
+    case "낮음":
+      return "text-green-600";
+    default:
+      return "text-gray-600";
+  }
+};
+const regulations = [
+  {
+    id: 1,
+    title: "중국 전자제품 수입 규제 강화",
+    category: "전자/IT",
+    country: "중국",
+    date: "2024.12.15",
+    type: "긴급",
+    status: "신규",
+    summary: "리튬배터리 포함 전자제품의 안전인증 요구사항이 강화되었습니다.",
+    impact: "높음",
+  },
+  {
+    id: 2,
+    title: "EU CBAM 탄소국경조정메커니즘 시행",
+    category: "환경/에너지",
+    country: "EU",
+    date: "2024.12.10",
+    type: "정기",
+    status: "업데이트",
+    summary: "철강, 시멘트, 알루미늄 등 탄소집약적 제품에 대한 탄소비용 부과",
+    impact: "매우 높음",
+  },
+  {
+    id: 3,
+    title: "미국 반도체 수출통제 품목 확대",
+    category: "반도체",
+    country: "미국",
+    date: "2024.12.08",
+    type: "긴급",
+    status: "신규",
+    summary: "AI 칩 및 관련 장비의 중국 수출 제한이 추가로 확대되었습니다.",
+    impact: "높음",
+  },
+  {
+    id: 4,
+    title: "인도 플라스틱 포장재 수입 제한",
+    category: "화학/플라스틱",
+    country: "인도",
+    date: "2024.12.05",
+    type: "정기",
+    status: "신규",
+    summary: "일회용 플라스틱 포장재의 수입이 전면 금지되었습니다.",
+    impact: "중간",
+  },
+];
+
 export default function RegulationsPage() {
-  const regulations = [
+  const statistics = [
     {
-      id: 1,
-      title: "중국 전자제품 수입 규제 강화",
-      category: "전자/IT",
-      country: "중국",
-      date: "2024.12.15",
-      type: "긴급",
-      status: "신규",
-      summary: "리튬배터리 포함 전자제품의 안전인증 요구사항이 강화되었습니다.",
-      impact: "높음",
+      title: "이번 주 신규 규제",
+      value: 24,
+      icon: <AlertTriangle className="h-8 w-8 text-red-500" />,
     },
     {
-      id: 2,
-      title: "EU CBAM 탄소국경조정메커니즘 시행",
-      category: "환경/에너지",
-      country: "EU",
-      date: "2024.12.10",
-      type: "정기",
-      status: "업데이트",
-      summary: "철강, 시멘트, 알루미늄 등 탄소집약적 제품에 대한 탄소비용 부과",
-      impact: "매우 높음",
+      title: "이번 달 전체 규제",
+      value: 156,
+      icon: <TrendingUp className="h-8 w-8 text-blue-500" />,
     },
     {
-      id: 3,
-      title: "미국 반도체 수출통제 품목 확대",
-      category: "반도체",
-      country: "미국",
-      date: "2024.12.08",
-      type: "긴급",
-      status: "신규",
-      summary: "AI 칩 및 관련 장비의 중국 수출 제한이 추가로 확대되었습니다.",
-      impact: "높음",
+      title: "모니터링 국가",
+      value: 45,
+      icon: <Globe className="h-8 w-8 text-green-500" />,
     },
     {
-      id: 4,
-      title: "인도 플라스틱 포장재 수입 제한",
-      category: "화학/플라스틱",
-      country: "인도",
-      date: "2024.12.05",
-      type: "정기",
-      status: "신규",
-      summary: "일회용 플라스틱 포장재의 수입이 전면 금지되었습니다.",
-      impact: "중간",
+      title: "주요 품목 카테고리",
+      value: 12,
+      icon: <Filter className="h-8 w-8 text-purple-500" />,
     },
   ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "신규":
-        return "bg-red-100 text-red-800";
-      case "업데이트":
-        return "bg-yellow-100 text-yellow-800";
-      case "해제":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case "매우 높음":
-        return "text-red-600";
-      case "높음":
-        return "text-orange-600";
-      case "중간":
-        return "text-yellow-600";
-      case "낮음":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
 
   return (
     <div className="space-y-2">
       {/* 통계 카드 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-lg">
-          <CardContent className="text-center">
-            <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-red-500" />
-            <p className="text-2xl font-bold text-gray-800">24</p>
-            <p className="text-sm text-gray-600">이번 주 신규 규제</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg">
-          <CardContent className="text-center">
-            <TrendingUp className="mx-auto mb-2 h-8 w-8 text-blue-500" />
-            <p className="text-2xl font-bold text-gray-800">156</p>
-            <p className="text-sm text-gray-600">이번 달 전체 규제</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg">
-          <CardContent className="text-center">
-            <Globe className="mx-auto mb-2 h-8 w-8 text-green-500" />
-            <p className="text-2xl font-bold text-gray-800">45</p>
-            <p className="text-sm text-gray-600">모니터링 국가</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg">
-          <CardContent className="text-center">
-            <Filter className="mx-auto mb-2 h-8 w-8 text-purple-500" />
-            <p className="text-2xl font-bold text-gray-800">12</p>
-            <p className="text-sm text-gray-600">주요 품목 카테고리</p>
-          </CardContent>
-        </Card>
+        {statistics.map(({ icon, title, value }) => (
+          <Card key={title} className="py-4 shadow-lg">
+            <CardContent className="flex flex-col items-center">
+              <div className="text-center">{icon}</div>
+
+              <p className="text-2xl font-bold text-gray-800">{value}</p>
+              <p className="text-sm text-gray-600">{title}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* 필터 섹션 */}
