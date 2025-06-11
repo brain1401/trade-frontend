@@ -11,6 +11,9 @@ export type TradeNews = {
   summary: string;
   source: string;
   date: string;
+  uuid: string;
+  type: "규제" | "관세" | "뉴스";
+  hscode: string;
 };
 
 export type HSCodeNews = {
@@ -20,17 +23,9 @@ export type HSCodeNews = {
   summary: string;
   source: string;
   date: string;
-  type: string;
+  type: "규제" | "관세" | "뉴스";
   bookmarked: boolean;
-};
-
-export type NewsItemProps = {
-  title: string;
-  summary: string;
-  source: string;
-  date: string;
-  type?: string;
-  hscode?: string;
+  uuid: string;
 };
 
 export type ContentCardProps = {

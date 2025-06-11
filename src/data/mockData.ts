@@ -15,6 +15,9 @@ export const mockTradeNews: TradeNews[] = [
       "미-중 갈등 심화와 팬데믹 이후 글로벌 공급망이 빠르게 재편되고 있습니다. 우리 기업들은 신흥 시장으로의 다변화와 핵심 기술 자립화에 더욱 힘써야 할 시점입니다. 정부는 관련 R&D 지원을 확대할 예정입니다.",
     source: "무역일보",
     date: "2025-06-05",
+    uuid: "1",
+    hscode: "8517.12",
+    type: "규제",
   },
   {
     id: 2,
@@ -23,6 +26,9 @@ export const mockTradeNews: TradeNews[] = [
       "유럽연합의 CBAM 시행이 코앞으로 다가오면서 국내 철강, 알루미늄 수출 기업들의 발등에 불이 떨어졌습니다. 탄소 배출량 감축 및 증빙 시스템 마련이 시급합니다.",
     source: "환경경제신문",
     date: "2025-06-04",
+    uuid: "2",
+    hscode: "257.85",
+    type: "관세",
   },
   {
     id: 3,
@@ -31,6 +37,9 @@ export const mockTradeNews: TradeNews[] = [
       "디지털 무역, 청정 에너지 등 주요 의제에 대한 IPEF 회원국 간 협상이 활발히 진행 중입니다. 특히 공급망 안정화와 관련하여 구체적인 합의가 도출될지 주목됩니다.",
     source: "국제무역연구원",
     date: "2025-06-03",
+    uuid: "3",
+    hscode: "7657.49",
+    type: "규제",
   },
   {
     id: 4,
@@ -39,6 +48,9 @@ export const mockTradeNews: TradeNews[] = [
       "최근 중남미 국가들의 경제 성장과 함께 한국산 소비재 및 중간재에 대한 수요가 증가하고 있습니다. K-컬처의 인기도 한몫하고 있어, 적극적인 시장 개척이 요구됩니다.",
     source: "수출입은행 보고서",
     date: "2025-06-02",
+    uuid: "4",
+    hscode: "7657.49",
+    type: "규제",
   },
   {
     id: 5,
@@ -47,6 +59,9 @@ export const mockTradeNews: TradeNews[] = [
       "최근 중남미 국가들의 경제 성장과 함께 한국산 소비재 및 중간재에 대한 수요가 증가하고 있습니다. K-컬처의 인기도 한몫하고 있어, 적극적인 시장 개척이 요구됩니다.",
     source: "수출입은행 보고서",
     date: "2025-06-02",
+    uuid: "5",
+    hscode: "7657.49",
+    type: "규제",
   },
   {
     id: 6,
@@ -55,6 +70,9 @@ export const mockTradeNews: TradeNews[] = [
       "최근 중남미 국가들의 경제 성장과 함께 한국산 소비재 및 중간재에 대한 수요가 증가하고 있습니다. K-컬처의 인기도 한몫하고 있어, 적극적인 시장 개척이 요구됩니다.",
     source: "수출입은행 보고서",
     date: "2025-06-02",
+    uuid: "6",
+    hscode: "7657.49",
+    type: "규제",
   },
 ];
 
@@ -69,6 +87,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-05",
     type: "규제",
     bookmarked: true,
+    uuid: "1",
   },
   {
     id: 2,
@@ -80,6 +99,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-04",
     type: "관세",
     bookmarked: false,
+    uuid: "2",
   },
   {
     id: 3,
@@ -91,6 +111,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-02",
     type: "뉴스",
     bookmarked: true,
+    uuid: "3",
   },
   {
     id: 4,
@@ -102,6 +123,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-01",
     type: "규제",
     bookmarked: false,
+    uuid: "4",
   },
   {
     id: 5,
@@ -113,6 +135,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-06",
     type: "규제",
     bookmarked: true,
+    uuid: "5",
   },
   {
     id: 6,
@@ -124,6 +147,7 @@ export const mockHSCodeNewsAll: HSCodeNews[] = [
     date: "2025-06-07",
     type: "규제",
     bookmarked: true,
+    uuid: "6",
   },
 ];
 

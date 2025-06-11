@@ -35,7 +35,7 @@ function App() {
             <ScrollArea className="h-[32rem] pr-3">
               <div className="space-y-2">
                 {mockTradeNews.map((news) => (
-                  <NewsItem key={news.id} {...news} />
+                  <NewsItem key={news.uuid} {...news} />
                 ))}
               </div>
             </ScrollArea>
@@ -98,7 +98,7 @@ function App() {
                       "text-gray-700 hover:text-blue-600",
                     )}
                   >
-                    <Link to="/hscode/$hscode" params={{ hscode }}>
+                    <Link to="/hscode-info/$hscode" params={{ hscode }}>
                       {text}
                     </Link>
                   </Button>

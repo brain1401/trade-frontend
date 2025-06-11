@@ -28,7 +28,9 @@ import { Route as UserProfileIndexImport } from './routes/user/profile/index'
 import { Route as UserMessagesIndexImport } from './routes/user/messages/index'
 import { Route as UserBookmarksIndexImport } from './routes/user/bookmarks/index'
 import { Route as UserAnalysisHistoryIndexImport } from './routes/user/analysis-history/index'
-import { Route as HscodeHscodeIndexImport } from './routes/hscode/$hscode/index'
+import { Route as SearchResultQueryIndexImport } from './routes/search-result/$query/index'
+import { Route as NewsUuidIndexImport } from './routes/news/$uuid/index'
+import { Route as HscodeInfoHscodeIndexImport } from './routes/hscode-info/$hscode/index'
 
 // Create/Update Routes
 
@@ -134,9 +136,21 @@ const UserAnalysisHistoryIndexRoute = UserAnalysisHistoryIndexImport.update({
   getParentRoute: () => UserRouteRoute,
 } as any)
 
-const HscodeHscodeIndexRoute = HscodeHscodeIndexImport.update({
-  id: '/hscode/$hscode/',
-  path: '/hscode/$hscode/',
+const SearchResultQueryIndexRoute = SearchResultQueryIndexImport.update({
+  id: '/search-result/$query/',
+  path: '/search-result/$query/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const NewsUuidIndexRoute = NewsUuidIndexImport.update({
+  id: '/news/$uuid/',
+  path: '/news/$uuid/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const HscodeInfoHscodeIndexRoute = HscodeInfoHscodeIndexImport.update({
+  id: '/hscode-info/$hscode/',
+  path: '/hscode-info/$hscode/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -228,11 +242,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserIndexImport
       parentRoute: typeof UserRouteImport
     }
-    '/hscode/$hscode/': {
-      id: '/hscode/$hscode/'
-      path: '/hscode/$hscode'
-      fullPath: '/hscode/$hscode'
-      preLoaderRoute: typeof HscodeHscodeIndexImport
+    '/hscode-info/$hscode/': {
+      id: '/hscode-info/$hscode/'
+      path: '/hscode-info/$hscode'
+      fullPath: '/hscode-info/$hscode'
+      preLoaderRoute: typeof HscodeInfoHscodeIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/news/$uuid/': {
+      id: '/news/$uuid/'
+      path: '/news/$uuid'
+      fullPath: '/news/$uuid'
+      preLoaderRoute: typeof NewsUuidIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/search-result/$query/': {
+      id: '/search-result/$query/'
+      path: '/search-result/$query'
+      fullPath: '/search-result/$query'
+      preLoaderRoute: typeof SearchResultQueryIndexImport
       parentRoute: typeof rootRoute
     }
     '/user/analysis-history/': {
@@ -310,7 +338,9 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportIndexRoute
   '/terms': typeof TermsIndexRoute
   '/user/': typeof UserIndexRoute
-  '/hscode/$hscode': typeof HscodeHscodeIndexRoute
+  '/hscode-info/$hscode': typeof HscodeInfoHscodeIndexRoute
+  '/news/$uuid': typeof NewsUuidIndexRoute
+  '/search-result/$query': typeof SearchResultQueryIndexRoute
   '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
   '/user/bookmarks': typeof UserBookmarksIndexRoute
   '/user/messages': typeof UserMessagesIndexRoute
@@ -330,7 +360,9 @@ export interface FileRoutesByTo {
   '/support': typeof SupportIndexRoute
   '/terms': typeof TermsIndexRoute
   '/user': typeof UserIndexRoute
-  '/hscode/$hscode': typeof HscodeHscodeIndexRoute
+  '/hscode-info/$hscode': typeof HscodeInfoHscodeIndexRoute
+  '/news/$uuid': typeof NewsUuidIndexRoute
+  '/search-result/$query': typeof SearchResultQueryIndexRoute
   '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
   '/user/bookmarks': typeof UserBookmarksIndexRoute
   '/user/messages': typeof UserMessagesIndexRoute
@@ -352,7 +384,9 @@ export interface FileRoutesById {
   '/support/': typeof SupportIndexRoute
   '/terms/': typeof TermsIndexRoute
   '/user/': typeof UserIndexRoute
-  '/hscode/$hscode/': typeof HscodeHscodeIndexRoute
+  '/hscode-info/$hscode/': typeof HscodeInfoHscodeIndexRoute
+  '/news/$uuid/': typeof NewsUuidIndexRoute
+  '/search-result/$query/': typeof SearchResultQueryIndexRoute
   '/user/analysis-history/': typeof UserAnalysisHistoryIndexRoute
   '/user/bookmarks/': typeof UserBookmarksIndexRoute
   '/user/messages/': typeof UserMessagesIndexRoute
@@ -375,7 +409,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/user/'
-    | '/hscode/$hscode'
+    | '/hscode-info/$hscode'
+    | '/news/$uuid'
+    | '/search-result/$query'
     | '/user/analysis-history'
     | '/user/bookmarks'
     | '/user/messages'
@@ -394,7 +430,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/user'
-    | '/hscode/$hscode'
+    | '/hscode-info/$hscode'
+    | '/news/$uuid'
+    | '/search-result/$query'
     | '/user/analysis-history'
     | '/user/bookmarks'
     | '/user/messages'
@@ -414,7 +452,9 @@ export interface FileRouteTypes {
     | '/support/'
     | '/terms/'
     | '/user/'
-    | '/hscode/$hscode/'
+    | '/hscode-info/$hscode/'
+    | '/news/$uuid/'
+    | '/search-result/$query/'
     | '/user/analysis-history/'
     | '/user/bookmarks/'
     | '/user/messages/'
@@ -435,7 +475,9 @@ export interface RootRouteChildren {
   StatisticsIndexRoute: typeof StatisticsIndexRoute
   SupportIndexRoute: typeof SupportIndexRoute
   TermsIndexRoute: typeof TermsIndexRoute
-  HscodeHscodeIndexRoute: typeof HscodeHscodeIndexRoute
+  HscodeInfoHscodeIndexRoute: typeof HscodeInfoHscodeIndexRoute
+  NewsUuidIndexRoute: typeof NewsUuidIndexRoute
+  SearchResultQueryIndexRoute: typeof SearchResultQueryIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -450,7 +492,9 @@ const rootRouteChildren: RootRouteChildren = {
   StatisticsIndexRoute: StatisticsIndexRoute,
   SupportIndexRoute: SupportIndexRoute,
   TermsIndexRoute: TermsIndexRoute,
-  HscodeHscodeIndexRoute: HscodeHscodeIndexRoute,
+  HscodeInfoHscodeIndexRoute: HscodeInfoHscodeIndexRoute,
+  NewsUuidIndexRoute: NewsUuidIndexRoute,
+  SearchResultQueryIndexRoute: SearchResultQueryIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -474,7 +518,9 @@ export const routeTree = rootRoute
         "/statistics/",
         "/support/",
         "/terms/",
-        "/hscode/$hscode/"
+        "/hscode-info/$hscode/",
+        "/news/$uuid/",
+        "/search-result/$query/"
       ]
     },
     "/": {
@@ -522,8 +568,14 @@ export const routeTree = rootRoute
       "filePath": "user/index.tsx",
       "parent": "/user"
     },
-    "/hscode/$hscode/": {
-      "filePath": "hscode/$hscode/index.tsx"
+    "/hscode-info/$hscode/": {
+      "filePath": "hscode-info/$hscode/index.tsx"
+    },
+    "/news/$uuid/": {
+      "filePath": "news/$uuid/index.tsx"
+    },
+    "/search-result/$query/": {
+      "filePath": "search-result/$query/index.tsx"
     },
     "/user/analysis-history/": {
       "filePath": "user/analysis-history/index.tsx",

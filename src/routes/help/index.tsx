@@ -47,11 +47,11 @@ function RouteComponent() {
   return (
     <div className="flex flex-1 flex-col justify-center space-y-3">
       {/* 도움말 섹션들 */}
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
         {helpSections.map((section, index) => (
           <Card
             key={index}
-            className="shadow-lg transition-shadow hover:shadow-xl last:odd:md:col-span-2"
+            className="shadow-lg transition-shadow hover:shadow-xl last:odd:md:col-span-1 last:odd:lg:col-span-2"
           >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-brand-700">

@@ -57,7 +57,7 @@ const HSCodeNewsSection = () => {
       {newsToShow.length > 0 ? (
         <div className="space-y-2">
           {newsToShow.map((news) => (
-            <NewsItem key={news.id} {...news} />
+            <NewsItem key={news.uuid} {...news} />
           ))}
         </div>
       ) : (
