@@ -10,7 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-export const Route = createFileRoute("/regulations/")({
+export const Route = createFileRoute("/trade/regulations")({
   component: RouteComponent,
 });
 
@@ -41,6 +41,7 @@ const getImpactColor = (impact: string) => {
       return "text-neutral-600";
   }
 };
+
 const regulations = [
   {
     id: 1,

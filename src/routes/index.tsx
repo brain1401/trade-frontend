@@ -60,7 +60,7 @@ function App() {
                   "flex items-center justify-end text-primary-600",
                 )}
               >
-                <Link to="/news">
+                <Link to="/search" search={{ q: "무역 뉴스" }}>
                   더보기 <ChevronRight size={16} className="ml-0.5" />
                 </Link>
               </Button>
@@ -131,7 +131,7 @@ function App() {
                   "flex items-center justify-end text-primary-600",
                 )}
               >
-                <Link to="/user/analysis-history">
+                <Link to="/dashboard/bookmarks">
                   전체 히스토리 <ChevronRight size={16} className="ml-0.5" />
                 </Link>
               </Button>

@@ -9,65 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UserRouteRouteImport } from './routes/user/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as UserIndexRouteImport } from './routes/user/index'
-import { Route as TermsIndexRouteImport } from './routes/terms/index'
-import { Route as SupportIndexRouteImport } from './routes/support/index'
-import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
+import { Route as TrackingIndexRouteImport } from './routes/tracking/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
-import { Route as RegulationsIndexRouteImport } from './routes/regulations/index'
-import { Route as PrivacyIndexRouteImport } from './routes/privacy/index'
-import { Route as NewsIndexRouteImport } from './routes/news/index'
-import { Route as HelpIndexRouteImport } from './routes/help/index'
+import { Route as HscodeIndexRouteImport } from './routes/hscode/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as CountryInfoIndexRouteImport } from './routes/country-info/index'
 import { Route as TradeStatisticsRouteImport } from './routes/trade/statistics'
+import { Route as TradeRegulationsRouteImport } from './routes/trade/regulations'
 import { Route as TradeExchangeRatesRouteImport } from './routes/trade/exchange-rates'
 import { Route as TrackingNumberRouteImport } from './routes/tracking/$number'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardBookmarksRouteImport } from './routes/dashboard/bookmarks'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as UserSettingsIndexRouteImport } from './routes/user/settings/index'
-import { Route as UserProfileIndexRouteImport } from './routes/user/profile/index'
-import { Route as UserMessagesIndexRouteImport } from './routes/user/messages/index'
-import { Route as UserBookmarksIndexRouteImport } from './routes/user/bookmarks/index'
-import { Route as UserAnalysisHistoryIndexRouteImport } from './routes/user/analysis-history/index'
-import { Route as SearchResultQueryIndexRouteImport } from './routes/search-result/$query/index'
-import { Route as NewsUuidIndexRouteImport } from './routes/news/$uuid/index'
 import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
-import { Route as HscodeGuideCodeRouteImport } from './routes/hscode/guide/$code'
 import { Route as HscodeAnalyzeSessionIdRouteImport } from './routes/hscode/analyze/$sessionId'
 
-const UserRouteRoute = UserRouteRouteImport.update({
-  id: '/user',
-  path: '/user',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UserIndexRoute = UserIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => UserRouteRoute,
-} as any)
-const TermsIndexRoute = TermsIndexRouteImport.update({
-  id: '/terms/',
-  path: '/terms/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportIndexRoute = SupportIndexRouteImport.update({
-  id: '/support/',
-  path: '/support/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatisticsIndexRoute = StatisticsIndexRouteImport.update({
-  id: '/statistics/',
-  path: '/statistics/',
+const TrackingIndexRoute = TrackingIndexRouteImport.update({
+  id: '/tracking/',
+  path: '/tracking/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchIndexRoute = SearchIndexRouteImport.update({
@@ -75,24 +41,9 @@ const SearchIndexRoute = SearchIndexRouteImport.update({
   path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegulationsIndexRoute = RegulationsIndexRouteImport.update({
-  id: '/regulations/',
-  path: '/regulations/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
-  id: '/privacy/',
-  path: '/privacy/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewsIndexRoute = NewsIndexRouteImport.update({
-  id: '/news/',
-  path: '/news/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpIndexRoute = HelpIndexRouteImport.update({
-  id: '/help/',
-  path: '/help/',
+const HscodeIndexRoute = HscodeIndexRouteImport.update({
+  id: '/hscode/',
+  path: '/hscode/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -100,14 +51,14 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CountryInfoIndexRoute = CountryInfoIndexRouteImport.update({
-  id: '/country-info/',
-  path: '/country-info/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TradeStatisticsRoute = TradeStatisticsRouteImport.update({
   id: '/trade/statistics',
   path: '/trade/statistics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TradeRegulationsRoute = TradeRegulationsRouteImport.update({
+  id: '/trade/regulations',
+  path: '/trade/regulations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TradeExchangeRatesRoute = TradeExchangeRatesRouteImport.update({
@@ -118,6 +69,11 @@ const TradeExchangeRatesRoute = TradeExchangeRatesRouteImport.update({
 const TrackingNumberRoute = TrackingNumberRouteImport.update({
   id: '/tracking/$number',
   path: '/tracking/$number',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/dashboard/settings',
+  path: '/dashboard/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardBookmarksRoute = DashboardBookmarksRouteImport.update({
@@ -140,50 +96,9 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UserSettingsIndexRoute = UserSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => UserRouteRoute,
-} as any)
-const UserProfileIndexRoute = UserProfileIndexRouteImport.update({
-  id: '/profile/',
-  path: '/profile/',
-  getParentRoute: () => UserRouteRoute,
-} as any)
-const UserMessagesIndexRoute = UserMessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
-  getParentRoute: () => UserRouteRoute,
-} as any)
-const UserBookmarksIndexRoute = UserBookmarksIndexRouteImport.update({
-  id: '/bookmarks/',
-  path: '/bookmarks/',
-  getParentRoute: () => UserRouteRoute,
-} as any)
-const UserAnalysisHistoryIndexRoute =
-  UserAnalysisHistoryIndexRouteImport.update({
-    id: '/analysis-history/',
-    path: '/analysis-history/',
-    getParentRoute: () => UserRouteRoute,
-  } as any)
-const SearchResultQueryIndexRoute = SearchResultQueryIndexRouteImport.update({
-  id: '/search-result/$query/',
-  path: '/search-result/$query/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewsUuidIndexRoute = NewsUuidIndexRouteImport.update({
-  id: '/news/$uuid/',
-  path: '/news/$uuid/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HscodeResultResultIdRoute = HscodeResultResultIdRouteImport.update({
   id: '/hscode/result/$resultId',
   path: '/hscode/result/$resultId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HscodeGuideCodeRoute = HscodeGuideCodeRouteImport.update({
-  id: '/hscode/guide/$code',
-  path: '/hscode/guide/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HscodeAnalyzeSessionIdRoute = HscodeAnalyzeSessionIdRouteImport.update({
@@ -194,35 +109,21 @@ const HscodeAnalyzeSessionIdRoute = HscodeAnalyzeSessionIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/user': typeof UserRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
+  '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
-  '/country-info': typeof CountryInfoIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/help': typeof HelpIndexRoute
-  '/news': typeof NewsIndexRoute
-  '/privacy': typeof PrivacyIndexRoute
-  '/regulations': typeof RegulationsIndexRoute
+  '/hscode': typeof HscodeIndexRoute
   '/search': typeof SearchIndexRoute
-  '/statistics': typeof StatisticsIndexRoute
-  '/support': typeof SupportIndexRoute
-  '/terms': typeof TermsIndexRoute
-  '/user/': typeof UserIndexRoute
+  '/tracking': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/news/$uuid': typeof NewsUuidIndexRoute
-  '/search-result/$query': typeof SearchResultQueryIndexRoute
-  '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
-  '/user/bookmarks': typeof UserBookmarksIndexRoute
-  '/user/messages': typeof UserMessagesIndexRoute
-  '/user/profile': typeof UserProfileIndexRoute
-  '/user/settings': typeof UserSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -230,97 +131,56 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
+  '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
-  '/country-info': typeof CountryInfoIndexRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/help': typeof HelpIndexRoute
-  '/news': typeof NewsIndexRoute
-  '/privacy': typeof PrivacyIndexRoute
-  '/regulations': typeof RegulationsIndexRoute
+  '/hscode': typeof HscodeIndexRoute
   '/search': typeof SearchIndexRoute
-  '/statistics': typeof StatisticsIndexRoute
-  '/support': typeof SupportIndexRoute
-  '/terms': typeof TermsIndexRoute
-  '/user': typeof UserIndexRoute
+  '/tracking': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/news/$uuid': typeof NewsUuidIndexRoute
-  '/search-result/$query': typeof SearchResultQueryIndexRoute
-  '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
-  '/user/bookmarks': typeof UserBookmarksIndexRoute
-  '/user/messages': typeof UserMessagesIndexRoute
-  '/user/profile': typeof UserProfileIndexRoute
-  '/user/settings': typeof UserSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/user': typeof UserRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
+  '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
-  '/country-info/': typeof CountryInfoIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/help/': typeof HelpIndexRoute
-  '/news/': typeof NewsIndexRoute
-  '/privacy/': typeof PrivacyIndexRoute
-  '/regulations/': typeof RegulationsIndexRoute
+  '/hscode/': typeof HscodeIndexRoute
   '/search/': typeof SearchIndexRoute
-  '/statistics/': typeof StatisticsIndexRoute
-  '/support/': typeof SupportIndexRoute
-  '/terms/': typeof TermsIndexRoute
-  '/user/': typeof UserIndexRoute
+  '/tracking/': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/news/$uuid/': typeof NewsUuidIndexRoute
-  '/search-result/$query/': typeof SearchResultQueryIndexRoute
-  '/user/analysis-history/': typeof UserAnalysisHistoryIndexRoute
-  '/user/bookmarks/': typeof UserBookmarksIndexRoute
-  '/user/messages/': typeof UserMessagesIndexRoute
-  '/user/profile/': typeof UserProfileIndexRoute
-  '/user/settings/': typeof UserSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/user'
     | '/auth/callback'
     | '/auth/login'
     | '/auth/signup'
     | '/dashboard/bookmarks'
+    | '/dashboard/settings'
     | '/tracking/$number'
     | '/trade/exchange-rates'
+    | '/trade/regulations'
     | '/trade/statistics'
-    | '/country-info'
     | '/dashboard'
-    | '/help'
-    | '/news'
-    | '/privacy'
-    | '/regulations'
+    | '/hscode'
     | '/search'
-    | '/statistics'
-    | '/support'
-    | '/terms'
-    | '/user/'
+    | '/tracking'
     | '/hscode/analyze/$sessionId'
-    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/news/$uuid'
-    | '/search-result/$query'
-    | '/user/analysis-history'
-    | '/user/bookmarks'
-    | '/user/messages'
-    | '/user/profile'
-    | '/user/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -328,100 +188,58 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/dashboard/bookmarks'
+    | '/dashboard/settings'
     | '/tracking/$number'
     | '/trade/exchange-rates'
+    | '/trade/regulations'
     | '/trade/statistics'
-    | '/country-info'
     | '/dashboard'
-    | '/help'
-    | '/news'
-    | '/privacy'
-    | '/regulations'
+    | '/hscode'
     | '/search'
-    | '/statistics'
-    | '/support'
-    | '/terms'
-    | '/user'
+    | '/tracking'
     | '/hscode/analyze/$sessionId'
-    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/news/$uuid'
-    | '/search-result/$query'
-    | '/user/analysis-history'
-    | '/user/bookmarks'
-    | '/user/messages'
-    | '/user/profile'
-    | '/user/settings'
   id:
     | '__root__'
     | '/'
-    | '/user'
     | '/auth/callback'
     | '/auth/login'
     | '/auth/signup'
     | '/dashboard/bookmarks'
+    | '/dashboard/settings'
     | '/tracking/$number'
     | '/trade/exchange-rates'
+    | '/trade/regulations'
     | '/trade/statistics'
-    | '/country-info/'
     | '/dashboard/'
-    | '/help/'
-    | '/news/'
-    | '/privacy/'
-    | '/regulations/'
+    | '/hscode/'
     | '/search/'
-    | '/statistics/'
-    | '/support/'
-    | '/terms/'
-    | '/user/'
+    | '/tracking/'
     | '/hscode/analyze/$sessionId'
-    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/news/$uuid/'
-    | '/search-result/$query/'
-    | '/user/analysis-history/'
-    | '/user/bookmarks/'
-    | '/user/messages/'
-    | '/user/profile/'
-    | '/user/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  UserRouteRoute: typeof UserRouteRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   DashboardBookmarksRoute: typeof DashboardBookmarksRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   TrackingNumberRoute: typeof TrackingNumberRoute
   TradeExchangeRatesRoute: typeof TradeExchangeRatesRoute
+  TradeRegulationsRoute: typeof TradeRegulationsRoute
   TradeStatisticsRoute: typeof TradeStatisticsRoute
-  CountryInfoIndexRoute: typeof CountryInfoIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
-  HelpIndexRoute: typeof HelpIndexRoute
-  NewsIndexRoute: typeof NewsIndexRoute
-  PrivacyIndexRoute: typeof PrivacyIndexRoute
-  RegulationsIndexRoute: typeof RegulationsIndexRoute
+  HscodeIndexRoute: typeof HscodeIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
-  StatisticsIndexRoute: typeof StatisticsIndexRoute
-  SupportIndexRoute: typeof SupportIndexRoute
-  TermsIndexRoute: typeof TermsIndexRoute
+  TrackingIndexRoute: typeof TrackingIndexRoute
   HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
-  HscodeGuideCodeRoute: typeof HscodeGuideCodeRoute
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
-  NewsUuidIndexRoute: typeof NewsUuidIndexRoute
-  SearchResultQueryIndexRoute: typeof SearchResultQueryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/user': {
-      id: '/user'
-      path: '/user'
-      fullPath: '/user'
-      preLoaderRoute: typeof UserRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -429,32 +247,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/user/': {
-      id: '/user/'
-      path: '/'
-      fullPath: '/user/'
-      preLoaderRoute: typeof UserIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/terms/': {
-      id: '/terms/'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support/': {
-      id: '/support/'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/statistics/': {
-      id: '/statistics/'
-      path: '/statistics'
-      fullPath: '/statistics'
-      preLoaderRoute: typeof StatisticsIndexRouteImport
+    '/tracking/': {
+      id: '/tracking/'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof TrackingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search/': {
@@ -464,32 +261,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/regulations/': {
-      id: '/regulations/'
-      path: '/regulations'
-      fullPath: '/regulations'
-      preLoaderRoute: typeof RegulationsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy/': {
-      id: '/privacy/'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/news/': {
-      id: '/news/'
-      path: '/news'
-      fullPath: '/news'
-      preLoaderRoute: typeof NewsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help/': {
-      id: '/help/'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpIndexRouteImport
+    '/hscode/': {
+      id: '/hscode/'
+      path: '/hscode'
+      fullPath: '/hscode'
+      preLoaderRoute: typeof HscodeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -499,18 +275,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/country-info/': {
-      id: '/country-info/'
-      path: '/country-info'
-      fullPath: '/country-info'
-      preLoaderRoute: typeof CountryInfoIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/trade/statistics': {
       id: '/trade/statistics'
       path: '/trade/statistics'
       fullPath: '/trade/statistics'
       preLoaderRoute: typeof TradeStatisticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trade/regulations': {
+      id: '/trade/regulations'
+      path: '/trade/regulations'
+      fullPath: '/trade/regulations'
+      preLoaderRoute: typeof TradeRegulationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trade/exchange-rates': {
@@ -525,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/tracking/$number'
       fullPath: '/tracking/$number'
       preLoaderRoute: typeof TrackingNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/bookmarks': {
@@ -555,67 +338,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/user/settings/': {
-      id: '/user/settings/'
-      path: '/settings'
-      fullPath: '/user/settings'
-      preLoaderRoute: typeof UserSettingsIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/user/profile/': {
-      id: '/user/profile/'
-      path: '/profile'
-      fullPath: '/user/profile'
-      preLoaderRoute: typeof UserProfileIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/user/messages/': {
-      id: '/user/messages/'
-      path: '/messages'
-      fullPath: '/user/messages'
-      preLoaderRoute: typeof UserMessagesIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/user/bookmarks/': {
-      id: '/user/bookmarks/'
-      path: '/bookmarks'
-      fullPath: '/user/bookmarks'
-      preLoaderRoute: typeof UserBookmarksIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/user/analysis-history/': {
-      id: '/user/analysis-history/'
-      path: '/analysis-history'
-      fullPath: '/user/analysis-history'
-      preLoaderRoute: typeof UserAnalysisHistoryIndexRouteImport
-      parentRoute: typeof UserRouteRoute
-    }
-    '/search-result/$query/': {
-      id: '/search-result/$query/'
-      path: '/search-result/$query'
-      fullPath: '/search-result/$query'
-      preLoaderRoute: typeof SearchResultQueryIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/news/$uuid/': {
-      id: '/news/$uuid/'
-      path: '/news/$uuid'
-      fullPath: '/news/$uuid'
-      preLoaderRoute: typeof NewsUuidIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/hscode/result/$resultId': {
       id: '/hscode/result/$resultId'
       path: '/hscode/result/$resultId'
       fullPath: '/hscode/result/$resultId'
       preLoaderRoute: typeof HscodeResultResultIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hscode/guide/$code': {
-      id: '/hscode/guide/$code'
-      path: '/hscode/guide/$code'
-      fullPath: '/hscode/guide/$code'
-      preLoaderRoute: typeof HscodeGuideCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hscode/analyze/$sessionId': {
@@ -628,53 +355,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface UserRouteRouteChildren {
-  UserIndexRoute: typeof UserIndexRoute
-  UserAnalysisHistoryIndexRoute: typeof UserAnalysisHistoryIndexRoute
-  UserBookmarksIndexRoute: typeof UserBookmarksIndexRoute
-  UserMessagesIndexRoute: typeof UserMessagesIndexRoute
-  UserProfileIndexRoute: typeof UserProfileIndexRoute
-  UserSettingsIndexRoute: typeof UserSettingsIndexRoute
-}
-
-const UserRouteRouteChildren: UserRouteRouteChildren = {
-  UserIndexRoute: UserIndexRoute,
-  UserAnalysisHistoryIndexRoute: UserAnalysisHistoryIndexRoute,
-  UserBookmarksIndexRoute: UserBookmarksIndexRoute,
-  UserMessagesIndexRoute: UserMessagesIndexRoute,
-  UserProfileIndexRoute: UserProfileIndexRoute,
-  UserSettingsIndexRoute: UserSettingsIndexRoute,
-}
-
-const UserRouteRouteWithChildren = UserRouteRoute._addFileChildren(
-  UserRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  UserRouteRoute: UserRouteRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   DashboardBookmarksRoute: DashboardBookmarksRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   TrackingNumberRoute: TrackingNumberRoute,
   TradeExchangeRatesRoute: TradeExchangeRatesRoute,
+  TradeRegulationsRoute: TradeRegulationsRoute,
   TradeStatisticsRoute: TradeStatisticsRoute,
-  CountryInfoIndexRoute: CountryInfoIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
-  HelpIndexRoute: HelpIndexRoute,
-  NewsIndexRoute: NewsIndexRoute,
-  PrivacyIndexRoute: PrivacyIndexRoute,
-  RegulationsIndexRoute: RegulationsIndexRoute,
+  HscodeIndexRoute: HscodeIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
-  StatisticsIndexRoute: StatisticsIndexRoute,
-  SupportIndexRoute: SupportIndexRoute,
-  TermsIndexRoute: TermsIndexRoute,
+  TrackingIndexRoute: TrackingIndexRoute,
   HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
-  HscodeGuideCodeRoute: HscodeGuideCodeRoute,
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
-  NewsUuidIndexRoute: NewsUuidIndexRoute,
-  SearchResultQueryIndexRoute: SearchResultQueryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

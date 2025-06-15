@@ -75,7 +75,17 @@ src/
 │   ├── trade/           # Trade statistics components
 │   │   ├── StatisticCharts.tsx
 │   │   ├── ExchangeRates.tsx
-│   │   └── MarketTrends.tsx
+│   │   ├── MarketTrends.tsx
+│   │   └── TradeInfoDashboard.tsx # Trade information hub overview
+│   ├── news/            # News components
+│   │   ├── NewsListGrid.tsx      # Main news listing with pagination
+│   │   ├── NewsArticleContent.tsx # Full article display
+│   │   ├── NewsCategoryFilters.tsx # Category and date filtering
+│   │   ├── NewsMetadata.tsx      # Source and publication info
+│   │   ├── AISummaryPanel.tsx    # Claude AI-generated insights
+│   │   ├── TradeNewsPanel.tsx    # News panel for main page
+│   │   ├── IntegratedNewsPanel.tsx # News within regulation context
+│   │   └── BusinessImpactAnalysis.tsx # Trade impact assessment
 │   ├── monitoring/      # Monitoring and bookmark components
 │   │   ├── BookmarkList.tsx
 │   │   ├── MonitoringSettings.tsx
@@ -83,11 +93,16 @@ src/
 │   ├── search/          # Intelligent search components
 │   │   ├── SearchInput.tsx       # Main search interface
 │   │   ├── IntentDetection.tsx   # AI intent analysis display
+│   │   ├── PopularSearchTerms.tsx # Trending searches for main page
 │   │   └── SearchResults.tsx     # General search results
 │   ├── notification/    # Real-time notification components
 │   │   ├── NotificationToast.tsx
 │   │   ├── AlertPanel.tsx
 │   │   └── NotificationCenter.tsx
+│   ├── dashboard/       # Dashboard specific components
+│   │   ├── RecentAnalysisResults.tsx # Recent user analyses
+│   │   ├── HsCodeUpdatesPanel.tsx    # Latest HS Code information
+│   │   └── RealTimeExchangeRates.tsx # Live exchange rates widget
 │   ├── common/          # Shared components
 │   │   ├── Layout.tsx
 │   │   ├── Header.tsx
@@ -119,11 +134,26 @@ src/
 │   │   │   ├── useTradeStats.ts        # Korea Customs trade data
 │   │   │   ├── useExchangeRates.ts     # Korea Customs exchange rates
 │   │   │   └── useComtradeData.ts      # UN COMTRADE API
+│   │   ├── news/        # News and information hooks
+│   │   │   ├── useNewsList.ts          # News listing and filtering
+│   │   │   ├── useNewsDetail.ts        # Individual news article
+│   │   │   ├── useNewsSearch.ts        # News search functionality
+│   │   │   ├── usePopularNews.ts       # Trending news for main page
+│   │   │   └── useNewsSubscription.ts  # Email alert subscriptions
 │   │   └── search/      # Search and intent detection hooks
 │   │       ├── useIntentDetection.ts   # Claude AI intent analysis
-│   │       └── useGeneralSearch.ts
+│   │       ├── useGeneralSearch.ts
+│   │       └── usePopularSearchTerms.ts # Trending searches
 │   └── common/          # Shared utility hooks
 ├── stores/              # Zustand stores (domain-separated)
+│   ├── authStore.ts     # Authentication state
+│   ├── searchStore.ts   # Search state and intent detection
+│   ├── analysisStore.ts # HS Code analysis sessions and progress
+│   ├── resultStore.ts   # Analysis results and caching
+│   ├── newsStore.ts     # News articles, categories, and subscriptions
+│   ├── bookmarkStore.ts # Bookmark and monitoring state
+│   ├── notificationStore.ts # Real-time notifications
+│   └── uiStore.ts       # UI state (modals, loading, etc.)
 ├── types/               # TypeScript type definitions
 │   ├── api/             # API response/request types
 │   ├── domain/          # Business domain types
@@ -146,9 +176,13 @@ src/
 │   │   ├── index.tsx    # Tracking input page
 │   │   └── $number.tsx  # Tracking results by cargo number
 │   ├── trade/           # Trade information domain
+│   │   ├── index.tsx    # Trade information hub
 │   │   ├── regulations.tsx     # Regulation information search
 │   │   ├── exchange-rates.tsx  # Customs exchange rates
 │   │   └── statistics.tsx      # Trade statistics dashboard
+│   ├── news/            # News domain
+│   │   ├── index.tsx    # News list page (더보기 from main page)
+│   │   └── $newsId.tsx  # Individual news detail page
 │   ├── search/          # General search results
 │   │   └── index.tsx    # Search results page
 │   ├── dashboard/       # User dashboard domain
@@ -178,6 +212,7 @@ Each domain store follows a consistent pattern but serves different purposes in 
 - `searchStore`: Intelligent search process and AI intent detection
 - `analysisStore`: Complex interactive analysis process with smart questioning system
 - `resultStore`: Permanent reference and sharing of completed analysis results
+- `newsStore`: News articles, categories, and subscription management
 - `bookmarkStore`: Bookmark and monitoring state
 - `notificationStore`: Real-time notifications
 - `authStore`: Authentication state
@@ -202,49 +237,79 @@ Understanding these patterns is crucial for maintaining consistency across the a
 
 ### Main Navigation Structure
 
-Based on the requirements analysis, the navigation follows a **Hybrid + Intelligent Search** approach:
+Based on comprehensive requirements analysis, the navigation follows an **Optimized Hybrid** approach that integrates all functional requirements while maintaining intuitive user experience:
 
 **Primary Navigation (Header)**:
-1. **Logo/Home** - Links to main page with intelligent search
-2. **HS Code 분석** - Direct access to core HS Code analysis feature
-3. **화물 추적** - Cargo tracking functionality  
-4. **무역 정보** - Trade information dropdown menu
-   - 규제 정보 (Regulations)
-   - 관세 환율 (Exchange Rates)
-   - 무역 통계 (Trade Statistics)
-5. **마이 대시보드** - Personal dashboard (logged in users only)
+1. **로고/홈** - Links to main page with intelligent search
+2. **HS Code 분석** - Core AI-powered HS Code analysis feature (FR-AD-004)
+3. **화물 추적** - Cargo tracking functionality (FR-AD-007)
+4. **무역 정보** - Comprehensive trade information hub with dropdown:
+   - 규제 정보 (Regulations) - FR-AD-013, FR-AD-008
+   - 관세 환율 (Exchange Rates) - FR-AD-014
+   - 무역 통계 (Trade Statistics) - FR-AD-012
+   - 무역 뉴스 (Trade News) - FR-AD-008
+5. **마이 대시보드** - Personal dashboard (logged in users only) - FR-UU-002
 6. **로그인/회원가입** - Authentication (changes to user menu when logged in)
 
 **User Menu (When Logged In)**:
 - 마이 대시보드
-- 계정 설정
-- 알림 설정
+- 계정 설정 - FR-AD-015
+- 알림 설정 - FR-AD-015
 - 로그아웃
+
+**Secondary Navigation (Footer)**:
+- 서비스 이용약관
+- 개인정보처리방침
+- 고객지원
+- API 문서
 
 ### Detailed Page Specifications
 
 #### 1. Main Page (`/`) - FR-UU-001
 **Core Features**:
 - **Intelligent Unified Search Bar** (Central placement) - FR-AD-003
-  - Natural language input processing
-  - Claude AI intent detection
+  - Natural language input processing with Claude AI
+  - Intent detection with visual feedback
   - Auto-routing to appropriate functionality
   - Search suggestions and history
-- **Quick Action Cards** - Direct access to key functions
-  - HS Code 분석 시작하기
-  - 화물 추적하기  
-  - 규제 정보 조회
-  - 관세 환율 확인
-- **Recent Activity Section** (Logged in users only)
-  - Recent analysis results
-  - Bookmarked items updates
-  - Monitoring alerts summary
+  - Voice input support for Korean
+- **Main Content Layout** (Two-column responsive design)
+  
+**Left Column - News and Updates**:
+- **주요 무역 뉴스** (Major Trade News Section) - FR-AD-008
+  - Latest trade regulation updates
+  - Industry news with AI-powered relevance scoring
+  - Hot/New badges for urgent updates
+  - "더보기" link to full news list page
+  - Individual news click navigation to detail pages
+
+**Right Column - Live Information Dashboard**:
+- **실시간 환율 정보** (Real-time Exchange Rates) - FR-AD-014
+  - Major currency pairs (USD, EUR, JPY, CNY)
+  - Live rate updates with change indicators
+  - Quick currency calculator access
+  - "자세히 >" link to full exchange rates page
+- **HS Code별 최신 정보** (Latest HS Code Information)
+  - Recently analyzed HS Codes
+  - Popular HS Code classifications
+  - Recent regulatory changes by HS Code
+  - Quick access to analysis results
+- **인기 검색어** (Popular Search Terms)
+  - Trending search queries
+  - Quick-click search functionality
+  - Real-time popularity ranking
+- **최근 분석 결과** (Recent Analysis Results) - Logged in users only
+  - User's recent HS Code analyses
+  - Bookmark status indicators
+  - Quick re-access to results
 
 **Components Required**:
-- `IntelligentSearchBar` with Claude AI integration
-- `QuickActionGrid` with navigation cards
-- `RecentActivityFeed` for personalized content
-- `IntentDetectionDisplay` for search result routing
+- `IntelligentSearchBar` with Claude AI integration and voice input
+- `TradeNewsPanel` with news list and navigation
+- `RealTimeExchangeRates` with live updates
+- `PopularSearchTerms` with click-to-search functionality
+- `RecentAnalysisResults` with user-specific data
+- `HsCodeUpdatesPanel` with latest classification information
 
 #### 2. HS Code Analysis Domain (`/hscode/*`)
 
@@ -344,13 +409,36 @@ Based on the requirements analysis, the navigation follows a **Hybrid + Intellig
 
 #### 4. Trade Information Domain (`/trade/*`)
 
-##### 4.1 Regulations Page (`/trade/regulations.tsx`) - FR-AD-013
+##### 4.1 Trade Information Hub (`/trade/index.tsx`)
+**Core Features**:
+- **Trade Information Overview Dashboard**
+  - Quick access to all trade information services
+  - Latest regulation summaries
+  - Exchange rate snapshots
+  - Trade statistics highlights
+- **Featured Content**
+  - Important regulatory announcements
+  - Market trend highlights
+  - Popular trade statistics
+- **Quick Navigation**
+  - Direct links to regulations, exchange rates, statistics, and news
+
+**Components Required**:
+- `TradeInfoDashboard` - Overview information display
+- `RegulationHighlights` - Key regulation updates
+- `QuickNavigation` - Service access shortcuts
+
+##### 4.2 Regulations Page (`/trade/regulations.tsx`) - FR-AD-013
 **Core Features**:
 - **Advanced Search Interface**
   - Keyword-based regulation search
   - Category filters (export/import/general)
   - Date range filtering
   - Country-specific regulations
+- **Integrated News Section** - FR-AD-008
+  - Latest regulatory news updates
+  - News relevance scoring based on search context
+  - Quick navigation to news detail pages
 - **Search Results Display**
   - Regulation summaries with AI analysis
   - Source document links
@@ -361,8 +449,9 @@ Based on the requirements analysis, the navigation follows a **Hybrid + Intellig
 - `RegulationSearchForm` - Advanced search interface
 - `RegulationResultsList` - Search results display
 - `RegulationFilters` - Category and date filters
+- `IntegratedNewsPanel` - News within regulation context
 
-##### 4.2 Exchange Rates Page (`/trade/exchange-rates.tsx`) - FR-AD-014
+##### 4.3 Exchange Rates Page (`/trade/exchange-rates.tsx`) - FR-AD-014
 **Core Features**:
 - **Real-time Exchange Rates** from Korea Customs API
   - Major currency pairs (USD, EUR, CNY, JPY)
@@ -380,7 +469,7 @@ Based on the requirements analysis, the navigation follows a **Hybrid + Intellig
 - `RateHistoryChart` - Historical data visualization
 - `RateAlertSettings` - Alert configuration
 
-##### 4.3 Trade Statistics Page (`/trade/statistics.tsx`) - FR-AD-012
+##### 4.4 Trade Statistics Page (`/trade/statistics.tsx`) - FR-AD-012
 **Core Features**:
 - **Comprehensive Trade Data Dashboard**
   - Korea Customs import/export statistics
@@ -399,6 +488,62 @@ Based on the requirements analysis, the navigation follows a **Hybrid + Intellig
 - `TradeStatsDashboard` - Main statistics display
 - `InteractiveTradeCharts` - Data visualization
 - `DataExportTools` - Export functionality
+
+#### 5. News Domain (`/news/*`)
+
+##### 5.1 News List Page (`/news/index.tsx`) - FR-AD-008
+**Core Features**:
+- **Comprehensive News Listing**
+  - All trade-related news articles
+  - Category filtering (regulations, market, industry, policy)
+  - Date-based sorting and filtering
+  - Search within news content
+- **News Categories**
+  - 규제 정보 (Regulatory Updates)
+  - 시장 동향 (Market Trends)
+  - 산업 뉴스 (Industry News)
+  - 정책 변경 (Policy Changes)
+- **Advanced Features**
+  - Bookmark favorite news articles
+  - Share news articles
+  - Related news suggestions
+  - Email subscription for categories
+
+**Components Required**:
+- `NewsListGrid` - Main news display with pagination
+- `NewsCategoryFilters` - Category and date filtering
+- `NewsSearchBar` - In-news search functionality
+- `NewsSubscriptionPanel` - Email alert settings
+
+##### 5.2 News Detail Page (`/news/$newsId.tsx`) - FR-AD-008
+**Core Features**:
+- **Full News Article Display**
+  - Complete article content with rich formatting
+  - Publication date and source information
+  - Author and credibility indicators
+  - Related documents and links
+- **AI-Enhanced Features** - Claude AI Integration
+  - Article summary generation
+  - Key points extraction
+  - Impact analysis for businesses
+  - Related HS Code identification
+- **User Interaction**
+  - Bookmark article
+  - Share via social media or email
+  - Print-friendly format
+  - Related news suggestions
+- **Business Context**
+  - Affected HS Codes highlighting
+  - Compliance implications
+  - Action items for traders
+
+**Components Required**:
+- `NewsArticleContent` - Rich text display with formatting
+- `NewsMetadata` - Source and publication information
+- `AISummaryPanel` - Claude AI-generated insights
+- `RelatedContentSidebar` - Related news and HS Codes
+- `NewsActionToolbar` - Share, bookmark, print options
+- `BusinessImpactAnalysis` - Trade impact assessment
 
 #### 5. User Dashboard Domain (`/dashboard/*`)
 
@@ -567,6 +712,9 @@ The routing structure reflects our domain-driven architecture and the detailed p
 1. **User searches "삶은 족발 HS Code"** → Intent detection → Route to `/hscode/analyze/[new-session-id]`
 2. **User searches "ABCD-1234 화물"** → Intent detection → Route to `/tracking/ABCD-1234`
 3. **User searches "최신 수입 규제"** → Intent detection → Route to `/search?q=최신%20수입%20규제`
+4. **User clicks news article on main page** → Route to `/news/[news-id]` with full article and AI analysis
+5. **User clicks "더보기" in news section** → Route to `/news/` with filtered news list
+6. **User navigates to "무역 정보" → "규제 정보"** → Route to `/trade/regulations` with integrated news panel
 
 **CSR Navigation Optimization:**
 - Data prefetching before navigation for smoother UX
@@ -622,6 +770,7 @@ Each domain has its own API service that encapsulates the specific logic for tha
 - `hsCodeApi`: HS Code analysis combining Claude AI with Korea Customs data
 - `trackingApi`: Korea Customs cargo tracking integration
 - `searchApi`: Claude AI intent detection and general search
+- `newsApi`: Trade news and regulatory updates with AI-powered summarization
 - `bookmarkApi`: Bookmark and monitoring with change detection
 - `tradeApi`: Korea Customs trade statistics and UN COMTRADE integration
 
@@ -679,6 +828,8 @@ Our form validation uses Zod schemas that match the backend DTO validation rules
 - `hsCodeAnalysisSchema`: HS Code analysis request with text description and optional product image
 - `createBookmarkSchema`: Bookmark creation with monitoring preferences
 - `searchFilterSchema`: Search filters for trade information
+- `newsFilterSchema`: News category and date filtering
+- `newsSubscriptionSchema`: News email subscription preferences
 - `smartQuestionSchema`: Structured responses to AI-generated questions
 - `imageUploadSchema`: Product image validation for multimodal analysis
 
@@ -892,4 +1043,4 @@ Performance is crucial for a complex AI application, especially when handling la
 - AI Analysis: 'HS Code 분석 중 오류가 발생했습니다. 다시 시도해 주세요.'
 - Monitoring: '모니터링 중인 항목에 중요한 변경사항이 있습니다.'
 
-This comprehensive cursorrules specification ensures a robust, performant, and culturally appropriate frontend application for Korean users. It provides complete guidance for implementing all required pages and features from the requirements specification, including intelligent search routing, comprehensive HS Code analysis, cargo tracking, trade information management, personal dashboard functionality, and real-time monitoring capabilities. The specification is fully optimized for CSR with aggressive TanStack Query caching and Claude AI integration to provide the best possible user experience in the Korean trade information market.
+This comprehensive cursorrules specification ensures a robust, performant, and culturally appropriate frontend application for Korean users. It provides complete guidance for implementing all required pages and features from the requirements specification, including intelligent search routing, comprehensive HS Code analysis, cargo tracking, trade information management, dedicated news system with AI-powered analysis, personal dashboard functionality, and real-time monitoring capabilities. The specification is fully optimized for CSR with aggressive TanStack Query caching and Claude AI integration to provide the best possible user experience in the Korean trade information market.
