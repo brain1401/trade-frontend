@@ -27,17 +27,6 @@ export default tseslint.config({
   rules: {
     // 🚨 진짜 오류 (ERROR) - 런타임 버그나 번들링에 직접적 영향
 
-    // 미사용 변수/함수 감지 - Tree Shaking을 위해 필수
-    // _로 시작하는 변수는 무시 (예: _unused)
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        argsIgnorePattern: "^_", // _id, _props 같은 매개변수 무시
-        varsIgnorePattern: "^_", // _temp 같은 변수 무시
-        ignoreRestSiblings: true, // 객체 구조분해에서 나머지 속성 무시
-      },
-    ],
-
     // 동일 모듈의 중복 import 방지 - 번들 크기 최적화
     "no-duplicate-imports": "error",
 
@@ -45,6 +34,17 @@ export default tseslint.config({
     "react-hooks/exhaustive-deps": "error",
 
     // ⚠️ 권장사항 (WARN) - 코드 품질이나 성능 최적화 관련
+
+    // 미사용 변수/함수 감지 - Tree Shaking을 위해 필수
+    // _로 시작하는 변수는 무시 (예: _unused)
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_", // _id, _props 같은 매개변수 무시
+        varsIgnorePattern: "^_", // _temp 같은 변수 무시
+        ignoreRestSiblings: true, // 객체 구조분해에서 나머지 속성 무시
+      },
+    ],
 
     // TanStack Router의 createRoute 속성 순서 일관성
     // 코드 가독성과 팀 협업을 위한 권장사항
