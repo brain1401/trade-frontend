@@ -1,6 +1,5 @@
-import { clsx } from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { ClassValue } from "clsx";
 
 /**
  * Tailwind CSS 클래스를 조건부로 병합하고 중복을 제거하는 유틸리티 함수
