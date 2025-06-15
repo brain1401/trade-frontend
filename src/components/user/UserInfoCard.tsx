@@ -20,7 +20,7 @@ const UserInfoCard = () => {
     return (
       <Card className="mb-4 overflow-hidden py-0 shadow-lg">
         <CardContent className="p-4 text-center">
-          <p className="mb-3 text-gray-600">로그인이 필요합니다</p>
+          <p className="mb-3 text-neutral-600">로그인이 필요합니다</p>
           <Button variant="default" asChild className="w-full">
             <Link to="/user">로그인</Link>
           </Button>
@@ -61,18 +61,18 @@ const UserInfoCard = () => {
             variant="secondary"
             size="sm"
             onClick={logout}
-            className="flex h-auto items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-gray-100"
+            className="flex h-auto items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-neutral-100"
           >
             <LogOut size={14} className="mr-1" /> 로그아웃
           </Button>
         </div>
       </div>
       <CardContent className="p-4">
-        <div className="mb-4 flex items-center justify-around border-b border-gray-200 pb-3">
+        <div className="mb-4 flex items-center justify-around border-b border-neutral-200 pb-3">
           <Button
             variant="link"
             asChild
-            className={cn(LINK_BUTTON_BASE_CLASSES, "text-blue-600")}
+            className={cn(LINK_BUTTON_BASE_CLASSES, "text-primary-600")}
           >
             <Link to="/support" className="flex items-center">
               <LifeBuoy size={16} className="mr-1.5 text-blue-500" /> 문의하기
@@ -83,7 +83,7 @@ const UserInfoCard = () => {
             asChild
             className={cn(
               LINK_BUTTON_BASE_CLASSES,
-              "ml-4 text-gray-700 hover:text-blue-600",
+              "ml-4 text-neutral-700 hover:text-primary-600",
             )}
           >
             <Link to="/user/profile">프로필 수정</Link>
@@ -115,7 +115,7 @@ const UserInfoCard = () => {
                 <Button
                   variant="ghost"
                   asChild
-                  className="relative flex h-auto w-[5rem] flex-col items-center justify-center overflow-visible rounded-md p-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                  className="relative flex h-auto w-[5rem] flex-col items-center justify-center overflow-visible rounded-md p-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600"
                 >
                   <Link to={path || "#"}>
                     <div className="mb-1">

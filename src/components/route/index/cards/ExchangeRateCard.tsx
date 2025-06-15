@@ -14,7 +14,7 @@ const formatChange = (change: number): React.ReactNode => {
       ? "text-red-500"
       : change < 0
         ? "text-blue-500"
-        : "text-gray-500";
+        : "text-neutral-500";
   return (
     <span className={`${color} text-xs`}>
       {sign}
@@ -52,14 +52,14 @@ const ExchangeRateCard = () => (
         {mockExchangeRates.map((item) => (
           <tr
             key={item.currency}
-            className="border-b border-gray-100 pb-2 last:border-b-0"
+            className="border-b border-neutral-100 pb-2 last:border-b-0"
           >
             <td>
               <div className="flex items-center justify-center">
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-neutral-700">
                   {item.currency}
                 </span>
-                <span className="text-md ml-2 text-gray-500">
+                <span className="text-md ml-2 text-neutral-500">
                   {item.symbol}
                 </span>
               </div>
@@ -68,7 +68,7 @@ const ExchangeRateCard = () => (
             <td className="py-[.8rem]">
               <div className="flex flex-col justify-center">
                 <div className="flex items-center justify-between">
-                  <div className="flex font-semibold text-nowrap text-gray-800">
+                  <div className="flex font-semibold text-nowrap text-neutral-800">
                     <div className="">1 {item.currency}</div>
                     <div className={rateClasses}>=</div>
                     <div className="flex-1 pl-[.2rem]">
@@ -77,7 +77,7 @@ const ExchangeRateCard = () => (
                   </div>
                   <div className={rateClasses}>{formatChange(item.change)}</div>
                 </div>
-                <div className="mt-0.5 self-end text-xs text-gray-500">
+                <div className="mt-0.5 self-end text-xs text-neutral-500">
                   1,000원 = {calculateRateFor1000Won(item.rate, item.currency)}{" "}
                   {item.currency}
                 </div>
@@ -87,13 +87,13 @@ const ExchangeRateCard = () => (
         ))}
       </tbody>
     </table>
-    <p className="mt-2 text-right text-xs text-gray-400">
+    <p className="mt-2 text-right text-xs text-neutral-400">
       데이터 제공 : 관세청 API (Mock)
     </p>
     <div className="mt-3 text-right">
       <Button
         variant="link"
-        className="ml-auto flex h-auto items-center justify-end p-0 text-sm text-blue-600 hover:underline"
+        className="ml-auto flex h-auto items-center justify-end p-0 text-sm text-primary-600 hover:underline"
       >
         더보기 <ChevronRight size={16} className="ml-0.5" />
       </Button>

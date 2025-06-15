@@ -18,7 +18,6 @@ import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as RegulationsIndexRouteImport } from './routes/regulations/index'
 import { Route as PrivacyIndexRouteImport } from './routes/privacy/index'
-import { Route as PopularHscodesIndexRouteImport } from './routes/popular-hscodes/index'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as HelpIndexRouteImport } from './routes/help/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -37,8 +36,8 @@ import { Route as UserBookmarksIndexRouteImport } from './routes/user/bookmarks/
 import { Route as UserAnalysisHistoryIndexRouteImport } from './routes/user/analysis-history/index'
 import { Route as SearchResultQueryIndexRouteImport } from './routes/search-result/$query/index'
 import { Route as NewsUuidIndexRouteImport } from './routes/news/$uuid/index'
-import { Route as HscodeInfoHscodeIndexRouteImport } from './routes/hscode-info/$hscode/index'
 import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
+import { Route as HscodeGuideCodeRouteImport } from './routes/hscode/guide/$code'
 import { Route as HscodeAnalyzeSessionIdRouteImport } from './routes/hscode/analyze/$sessionId'
 
 const UserRouteRoute = UserRouteRouteImport.update({
@@ -84,11 +83,6 @@ const RegulationsIndexRoute = RegulationsIndexRouteImport.update({
 const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
   id: '/privacy/',
   path: '/privacy/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PopularHscodesIndexRoute = PopularHscodesIndexRouteImport.update({
-  id: '/popular-hscodes/',
-  path: '/popular-hscodes/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
@@ -182,14 +176,14 @@ const NewsUuidIndexRoute = NewsUuidIndexRouteImport.update({
   path: '/news/$uuid/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HscodeInfoHscodeIndexRoute = HscodeInfoHscodeIndexRouteImport.update({
-  id: '/hscode-info/$hscode/',
-  path: '/hscode-info/$hscode/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HscodeResultResultIdRoute = HscodeResultResultIdRouteImport.update({
   id: '/hscode/result/$resultId',
   path: '/hscode/result/$resultId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HscodeGuideCodeRoute = HscodeGuideCodeRouteImport.update({
+  id: '/hscode/guide/$code',
+  path: '/hscode/guide/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HscodeAnalyzeSessionIdRoute = HscodeAnalyzeSessionIdRouteImport.update({
@@ -212,7 +206,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardIndexRoute
   '/help': typeof HelpIndexRoute
   '/news': typeof NewsIndexRoute
-  '/popular-hscodes': typeof PopularHscodesIndexRoute
   '/privacy': typeof PrivacyIndexRoute
   '/regulations': typeof RegulationsIndexRoute
   '/search': typeof SearchIndexRoute
@@ -221,8 +214,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsIndexRoute
   '/user/': typeof UserIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
+  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/hscode-info/$hscode': typeof HscodeInfoHscodeIndexRoute
   '/news/$uuid': typeof NewsUuidIndexRoute
   '/search-result/$query': typeof SearchResultQueryIndexRoute
   '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
@@ -244,7 +237,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/help': typeof HelpIndexRoute
   '/news': typeof NewsIndexRoute
-  '/popular-hscodes': typeof PopularHscodesIndexRoute
   '/privacy': typeof PrivacyIndexRoute
   '/regulations': typeof RegulationsIndexRoute
   '/search': typeof SearchIndexRoute
@@ -253,8 +245,8 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsIndexRoute
   '/user': typeof UserIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
+  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/hscode-info/$hscode': typeof HscodeInfoHscodeIndexRoute
   '/news/$uuid': typeof NewsUuidIndexRoute
   '/search-result/$query': typeof SearchResultQueryIndexRoute
   '/user/analysis-history': typeof UserAnalysisHistoryIndexRoute
@@ -278,7 +270,6 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/help/': typeof HelpIndexRoute
   '/news/': typeof NewsIndexRoute
-  '/popular-hscodes/': typeof PopularHscodesIndexRoute
   '/privacy/': typeof PrivacyIndexRoute
   '/regulations/': typeof RegulationsIndexRoute
   '/search/': typeof SearchIndexRoute
@@ -287,8 +278,8 @@ export interface FileRoutesById {
   '/terms/': typeof TermsIndexRoute
   '/user/': typeof UserIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
+  '/hscode/guide/$code': typeof HscodeGuideCodeRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
-  '/hscode-info/$hscode/': typeof HscodeInfoHscodeIndexRoute
   '/news/$uuid/': typeof NewsUuidIndexRoute
   '/search-result/$query/': typeof SearchResultQueryIndexRoute
   '/user/analysis-history/': typeof UserAnalysisHistoryIndexRoute
@@ -313,7 +304,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/help'
     | '/news'
-    | '/popular-hscodes'
     | '/privacy'
     | '/regulations'
     | '/search'
@@ -322,8 +312,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/user/'
     | '/hscode/analyze/$sessionId'
+    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/hscode-info/$hscode'
     | '/news/$uuid'
     | '/search-result/$query'
     | '/user/analysis-history'
@@ -345,7 +335,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/help'
     | '/news'
-    | '/popular-hscodes'
     | '/privacy'
     | '/regulations'
     | '/search'
@@ -354,8 +343,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/user'
     | '/hscode/analyze/$sessionId'
+    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/hscode-info/$hscode'
     | '/news/$uuid'
     | '/search-result/$query'
     | '/user/analysis-history'
@@ -378,7 +367,6 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/help/'
     | '/news/'
-    | '/popular-hscodes/'
     | '/privacy/'
     | '/regulations/'
     | '/search/'
@@ -387,8 +375,8 @@ export interface FileRouteTypes {
     | '/terms/'
     | '/user/'
     | '/hscode/analyze/$sessionId'
+    | '/hscode/guide/$code'
     | '/hscode/result/$resultId'
-    | '/hscode-info/$hscode/'
     | '/news/$uuid/'
     | '/search-result/$query/'
     | '/user/analysis-history/'
@@ -412,7 +400,6 @@ export interface RootRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   HelpIndexRoute: typeof HelpIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
-  PopularHscodesIndexRoute: typeof PopularHscodesIndexRoute
   PrivacyIndexRoute: typeof PrivacyIndexRoute
   RegulationsIndexRoute: typeof RegulationsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
@@ -420,8 +407,8 @@ export interface RootRouteChildren {
   SupportIndexRoute: typeof SupportIndexRoute
   TermsIndexRoute: typeof TermsIndexRoute
   HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
+  HscodeGuideCodeRoute: typeof HscodeGuideCodeRoute
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
-  HscodeInfoHscodeIndexRoute: typeof HscodeInfoHscodeIndexRoute
   NewsUuidIndexRoute: typeof NewsUuidIndexRoute
   SearchResultQueryIndexRoute: typeof SearchResultQueryIndexRoute
 }
@@ -489,13 +476,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/popular-hscodes/': {
-      id: '/popular-hscodes/'
-      path: '/popular-hscodes'
-      fullPath: '/popular-hscodes'
-      preLoaderRoute: typeof PopularHscodesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news/': {
@@ -624,18 +604,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsUuidIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/hscode-info/$hscode/': {
-      id: '/hscode-info/$hscode/'
-      path: '/hscode-info/$hscode'
-      fullPath: '/hscode-info/$hscode'
-      preLoaderRoute: typeof HscodeInfoHscodeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/hscode/result/$resultId': {
       id: '/hscode/result/$resultId'
       path: '/hscode/result/$resultId'
       fullPath: '/hscode/result/$resultId'
       preLoaderRoute: typeof HscodeResultResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hscode/guide/$code': {
+      id: '/hscode/guide/$code'
+      path: '/hscode/guide/$code'
+      fullPath: '/hscode/guide/$code'
+      preLoaderRoute: typeof HscodeGuideCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hscode/analyze/$sessionId': {
@@ -684,7 +664,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   HelpIndexRoute: HelpIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
-  PopularHscodesIndexRoute: PopularHscodesIndexRoute,
   PrivacyIndexRoute: PrivacyIndexRoute,
   RegulationsIndexRoute: RegulationsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
@@ -692,8 +671,8 @@ const rootRouteChildren: RootRouteChildren = {
   SupportIndexRoute: SupportIndexRoute,
   TermsIndexRoute: TermsIndexRoute,
   HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
+  HscodeGuideCodeRoute: HscodeGuideCodeRoute,
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
-  HscodeInfoHscodeIndexRoute: HscodeInfoHscodeIndexRoute,
   NewsUuidIndexRoute: NewsUuidIndexRoute,
   SearchResultQueryIndexRoute: SearchResultQueryIndexRoute,
 }

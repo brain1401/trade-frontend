@@ -57,7 +57,7 @@ function App() {
                 asChild
                 className={cn(
                   LINK_BUTTON_BASE_CLASSES,
-                  "flex items-center justify-end text-blue-600",
+                  "flex items-center justify-end text-primary-600",
                 )}
               >
                 <Link to="/news">
@@ -84,10 +84,12 @@ function App() {
                   <Button
                     variant="link"
                     asChild
-                    className={cn(LINK_BUTTON_BASE_CLASSES, "text-blue-600")}
+                    className={cn(LINK_BUTTON_BASE_CLASSES, "text-primary-600")}
                   >
-                    <Link to="/popular-hscodes">
-                      <span className="mr-1.5 text-gray-500">{index + 1}.</span>
+                    <Link to="/search" search={{ q: keyword }}>
+                      <span className="mr-1.5 text-neutral-500">
+                        {index + 1}.
+                      </span>
                       {keyword}
                     </Link>
                   </Button>
@@ -100,23 +102,40 @@ function App() {
               {mockRecentItems.map(({ hscode, text }) => (
                 <li
                   key={hscode}
-                  className="border-b border-gray-100 py-1.5 last:border-0"
+                  className="border-b border-neutral-100 py-1.5 last:border-0"
                 >
                   <Button
                     variant="link"
                     asChild
                     className={cn(
                       LINK_BUTTON_BASE_CLASSES,
-                      "text-gray-700 hover:text-blue-600",
+                      "text-neutral-700 hover:text-primary-600",
                     )}
                   >
-                    <Link to="/hscode-info/$hscode" params={{ hscode }}>
+                    <Link
+                      to="/hscode/result/$resultId"
+                      params={{ resultId: `result-${hscode}` }}
+                    >
                       {text}
                     </Link>
                   </Button>
                 </li>
               ))}
             </ul>
+            <div className="mt-3 text-right">
+              <Button
+                variant="link"
+                asChild
+                className={cn(
+                  LINK_BUTTON_BASE_CLASSES,
+                  "flex items-center justify-end text-primary-600",
+                )}
+              >
+                <Link to="/user/analysis-history">
+                  전체 히스토리 <ChevronRight size={16} className="ml-0.5" />
+                </Link>
+              </Button>
+            </div>
           </ContentCard>
         </aside>
       </div>

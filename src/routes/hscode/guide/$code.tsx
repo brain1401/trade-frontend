@@ -1,29 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BarChart3, FileText, Globe, LinkIcon } from "lucide-react";
 
-export const Route = createFileRoute("/hscode-info/$hscode/")({
-  component: HSCodeDetailPage,
+export const Route = createFileRoute("/hscode/guide/$code")({
+  component: HSCodeGuidePage,
 });
 
 /**
- * HS Code 상세 정보 페이지 컴포넌트
+ * HS Code 가이드 페이지 컴포넌트
  *
  * 특정 HS Code에 대한 상세 정보, 분류 기준, 해설서 내용,
- * 관련 사례 및 참고 자료를 제공하는 페이지
+ * 관련 사례 및 참고 자료를 제공하는 교육 페이지
  *
- * @returns HS Code 상세 정보 페이지 JSX 엘리먼트
+ * @returns HS Code 가이드 페이지 JSX 엘리먼트
  */
-function HSCodeDetailPage() {
-  const { hscode } = Route.useParams();
+function HSCodeGuidePage() {
+  const { code } = Route.useParams();
 
   // HS Code 관련 정보 구성
   const hsCodeInfo = {
     /** 전체 HS Code */
-    fullCode: hscode,
+    fullCode: code,
     /** 6자리 기본 HS Code (앞 6자리) */
-    baseCode: hscode.substring(0, 6),
+    baseCode: code.substring(0, 6),
     /** 호(章) 번호 (앞 4자리) */
-    chapterCode: hscode.substring(0, 4),
+    chapterCode: code.substring(0, 4),
   };
 
   // 예시 데이터 - 실제로는 API에서 가져올 데이터
@@ -65,6 +65,7 @@ function HSCodeDetailPage() {
         <h1 className="mb-4 text-5xl font-bold text-slate-800">
           HS Code {hsCodeInfo.fullCode}
         </h1>
+        <p className="text-xl text-slate-600">분류 가이드 및 해설서</p>
       </div>
 
       {/* 메인 콘텐츠 카드 */}
@@ -72,7 +73,7 @@ function HSCodeDetailPage() {
         <div className="p-6 sm:p-8 md:p-10">
           <header className="mb-8">
             <h2 className="text-3xl font-bold tracking-tight text-slate-800 sm:text-4xl">
-              HS Code 상세 정보
+              HS Code 분류 가이드
             </h2>
             <p className="mt-2 text-slate-500">
               해당 HS Code의 분류 기준과 적용 범위에 대한 상세 정보입니다.
@@ -168,7 +169,7 @@ function HSCodeDetailPage() {
           {/* 관련 통계 바로가기 푸터 */}
           <footer className="mt-12 border-t border-slate-200 pt-8">
             <h3 className="mb-5 text-xl font-semibold text-slate-700">
-              관련 통계 바로가기
+              관련 정보 바로가기
             </h3>
             <div className="flex flex-col gap-4 sm:flex-row">
               <button
@@ -176,14 +177,14 @@ function HSCodeDetailPage() {
                 className="flex w-full transform items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-bold text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none sm:w-auto"
               >
                 <BarChart3 className="h-5 w-5" />
-                <span>국가별 수출입 통계</span>
+                <span>무역 통계 보기</span>
               </button>
               <button
                 type="button"
                 className="flex w-full transform items-center justify-center gap-2 rounded-lg bg-slate-600 px-6 py-3 font-bold text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-slate-700 focus:ring-4 focus:ring-slate-300 focus:outline-none sm:w-auto"
               >
                 <Globe className="h-5 w-5" />
-                <span>글로벌 무역 통계</span>
+                <span>국가별 규제 확인</span>
               </button>
             </div>
           </footer>

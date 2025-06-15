@@ -1,5 +1,5 @@
 import { BrainCircuit } from "lucide-react";
-import { AnalysisDetails } from "../hscode-info/AnalysisDetails";
+import { AnalysisDetails } from "../../hscode/AnalysisDetails";
 
 /**
  * AI 분석 결과 카드 컴포넌트의 props 타입
@@ -47,7 +47,7 @@ export function AIAnalysisCard({ hscode, query }: AIAnalysisCardProps) {
     <div className="mx-auto mb-10 w-full max-w-5xl overflow-hidden rounded-xl border border-blue-200 bg-blue-50 shadow-md">
       <div className="p-6 sm:p-8">
         <div className="flex items-start">
-          <BrainCircuit className="mr-5 h-10 w-10 flex-shrink-0 text-blue-600" />
+          <BrainCircuit className="mr-5 h-10 w-10 flex-shrink-0 text-primary-600" />
           <div>
             <h2 className="text-2xl font-bold text-blue-900">AI 분석 결과</h2>
             <p className="mt-1 text-slate-600">

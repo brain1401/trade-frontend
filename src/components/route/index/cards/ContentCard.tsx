@@ -6,7 +6,7 @@ import type { ContentCardProps } from "@/types";
 const CARD_BASE_CLASSES = "mb-4 py-0";
 const HEADER_CLASSES =
   "flex flex-row items-center justify-between border-b p-4 md:p-4";
-const TITLE_CLASSES = "!mt-0 text-lg font-semibold text-gray-800";
+const TITLE_CLASSES = "!mt-0 text-lg font-semibold text-neutral-800";
 const CONTENT_BASE_CLASSES = "p-4 md:p-5";
 
 const ContentCard = ({

@@ -74,7 +74,7 @@ function SearchResultPage() {
       /** 클릭 핸들러 함수명 */
       action: "handleViewDetails",
       /** 대상 경로 */
-      targetPath: `/hscode-info/${analysisResult.recommendedHSCode}/`,
+      targetPath: `/hscode/guide/${analysisResult.recommendedHSCode}/`,
     },
     {
       id: "save-result",

@@ -38,7 +38,7 @@ const HSCodeNewsSection = () => {
       className={`flex h-auto items-center rounded-full px-3 py-2 text-xs transition-colors ${
         filterOption === option
           ? "bg-blue-500 text-white hover:bg-blue-600"
-          : "border-gray-300 bg-gray-200 text-gray-700 hover:bg-gray-300"
+          : "border-neutral-300 bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
       }`}
     >
       <IconComponent size={14} className="mr-1" /> {label}
@@ -61,7 +61,7 @@ const HSCodeNewsSection = () => {
           ))}
         </div>
       ) : (
-        <p className="py-4 text-center text-sm text-gray-500">
+        <p className="py-4 text-center text-sm text-neutral-500">
           {filterOption === "bookmarked"
             ? "북마크된 정보가 없습니다."
             : "표시할 정보가 없습니다."}
@@ -72,7 +72,7 @@ const HSCodeNewsSection = () => {
           <Button
             variant="link"
             onClick={loadMoreNews}
-            className="ml-auto flex h-auto cursor-pointer items-center justify-end p-0 text-sm text-blue-600 hover:underline"
+            className="ml-auto flex h-auto cursor-pointer items-center justify-end p-0 text-sm text-primary-600 hover:underline"
           >
             더보기 <ChevronRight size={16} className="ml-0.5" />
           </Button>

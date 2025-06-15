@@ -37,7 +37,7 @@ function RootLayout() {
   }, [initializeAuth]);
 
   return (
-    <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-gray-50 font-nanum_square_neo_variable font-[500]">
+    <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-neutral-50 font-nanum_square_neo_variable font-[500]">
       <TopNavBar />
       <QuickLinksBar />
       <SearchBarHeader />

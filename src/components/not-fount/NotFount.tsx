@@ -82,10 +82,10 @@ export default function NotFound() {
               </Card>
             </Link>
 
-            <Link to="/popular-hscodes">
+            <Link to="/trade/statistics">
               <Card className={PAGE_BUTTON_CLASSES}>
                 <CardContent className={PAGE_BUTTON_CONTENT_CLASSES}>
-                  인기 HS Code
+                  무역 통계
                 </CardContent>
               </Card>
             </Link>

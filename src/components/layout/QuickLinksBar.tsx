@@ -11,9 +11,9 @@ const QuickLinksBar = () => {
       path: "/regulations",
     },
     {
-      name: "인기 HS Code",
+      name: "무역 통계",
       icon: <TrendingUp size={18} className="mr-1.5" />,
-      path: "/popular-hscodes",
+      path: "/trade/statistics",
     },
     {
       name: "국가별 정보",
