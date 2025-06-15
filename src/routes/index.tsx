@@ -119,7 +119,7 @@ function App() {
                   "flex items-center justify-end text-primary-600",
                 )}
               >
-                <Link to="/dashboard/bookmarks">
+                <Link to="/dashboard">
                   전체 히스토리 <ChevronRight size={16} className="ml-0.5" />
                 </Link>
               </Button>

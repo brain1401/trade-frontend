@@ -1,33 +1,67 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useNewsStore } from "@/stores/newsStore";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import ContentCard from "@/components/common/ContentCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { CalendarDays, Filter, Search, BookmarkPlus } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/news/")({
   component: NewsListPage,
 });
 
-function NewsListPage() {
-  const {
-    news,
-    selectedCategory,
-    searchQuery,
-    sortBy,
-    isLoading,
-    error,
-    setFilter,
-    setSearchQuery,
-    setSortBy,
-    getFilteredNews,
-    toggleBookmark,
-    isBookmarked,
-  } = useNewsStore();
+// 하드코딩된 뉴스 데이터
+const mockNews = [
+  {
+    id: "1",
+    title: "2024년 수출입 신규 규제 시행 안내",
+    summary:
+      "새로운 품질인증 절차가 2024년 3월부터 시행됩니다. 전자제품 및 화학제품에 대한 추가 검사가 필요할 예정입니다.",
+    content: "상세 내용...",
+    source: "관세청",
+    publishedAt: "2024-01-15T09:00:00Z",
+    category: "regulation",
+    priority: "high",
+    tags: ["규제", "품질인증", "전자제품"],
+    isBookmarked: false,
+  },
+  {
+    id: "2",
+    title: "미국-중국 무역 협정 업데이트",
+    summary:
+      "최근 미중 무역 협상에서 관세 조정 합의가 이루어졌습니다. IT 부품에 대한 관세가 5% 인하될 예정입니다.",
+    content: "상세 내용...",
+    source: "무역협회",
+    publishedAt: "2024-01-12T14:30:00Z",
+    category: "trade",
+    priority: "medium",
+    tags: ["미국", "중국", "관세"],
+    isBookmarked: true,
+  },
+  {
+    id: "3",
+    title: "EU 탄소국경세 시행 임박",
+    summary:
+      "2024년 10월부터 EU 탄소국경세가 본격 시행됩니다. 철강, 시멘트 등 탄소집약적 산업에 큰 영향이 예상됩니다.",
+    content: "상세 내용...",
+    source: "산업통상자원부",
+    publishedAt: "2024-01-10T11:15:00Z",
+    category: "policy",
+    priority: "high",
+    tags: ["EU", "탄소국경세", "환경"],
+    isBookmarked: false,
+  },
+];
 
-  const filteredNews = getFilteredNews();
+function NewsListPage() {
+  // 하드코딩된 상태들
+  const news = mockNews;
+  const selectedCategory = "all";
+  const searchQuery = "";
+  const sortBy = "date";
+  const isLoading = false;
+  const error = null;
+
+  const filteredNews = news; // 필터링 로직 제거
 
   const categories = [
     { value: "all", label: "전체" },
@@ -86,8 +120,8 @@ function NewsListPage() {
                 type="text"
                 placeholder="뉴스 검색..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                readOnly
               />
             </div>
 
@@ -100,7 +134,6 @@ function NewsListPage() {
                     selectedCategory === category.value ? "default" : "outline"
                   }
                   size="sm"
-                  onClick={() => setFilter(category.value as any)}
                 >
                   {category.label}
                 </Button>
@@ -116,7 +149,6 @@ function NewsListPage() {
                   key={option.value}
                   variant={sortBy === option.value ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => setSortBy(option.value as any)}
                 >
                   {option.label}
                 </Button>
@@ -181,14 +213,10 @@ function NewsListPage() {
                     </div>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleBookmark(article.id)}
-                  >
+                  <Button variant="ghost" size="sm">
                     <BookmarkPlus
                       className={`h-4 w-4 ${
-                        isBookmarked(article.id) ? "fill-current" : ""
+                        article.isBookmarked ? "fill-current" : ""
                       }`}
                     />
                   </Button>
@@ -201,34 +229,30 @@ function NewsListPage() {
                   </p>
                 )}
 
-                {/* Footer */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        article.priority === "high"
-                          ? "destructive"
-                          : "secondary"
-                      }
-                    >
-                      {article.category}
+                {/* Tags and Category */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">{article.category}</Badge>
+                  {article.priority === "high" && (
+                    <Badge variant="destructive">중요</Badge>
+                  )}
+                  {article.tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
                     </Badge>
-                    {article.priority === "high" && (
-                      <Badge variant="destructive">중요</Badge>
-                    )}
-                  </div>
-
-                  <Link to="/news/$newsId" params={{ newsId: article.id }}>
-                    <Button variant="outline" size="sm">
-                      자세히 보기
-                    </Button>
-                  </Link>
+                  ))}
                 </div>
               </div>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Load More Button */}
+      <div className="text-center">
+        <Button variant="outline" size="lg">
+          더 많은 뉴스 보기
+        </Button>
+      </div>
     </div>
   );
 }

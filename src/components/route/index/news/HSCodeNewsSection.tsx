@@ -3,20 +3,25 @@ import { ChevronRight, ListFilter, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContentCard from "@/components/common/ContentCard";
 import NewsItem from "./NewsItem";
-import type { FilterOption } from "@/types";
 import { mockHSCodeNewsAll } from "@/data/mockData";
 
+type FilterOptionType = "latest" | "bookmarked";
+
 const HSCodeNewsSection = () => {
-  const [filterOption, setFilterOption] = useState<FilterOption>("bookmarked");
+  const [filterOption, setFilterOption] =
+    useState<FilterOptionType>("bookmarked");
   const [displayCount, setDisplayCount] = useState(3);
 
   const allFilteredNews = mockHSCodeNewsAll
-    .filter((news) => (filterOption === "bookmarked" ? news.bookmarked : true))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .filter((news) => (filterOption === "bookmarked" ? true : true)) // 모든 뉴스 표시 (북마크 기능은 추후 구현)
+    .sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+    );
 
   const newsToShow = allFilteredNews.slice(0, displayCount);
 
-  const toggleFilter = (option: FilterOption) => {
+  const toggleFilter = (option: FilterOptionType) => {
     setFilterOption(option);
     setDisplayCount(3);
   };
@@ -28,7 +33,7 @@ const HSCodeNewsSection = () => {
   const allNewsLoaded = displayCount >= allFilteredNews.length;
 
   const renderFilterButton = (
-    option: FilterOption,
+    option: FilterOptionType,
     IconComponent: React.ComponentType<{ size?: number; className?: string }>,
     label: string,
   ) => (
@@ -57,7 +62,18 @@ const HSCodeNewsSection = () => {
       {newsToShow.length > 0 ? (
         <div className="space-y-2">
           {newsToShow.map((news) => (
-            <NewsItem key={news.uuid} {...news} />
+            <NewsItem
+              key={news.id}
+              uuid={news.id}
+              title={news.title}
+              summary={news.content}
+              published_at={news.publishedAt}
+              source={news.source}
+              category={news.category}
+              tags={[news.hsCode]}
+              content={news.content}
+              importance="medium"
+            />
           ))}
         </div>
       ) : (

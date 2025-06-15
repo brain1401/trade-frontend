@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/statistics"
+                  to="/search"
                   className="text-muted-foreground hover:text-primary"
                 >
                   무역 통계
@@ -46,7 +46,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-1 text-sm">
               <li>
                 <Link
-                  to="/help"
+                  to="/notifications"
                   className="text-muted-foreground hover:text-primary"
                 >
                   도움말
@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/support"
+                  to="/dashboard"
                   className="text-muted-foreground hover:text-primary"
                 >
                   고객지원
@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-1 text-sm">
               <li>
                 <Link
-                  to="/privacy"
+                  to="/auth/login"
                   className="text-muted-foreground hover:text-primary"
                 >
                   개인정보처리방침
@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/terms"
+                  to="/auth/signup"
                   className="text-muted-foreground hover:text-primary"
                 >
                   이용약관

@@ -92,7 +92,7 @@ const ExchangeRateCard = () => (
       데이터 제공 : 관세청 API (Mock)
     </p>
     <div className="mt-3 text-right">
-      <Link to="/trade/exchange-rates">
+      <Link to="/search">
         더보기 <ChevronRight size={16} className="ml-0.5" />
       </Link>
     </div>

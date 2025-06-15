@@ -28,7 +28,7 @@ const SearchBarHeader = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="HS Code, 상품명, 규제 등 무엇이든 물어보세요..."
+                placeholder="HS Code, 상품명, 규제, 화물추적, 무역통계 등 무엇이든 물어보세요..."
                 className="w-full border-0 bg-transparent p-3 !text-[1rem] shadow-none placeholder:text-inherit focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
               <Button

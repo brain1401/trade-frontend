@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { TradeNews } from "@/types";
+import type { TradeNews } from "../../../../types";
 import { Link } from "@tanstack/react-router";
 
 const SOURCE_TEXT_CLASSES = "text-black";
@@ -10,18 +10,26 @@ const NewsItem = ({
   title,
   summary,
   source,
-  date,
-  type,
-  hscode,
+  published_at,
+  category,
+  tags,
   uuid,
 }: NewsItemProps) => {
+  // published_at을 date로 변환
+  const date = new Date(published_at || "2025-01-01").toLocaleDateString(
+    "ko-KR",
+  );
+  // category를 type으로 사용
+  const type = category;
+  // tags에서 hscode 추출 (있다면)
+  const hscode = tags?.find((tag: string) => tag && tag.startsWith("HS"));
   let badgeVariant: "secondary" | "destructive" | "default" = "secondary";
   if (type === "규제") badgeVariant = "destructive";
   else if (type === "관세") badgeVariant = "default";
 
   return (
     <div className="border-b border-neutral-100 py-3 last:border-b-0">
-      <Link to="/news/$uuid" params={{ uuid }}>
+      <Link to="/news/$newsId" params={{ newsId: uuid }}>
         <div className="mb-1 flex items-start justify-between">
           <h4 className="cursor-pointer pr-2 font-semibold text-neutral-800">
             {title}

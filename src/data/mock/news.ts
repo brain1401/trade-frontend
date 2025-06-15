@@ -1,17 +1,18 @@
-import type { TradeNews, HSCodeNews } from "@/types";
+import type { TradeNews, HSCodeNews } from "../../types";
 
 // 무역 뉴스 Mock 데이터
 export const mockTradeNews: TradeNews[] = [
   {
-    id: 1,
+    uuid: "trade-news-1",
     title: "글로벌 공급망 재편, 한국 기업의 대응 전략은?",
     summary:
       "미-중 갈등 심화와 팬데믹 이후 글로벌 공급망이 빠르게 재편되고 있습니다. 우리 기업들은 신흥 시장으로의 다변화와 핵심 기술 자립화에 더욱 힘써야 할 시점입니다. 정부는 관련 R&D 지원을 확대할 예정입니다.",
+    content: "글로벌 공급망 재편에 따른 한국 기업의 대응 전략 상세 내용...",
     source: "무역일보",
-    date: "2025-01-12",
-    uuid: "trade-news-1",
-    hscode: "8517.12",
-    type: "규제",
+    published_at: "2025-01-12T09:00:00Z",
+    category: "규제",
+    tags: ["8517.12", "공급망", "무역정책"],
+    importance: "high" as const,
   },
   {
     id: 2,
@@ -151,6 +152,16 @@ export const getBookmarkedNews = () => {
 
 export const getRecentNews = (limit: number = 5) => {
   return [...mockTradeNews, ...mockHSCodeNews]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort((a, b) => {
+      const dateA =
+        a.date ||
+        ("published_at" in a ? a.published_at : undefined) ||
+        "2025-01-01";
+      const dateB =
+        b.date ||
+        ("published_at" in b ? b.published_at : undefined) ||
+        "2025-01-01";
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    })
     .slice(0, limit);
 };

@@ -4,6 +4,7 @@ import type { ExchangeRate, TradeStatistics, CountryInfo } from "@/types";
 export const mockExchangeRates: ExchangeRate[] = [
   {
     currency: "USD",
+    currencyName: "미국 달러",
     rate: 1359.4,
     change: -2.78,
     symbol: "$",
@@ -11,6 +12,7 @@ export const mockExchangeRates: ExchangeRate[] = [
   },
   {
     currency: "EUR",
+    currencyName: "유로",
     rate: 1421.5,
     change: -1.52,
     symbol: "€",
@@ -18,6 +20,7 @@ export const mockExchangeRates: ExchangeRate[] = [
   },
   {
     currency: "JPY",
+    currencyName: "일본 엔",
     rate: 9.43,
     change: -0.08,
     symbol: "¥",
@@ -25,6 +28,7 @@ export const mockExchangeRates: ExchangeRate[] = [
   },
   {
     currency: "CNY",
+    currencyName: "중국 위안",
     rate: 188.2,
     change: -0.85,
     symbol: "¥",

@@ -5,15 +5,30 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { useAuthStore } from "@/stores/authStore";
 import { mockUserQuickLinks } from "@/data/mock/user";
 
 const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
 const AVATAR_BORDER_CLASSES = "border-2 border-white";
 
+// 하드코딩된 사용자 데이터
+const mockUser = {
+  id: "user_12345",
+  name: "김상현",
+  email: "kim.sanghyun@example.com",
+  company: "한국무역주식회사",
+  avatar: undefined,
+};
+
+const mockUserStats = {
+  messageCount: 3,
+  bookmarkCount: 12,
+  analysisCount: 8,
+};
+
 const UserInfoCard = () => {
-  const { user, userStats, isAuthenticated, logout, getDisplayName } =
-    useAuthStore();
+  const user = mockUser;
+  const userStats = mockUserStats;
+  const isAuthenticated = true;
 
   // 인증되지 않은 경우 로그인 유도 카드 표시
   if (!isAuthenticated || !user) {
@@ -31,7 +46,7 @@ const UserInfoCard = () => {
 
   return (
     <Card className="mb-4 overflow-hidden py-0 shadow-lg">
-      <div className="bg-blue-600 p-4">
+      <div className="bg-primary-600 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Avatar className="mr-3 h-12 w-12">
@@ -51,16 +66,13 @@ const UserInfoCard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-lg font-semibold text-white">
-                {getDisplayName()} 님
-              </p>
+              <p className="text-lg font-semibold text-white">{user.name} 님</p>
               <p className="text-xs text-blue-100">{user.email}</p>
             </div>
           </div>
           <Button
             variant="secondary"
             size="sm"
-            onClick={logout}
             className="flex h-auto items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-neutral-100"
           >
             <LogOut size={14} className="mr-1" /> 로그아웃
@@ -86,7 +98,7 @@ const UserInfoCard = () => {
               "ml-4 text-neutral-700 hover:text-primary-600",
             )}
           >
-            <Link to="/dashboard/settings">프로필 수정</Link>
+            <Link to="/dashboard">프로필 수정</Link>
           </Button>
         </div>
         <ul className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
