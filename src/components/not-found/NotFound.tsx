@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 
 const NotFound: React.FC = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+    <div className="flex flex-1 items-center justify-center bg-background px-4 py-12">
       <Card className="w-full max-w-md p-8 text-center">
         <div className="mb-6">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">

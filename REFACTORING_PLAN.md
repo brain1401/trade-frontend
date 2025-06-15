@@ -213,8 +213,8 @@ components/
 - [x] Analysis Store WebSocket 메서드 추가 (setError, updateSessionStatus, updateProgress, setResult)
 - [x] Notification Store 타입 확장 (monitoring, bookmark, news, system, exchange_rate 지원)
 - [x] News Store WebSocket 메서드 추가 (addArticle, updateArticle)
-- [ ] `src/lib/api/` 하위에 Claude AI API 클라이언트 추가
-- [ ] 한국어 에러 메시지 상수 파일 생성
+- [x] `src/lib/api/` 하위에 Claude AI API 클라이언트 추가
+- [x] 한국어 에러 메시지 상수 파일 생성
 
 ### Phase 2: 뉴스 도메인 구현 
 

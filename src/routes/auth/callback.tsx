@@ -36,7 +36,7 @@ function CallbackPage() {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex flex-1 items-center justify-center">
       <div className="text-center">
         <h2 className="mb-4 text-2xl font-bold">로그인 처리 중...</h2>
         <p className="text-muted-foreground">잠시만 기다려 주세요.</p>

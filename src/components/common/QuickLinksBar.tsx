@@ -16,16 +16,6 @@ const QuickLinksBar = () => {
       path: "/trade/statistics",
     },
     {
-      name: "국가별 정보",
-      icon: <Globe size={18} className="mr-1.5" />,
-      path: "/trade",
-    },
-    {
-      name: "품목별 통계",
-      icon: <BarChart3 size={18} className="mr-1.5" />,
-      path: "/trade/statistics",
-    },
-    {
       name: "도움말",
       icon: <HelpCircle size={18} className="mr-1.5" />,
       path: "/",

@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContentCard from "@/components/common/ContentCard";
 import { mockExchangeRates } from "@/data/mockData";
+import { Link } from "@tanstack/react-router";
 
 const rateClasses = "px-[.2rem] text-center";
 
@@ -91,12 +92,9 @@ const ExchangeRateCard = () => (
       데이터 제공 : 관세청 API (Mock)
     </p>
     <div className="mt-3 text-right">
-      <Button
-        variant="link"
-        className="ml-auto flex h-auto items-center justify-end p-0 text-sm text-primary-600 hover:underline"
-      >
+      <Link to="/trade/exchange-rates">
         더보기 <ChevronRight size={16} className="ml-0.5" />
-      </Button>
+      </Link>
     </div>
   </ContentCard>
 );

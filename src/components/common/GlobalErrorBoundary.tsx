@@ -64,7 +64,7 @@ export const ErrorFallback: React.FC<ErrorComponentProps> = ({
   const critical = isCriticalError(error);
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex flex-1 items-center justify-center p-4">
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="flex items-center space-x-2">
