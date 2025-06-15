@@ -64,12 +64,12 @@ export const getCurrentUser = (): User => {
   return mockCurrentUser;
 };
 
-export const getUserStats = (userId?: string): UserStats => {
+export const getUserStats = (_userId?: string): UserStats => {
   // 실제 구현에서는 userId로 특정 사용자의 통계를 가져와야 함
   return mockUserStats;
 };
 
-export const getUserPreferences = (userId?: string): UserPreferences => {
+export const getUserPreferences = (_userId?: string): UserPreferences => {
   // 실제 구현에서는 userId로 특정 사용자의 설정을 가져와야 함
   return mockUserPreferences;
 };

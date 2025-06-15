@@ -3,8 +3,10 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  avatar?: string;
+  displayName?: string;
+  avatar?: string | null;
   role: "user" | "admin";
+  permissions?: string[];
   createdAt: string;
   lastLoginAt?: string;
 };

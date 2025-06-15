@@ -39,9 +39,9 @@ const iconButton = (
 );
 
 const TopNavBar = () => {
-  const [hasNotification, setHasNotification] = useState(true);
-  const [hasBookmarkUpdate, setHasBookmarkUpdate] = useState(true);
-  const [hasChangeDetection, setHasChangeDetection] = useState(false);
+  const [hasNotification, _setHasNotification] = useState(true);
+  const [hasBookmarkUpdate, _setHasBookmarkUpdate] = useState(true);
+  const [hasChangeDetection, _setHasChangeDetection] = useState(false);
 
   return (
     <>

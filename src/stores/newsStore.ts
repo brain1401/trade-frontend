@@ -1,118 +1,179 @@
 import { create } from "zustand";
-import type { TradeNews, HSCodeNews, NewsFilterOption } from "@/types";
-import { mockTradeNews, mockHSCodeNews } from "@/data/mock/news";
 
-// 뉴스 관련 상태 타입 정의
+// 뉴스 아이템 타입
+export type NewsItem = {
+  id: string;
+  title: string;
+  content: string;
+  summary?: string;
+  category:
+    | "trade"
+    | "regulation"
+    | "policy"
+    | "market"
+    | "technology"
+    | "general";
+  tags: string[];
+  source: string;
+  author?: string;
+  publishedAt: string;
+  imageUrl?: string;
+  url: string;
+  isRead: boolean;
+  priority: "low" | "normal" | "high";
+  relevanceScore?: number;
+};
+
+// 뉴스 필터 옵션
+export type NewsFilterOption =
+  | "all"
+  | "trade"
+  | "regulation"
+  | "policy"
+  | "market"
+  | "technology"
+  | "general";
+
+// 뉴스 상태 타입 정의 (데이터만 포함)
 type NewsState = {
-  // 무역 뉴스 데이터
-  tradeNews: TradeNews[];
-  hsCodeNews: HSCodeNews[];
+  // 뉴스 목록
+  news: NewsItem[];
 
-  // 필터링 및 검색 상태
-  currentFilter: NewsFilterOption;
+  // 필터 및 정렬
+  selectedCategory: NewsFilterOption;
   searchQuery: string;
-  selectedHSCode?: string;
+  sortBy: "date" | "relevance" | "priority";
 
-  // 북마크 상태
-  bookmarkedNewsIds: Set<string>;
+  // 북마크된 뉴스 ID
+  bookmarkedNewsIds: string[];
 
-  // 로딩 상태
+  // 상태
   isLoading: boolean;
   isLoadingMore: boolean;
+  error: string | null;
+  hasMore: boolean;
+  lastFetchedAt: string | null;
+};
 
-  // 액션들
-  setTradeNews: (news: TradeNews[]) => void;
-  setHSCodeNews: (news: HSCodeNews[]) => void;
-  setFilter: (filter: NewsFilterOption) => void;
+// 뉴스 액션 타입 정의 (함수들만 포함)
+type NewsActions = {
+  // 뉴스 데이터 관리
+  setNews: (news: NewsItem[]) => void;
+  addNews: (newsItems: NewsItem[]) => void;
+  markAsRead: (newsId: string) => void;
+  markAllAsRead: () => void;
+
+  // 필터링 및 검색
+  setFilter: (category: NewsFilterOption) => void;
   setSearchQuery: (query: string) => void;
-  setSelectedHSCode: (hsCode?: string) => void;
+  setSortBy: (sortBy: "date" | "relevance" | "priority") => void;
+
+  // 북마크 관리
   toggleBookmark: (newsId: string) => void;
-  addBookmark: (newsId: string) => void;
-  removeBookmark: (newsId: string) => void;
+  isBookmarked: (newsId: string) => boolean;
+  getBookmarkedNews: () => NewsItem[];
+
+  // 상태 관리
   setLoading: (isLoading: boolean) => void;
   setLoadingMore: (isLoadingMore: boolean) => void;
+  setError: (error: string | null) => void;
+  setHasMore: (hasMore: boolean) => void;
+  setLastFetchedAt: (timestamp: string) => void;
 
-  // 필터링된 데이터 가져오기
-  getFilteredTradeNews: () => TradeNews[];
-  getFilteredHSCodeNews: () => HSCodeNews[];
-  getNewsByHSCode: (hsCode: string) => HSCodeNews[];
-  getBookmarkedNews: () => HSCodeNews[];
+  // 필터링된 데이터
+  getFilteredNews: () => NewsItem[];
 
   // 초기화
-  loadInitialData: () => void;
   reset: () => void;
 };
 
+// 전체 Store 타입 조합
+type NewsStore = NewsState & NewsActions;
+
 // 초기 상태
-const initialState = {
-  tradeNews: [],
-  hsCodeNews: [],
-  currentFilter: "latest" as NewsFilterOption,
+const initialState: NewsState = {
+  news: [],
+  selectedCategory: "all",
   searchQuery: "",
-  selectedHSCode: undefined,
-  bookmarkedNewsIds: new Set<string>(),
+  sortBy: "date",
+  bookmarkedNewsIds: [],
   isLoading: false,
   isLoadingMore: false,
+  error: null,
+  hasMore: true,
+  lastFetchedAt: null,
 };
 
 // Zustand 스토어 생성
-export const useNewsStore = create<NewsState>()((set, get) => ({
+export const useNewsStore = create<NewsStore>()((set, get) => ({
   ...initialState,
 
-  setTradeNews: (news) => {
-    set({ tradeNews: news });
+  setNews: (news) => {
+    set({
+      news,
+      lastFetchedAt: new Date().toISOString(),
+    });
   },
 
-  setHSCodeNews: (news) => {
-    set({ hsCodeNews: news });
+  addNews: (newsItems) => {
+    const { news } = get();
+    const existingIds = new Set(news.map((item) => item.id));
+    const newItems = newsItems.filter((item) => !existingIds.has(item.id));
+
+    set({
+      news: [...news, ...newItems],
+      lastFetchedAt: new Date().toISOString(),
+    });
   },
 
-  setFilter: (filter) => {
-    set({ currentFilter: filter });
+  markAsRead: (newsId) => {
+    const { news } = get();
+    set({
+      news: news.map((item) =>
+        item.id === newsId ? { ...item, isRead: true } : item,
+      ),
+    });
+  },
+
+  markAllAsRead: () => {
+    const { news } = get();
+    set({
+      news: news.map((item) => ({ ...item, isRead: true })),
+    });
+  },
+
+  setFilter: (category) => {
+    set({ selectedCategory: category });
   },
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
   },
 
-  setSelectedHSCode: (hsCode) => {
-    set({ selectedHSCode: hsCode });
+  setSortBy: (sortBy) => {
+    set({ sortBy });
   },
 
   toggleBookmark: (newsId) => {
     const { bookmarkedNewsIds } = get();
-    const newBookmarks = new Set(bookmarkedNewsIds);
-
-    if (newBookmarks.has(newsId)) {
-      newBookmarks.delete(newsId);
+    if (bookmarkedNewsIds.includes(newsId)) {
+      set({
+        bookmarkedNewsIds: bookmarkedNewsIds.filter((id) => id !== newsId),
+      });
     } else {
-      newBookmarks.add(newsId);
+      set({
+        bookmarkedNewsIds: [...bookmarkedNewsIds, newsId],
+      });
     }
-
-    set({ bookmarkedNewsIds: newBookmarks });
-
-    // HSCodeNews의 bookmarked 상태도 업데이트
-    const { hsCodeNews } = get();
-    const updatedNews = hsCodeNews.map((news) =>
-      news.uuid === newsId
-        ? { ...news, bookmarked: newBookmarks.has(newsId) }
-        : news,
-    );
-    set({ hsCodeNews: updatedNews });
   },
 
-  addBookmark: (newsId) => {
-    const { bookmarkedNewsIds } = get();
-    const newBookmarks = new Set(bookmarkedNewsIds);
-    newBookmarks.add(newsId);
-    set({ bookmarkedNewsIds: newBookmarks });
+  isBookmarked: (newsId) => {
+    return get().bookmarkedNewsIds.includes(newsId);
   },
 
-  removeBookmark: (newsId) => {
-    const { bookmarkedNewsIds } = get();
-    const newBookmarks = new Set(bookmarkedNewsIds);
-    newBookmarks.delete(newsId);
-    set({ bookmarkedNewsIds: newBookmarks });
+  getBookmarkedNews: () => {
+    const { news, bookmarkedNewsIds } = get();
+    return news.filter((item) => bookmarkedNewsIds.includes(item.id));
   },
 
   setLoading: (isLoading) => {
@@ -123,82 +184,59 @@ export const useNewsStore = create<NewsState>()((set, get) => ({
     set({ isLoadingMore });
   },
 
-  getFilteredTradeNews: () => {
-    const { tradeNews, searchQuery } = get();
-
-    if (!searchQuery.trim()) {
-      return tradeNews;
-    }
-
-    const lowercaseQuery = searchQuery.toLowerCase();
-    return tradeNews.filter(
-      (news) =>
-        news.title.toLowerCase().includes(lowercaseQuery) ||
-        news.summary.toLowerCase().includes(lowercaseQuery),
-    );
+  setError: (error) => {
+    set({ error });
   },
 
-  getFilteredHSCodeNews: () => {
-    const { hsCodeNews, currentFilter, searchQuery, selectedHSCode } = get();
-    let filteredNews = [...hsCodeNews];
+  setHasMore: (hasMore) => {
+    set({ hasMore });
+  },
 
-    // 필터 적용
-    if (currentFilter === "bookmarked") {
-      filteredNews = filteredNews.filter((news) => news.bookmarked);
+  setLastFetchedAt: (timestamp) => {
+    set({ lastFetchedAt: timestamp });
+  },
+
+  getFilteredNews: () => {
+    const { news, selectedCategory, searchQuery, sortBy } = get();
+
+    let filtered = news;
+
+    // 카테고리 필터링
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((item) => item.category === selectedCategory);
     }
 
-    // HS Code 필터 적용
-    if (selectedHSCode) {
-      filteredNews = filteredNews.filter(
-        (news) => news.hscode === selectedHSCode,
-      );
-    }
-
-    // 검색어 필터 적용
+    // 검색 쿼리 필터링
     if (searchQuery.trim()) {
-      const lowercaseQuery = searchQuery.toLowerCase();
-      filteredNews = filteredNews.filter(
-        (news) =>
-          news.title.toLowerCase().includes(lowercaseQuery) ||
-          news.summary.toLowerCase().includes(lowercaseQuery) ||
-          news.hscode.includes(lowercaseQuery),
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query) ||
+          item.summary?.toLowerCase().includes(query) ||
+          item.tags.some((tag) => tag.toLowerCase().includes(query)),
       );
     }
 
-    // 날짜순 정렬 (최신순)
-    return filteredNews.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  },
+    // 정렬
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "date":
+          return (
+            new Date(b.publishedAt).getTime() -
+            new Date(a.publishedAt).getTime()
+          );
+        case "relevance":
+          return (b.relevanceScore || 0) - (a.relevanceScore || 0);
+        case "priority": {
+          const priorityOrder = { high: 3, normal: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        }
+        default:
+          return 0;
+      }
+    });
 
-  getNewsByHSCode: (hsCode) => {
-    const { hsCodeNews } = get();
-    return hsCodeNews.filter((news) => news.hscode === hsCode);
-  },
-
-  getBookmarkedNews: () => {
-    const { hsCodeNews } = get();
-    return hsCodeNews.filter((news) => news.bookmarked);
-  },
-
-  loadInitialData: () => {
-    set({ isLoading: true });
-
-    // Mock 데이터 로드 (실제로는 API 호출)
-    setTimeout(() => {
-      const bookmarkedIds = new Set(
-        mockHSCodeNews
-          .filter((news) => news.bookmarked)
-          .map((news) => news.uuid),
-      );
-
-      set({
-        tradeNews: mockTradeNews,
-        hsCodeNews: mockHSCodeNews,
-        bookmarkedNewsIds: bookmarkedIds,
-        isLoading: false,
-      });
-    }, 500); // 로딩 시뮬레이션
+    return filtered;
   },
 
   reset: () => {

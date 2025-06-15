@@ -1,148 +1,206 @@
-# Store
+# Stores
 
-이 디렉토리는 애플리케이션의 전역 상태 관리를 위한 [Zustand 공식 문서](https://docs.pmnd.rs/zustand/getting-started/introduction) `store`들을 보관함.
+이 디렉토리는 애플리케이션의 전역 상태 관리를 위한 Zustand store들을 보관합니다.
 
-## Zustand 도입 배경
+## Store 구조
 
-Zustand는 Redux와 같은 다른 상태 관리 라이브러리에 비해 최소한의 보일러플레이트로 단순하고 직관적인 API를 제공함. React 내장 Context API의 주요 단점을 해결하기 위해 도입함.
-
-### Context API의 주요 단점과 Zustand
-
-- **잦은 리렌더링**: Context의 특정 상태값 하나만 변경되어도 해당 Context를 구독하는 모든 컴포넌트가 리렌더링되는 문제가 있음. Zustand는 상태 변경 시 필요한 컴포넌트만 선택적으로 리렌더링하여 성능을 최적화함.
-- **Props Drilling (Provider Hell)**: 상태를 공유하기 위해 여러 계층의 컴포넌트를 거쳐 `props`를 계속해서 전달해야 하는 `Props Drilling` 문제가 발생함. 여러 Context 사용 시 중첩된 Provider 구조(`Provider Hell`)는 가독성과 유지보수성을 저하시킴. Zustand는 `Provider` 없이 어떤 컴포넌트에서든 `store`에 직접 접근할 수 있어 이 문제를 근본적으로 해결함.
-
-## 디렉토리 구조
-
-각 `store`는 관심사를 기준으로 분리하여 `[domain].ts` 형식의 파일로 관리함.
-
-```
-store/
-├── ui.ts
-├── user.ts
-└── ...
-```
-
-## Store 생성 및 사용법
-
-### Store 생성 규칙
-
-새로운 `store`를 생성할 때는 다음 규칙을 따름.
-
-1.  **파일 생성**: `store` 디렉토리 내에 `[domain].ts` 파일을 생성함.
-2.  **타입 정의**: `State`와 `Actions` 타입을 분리하여 정의함.
-3.  **Store 구현**: `create` 함수를 사용하여 `store`를 구현함. `immer` 미들웨어를 사용하여 불변성을 쉽게 관리하는 것을 권장함.
-4.  **네이밍**: `use[Domain]Store` 형식의 이름을 사용함. (예: `useUserStore`)
-
-### 예시 : 사용자 인증 Store
-
-다음은 Props Drilling 문제를 해결하는 사용자 인증 `store`의 생성 및 사용 예시임.
-
-#### 1. 파일 구조
-
-```
-src/
-├── components/
-│   ├── Header.tsx
-│   └── UserProfile.tsx
-├── store/
-│   └── user.ts
-└── App.tsx
-```
-
-#### 2. 사용자 Store 생성 (`user.ts`)
+각 store는 **State**와 **Actions**를 분리하여 정의하고, `&` 연산자로 조합하는 패턴을 사용합니다.
 
 ```typescript
-// store/user.ts
-import { create } from "zustand";
-
-type User = {
-  name: string;
-  email: string;
+// State 타입 정의 (데이터만 포함)
+type ExampleState = {
+  data: string;
+  isLoading: boolean;
+  error: string | null;
 };
 
-type State = {
-  user: User | null;
+// Actions 타입 정의 (함수들만 포함)
+type ExampleActions = {
+  setData: (data: string) => void;
+  setLoading: (loading: boolean) => void;
+  reset: () => void;
 };
 
-type Actions = {
-  login: (user: User) => void;
-  logout: () => void;
-};
-
-export const useUserStore = create<State & Actions>((set) => ({
-  user: null,
-  login: (user) => set({ user }),
-  logout: () => set({ user: null }),
-}));
+// 전체 Store 타입 조합
+type ExampleStore = ExampleState & ExampleActions;
 ```
 
-#### 3. 컴포넌트에서 Store 직접 사용
+## 현재 구현된 Store들
 
-`Header`와 `UserProfile` 컴포넌트는 `props` 전달 없이 `useUserStore` 훅을 호출하여 필요한 값과 함수를 직접 가져와 사용할 수 있음.
+### 1. authStore.ts
 
-**`Header.tsx`**
+- **목적**: 사용자 인증 및 권한 관리
+- **주요 기능**: 로그인, 로그아웃, 토큰 관리, 인증 상태 확인
+- **persist**: 토큰 및 사용자 정보
 
-```tsx
-// components/Header.tsx
-import { useUserStore } from "@/store/user";
+### 2. userStore.ts
 
-function Header() {
-  const { user, logout } = useUserStore();
+- **목적**: 사용자 프로필 및 설정 관리
+- **주요 기능**: 프로필 업데이트, 사용자 통계, 설정 관리
+- **persist**: 사용자 데이터 및 설정
 
-  return (
-    <header>
-      {user ? (
-        <>
-          <span>안녕하세요, {user.name}님</span>
-          <button onClick={logout}>로그아웃</button>
-        </>
-      ) : (
-        <span>로그인이 필요합니다.</span>
-      )}
-    </header>
-  );
-}
+### 3. searchStore.ts
+
+- **목적**: 검색 기능 및 의도 감지
+- **주요 기능**: 검색 쿼리 관리, 의도 감지, 검색 기록
+- **persist**: 검색 기록 및 최근 검색어
+
+### 4. analysisStore.ts
+
+- **목적**: HS Code 분석 세션 관리
+- **주요 기능**: 분석 세션 생성/관리, 질문 답변, 진행 상태 추적
+- **persist**: 없음 (세션 데이터는 휘발성)
+
+### 5. resultStore.ts
+
+- **목적**: 분석 결과 캐싱 및 북마크 관리
+- **주요 기능**: 결과 캐싱, 북마크, 최근 결과 관리
+- **persist**: 결과 캐시 및 북마크
+
+### 6. notificationStore.ts
+
+- **목적**: 실시간 알림 관리
+- **주요 기능**: 알림 추가/제거, 읽음 상태 관리
+- **persist**: 일부 알림 데이터
+
+### 7. newsStore.ts
+
+- **목적**: 뉴스 및 정보 관리
+- **주요 기능**: 뉴스 필터링, 북마크, 검색
+- **persist**: 없음 (실시간 데이터)
+
+### 8. uiStore.ts
+
+- **목적**: UI 상태 관리
+- **주요 기능**: 로딩 상태, 모달, 사이드바, Toast 관리
+- **persist**: 없음 (UI 상태는 휘발성)
+
+## 사용 가이드라인
+
+### 1. Selector 사용 권장
+
+성능 최적화를 위해 필요한 상태만 선택하여 구독하세요.
+
+```typescript
+// ❌ 비권장: 전체 state 구독
+const { user, preferences, stats } = useUserStore();
+
+// ✅ 권장: 필요한 데이터만 선택
+const user = useUserStore((state) => state.currentUser);
+const isLoading = useUserStore((state) => state.isLoading);
 ```
 
-**`UserProfile.tsx`**
+### 2. 타입 안전성
 
-````tsx
-// components/UserProfile.tsx
-import { useUserStore } from '@/store/user';
+모든 store는 TypeScript로 엄격히 타입이 정의되어 있습니다.
 
-function UserProfile() {
-  const user = useUserStore((state) => state.user);
+```typescript
+// 타입 안전한 사용
+const { setCurrentUser, updateUserStats } = useUserStore();
+setCurrentUser(userData); // 타입 검증됨
+updateUserStats({ messageCount: 5 }); // 타입 검증됨
+```
 
-  if (!user) {
-    return <div>사용자 정보가 없습니다.</div>;
-  }
+### 3. Persist 사용
 
-  return (
-    <div>
-      <h2>프로필</h2>
-      <p>이름: {user.name}</p>
-      <p>이메일: {user.email}</p>
-    </div>
-  );
-}
+중요한 데이터는 localStorage에 자동으로 저장됩니다.
 
-#### 4. 상태 선택(Selector)과 렌더링 최적화
+```typescript
+// persist 설정 예시
+export const useExampleStore = create<ExampleStore>()(
+  persist(
+    (set, get) => ({
+      // store 구현
+    }),
+    {
+      name: "example-storage",
+      partialize: (state) => ({
+        // 저장할 데이터만 선택
+        importantData: state.importantData,
+      }),
+    },
+  ),
+);
+```
 
-위 예제에서 `Header`와 `UserProfile`은 `store`의 상태를 가져오는 방식이 다름. 이 차이는 성능에 영향을 줄 수 있음.
+### 4. 에러 처리
 
--   **전체 상태 구독 (비권장)**
-    ```tsx
-    // Header.tsx
-    const { user, logout } = useUserStore();
-    ```
-    이 방식은 `store`의 모든 것을 구독함. `store`의 어떤 값이든 변경되면 컴포넌트는 불필요하게 리렌더링될 수 있음. 예를 들어 `user`와 관련 없는 다른 상태가 `userStore`에 추가되고 그 값이 바뀌면, `Header`도 다시 렌더링됨.
+모든 store는 일관된 에러 처리 패턴을 가집니다.
 
--   **일부 상태 선택 (권장)**
-    ```tsx
-    // UserProfile.tsx
-    const user = useUserStore((state) => state.user);
-    ```
-    이 방식은 `selector` 함수를 사용하여 필요한 상태만 정확히 선택함. Zustand는 `selector`가 반환하는 값(`state.user`)이 실제로 변경될 때만 컴포넌트를 리렌더링하여 성능을 최적화함.
+```typescript
+// 에러 상태 관리
+type StateWithError = {
+  error: string | null;
+  // ... 기타 상태
+};
 
-**결론적으로, 불필요한 리렌더링을 방지하고 성능을 최적화하기 위해 항상 `selector`를 사용하여 필요한 상태만 가져오는 것을 권장함.**
-````
+type ActionsWithError = {
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  // ... 기타 액션
+};
+```
+
+## 성능 최적화
+
+### 1. 상태 분리
+
+관련 없는 상태들은 별도의 store로 분리하여 불필요한 리렌더링을 방지합니다.
+
+### 2. 선택적 구독
+
+`useStore((state) => state.specificValue)` 패턴을 사용하여 필요한 상태만 구독합니다.
+
+### 3. 액션 메모이제이션
+
+컴포넌트에서 store 액션을 사용할 때는 `useCallback`으로 메모이제이션하세요.
+
+```typescript
+const MyComponent = () => {
+  const setLoading = useUserStore((state) => state.setLoading);
+
+  const handleAction = useCallback(() => {
+    setLoading(true);
+    // ... 비동기 작업
+    setLoading(false);
+  }, [setLoading]);
+
+  return <button onClick={handleAction}>Action</button>;
+};
+```
+
+## 디버깅
+
+### 1. Zustand DevTools
+
+개발 환경에서는 Redux DevTools를 사용하여 상태 변화를 추적할 수 있습니다.
+
+### 2. 콘솔 로깅
+
+중요한 상태 변화는 subscribe를 통해 로깅됩니다.
+
+```typescript
+// 예시: analysisStore의 세션 변화 추적
+useAnalysisStore.subscribe(
+  (state) => state.activeSessions,
+  (sessions) => {
+    console.log("Sessions updated:", Object.keys(sessions).length);
+  },
+);
+```
+
+## 마이그레이션 가이드
+
+기존 Context API나 다른 상태 관리 라이브러리에서 Zustand로 마이그레이션할 때:
+
+1. **Provider 제거**: Zustand는 Provider가 필요하지 않습니다.
+2. **Props Drilling 해결**: 어느 컴포넌트에서든 직접 store에 접근 가능합니다.
+3. **성능 개선**: 자동으로 최적화된 리렌더링을 제공합니다.
+
+## 베스트 프랙티스
+
+1. **State와 Actions 분리**: 타입 정의를 명확히 분리하여 유지보수성을 높입니다.
+2. **단일 책임 원칙**: 각 store는 하나의 명확한 책임을 가집니다.
+3. **불변성**: Zustand는 불변성을 자동으로 처리하지만, 중첩 객체 업데이트 시 주의합니다.
+4. **에러 처리**: 모든 비동기 작업에는 적절한 에러 처리를 포함합니다.
+5. **타입 안전성**: TypeScript를 적극 활용하여 런타임 에러를 방지합니다.

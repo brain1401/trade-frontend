@@ -12,6 +12,9 @@ export default tseslint.config({
   // TypeScript, React, Import 관련 기본 규칙들이 포함됨
   extends: [...tanstackConfig],
 
+  // JavaScript 설정 파일들은 TypeScript 파싱에서 제외
+  ignores: ["*.config.js", "*.config.ts"],
+
   // 프로젝트에서 사용할 ESLint 플러그인들
   plugins: {
     // React Hooks 관련 규칙 (useEffect, useState 등)
@@ -32,6 +35,9 @@ export default tseslint.config({
 
     // React Hook의 의존성 배열 검사 - 무한 루프나 누락된 의존성 방지
     "react-hooks/exhaustive-deps": "error",
+
+    // lexical declaration in case block 방지
+    "no-case-declarations": "error",
 
     // ⚠️ 권장사항 (WARN) - 코드 품질이나 성능 최적화 관련
 
@@ -63,6 +69,27 @@ export default tseslint.config({
       },
     ],
 
+    // Type import 일관성 - inline type specifier 허용하도록 설정
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      {
+        prefer: "type-imports",
+        fixStyle: "inline-type-imports", // inline type specifier 사용 허용
+        disallowTypeAnnotations: false,
+      },
+    ],
+
+    // 불필요한 조건문 검사
+    "@typescript-eslint/no-unnecessary-condition": "warn",
+
+    "@typescript-eslint/require-await": "off",
+
+    // 변수 shadowing 방지
+    "no-shadow": "warn",
+
+    // Function 타입 사용 방지
+    "@typescript-eslint/no-unsafe-function-type": "warn",
+
     // 🔇 비활성화 - 기존 설정 유지 또는 다른 도구가 처리
 
     // TypeScript가 처리하므로 일반 JS 규칙 비활성화
@@ -75,7 +102,7 @@ export default tseslint.config({
     "sort-imports": "off",
     "import/order": "off",
 
-    // import type vs import 일관성 - 프로젝트 특성에 따라 비활성화
+    // Type import 관련 충돌 방지 - inline type specifier와 충돌하므로 비활성화
     "import/consistent-type-specifier-style": "off",
   },
 });

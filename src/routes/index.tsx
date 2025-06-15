@@ -15,9 +15,8 @@ import { cn } from "@/lib/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
-import { useNewsStore } from "@/stores/newsStore";
 import { useSearchStore } from "@/stores/searchStore";
-import { initializeMockUser } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -30,11 +29,8 @@ const LIST_SPACING_CLASSES = "space-y-1";
 function App() {
   // 페이지 로드시 스토어 초기화
   useEffect(() => {
-    // Mock 사용자 로그인 시뮬레이션
-    initializeMockUser();
-
-    // 뉴스 데이터 로드
-    useNewsStore.getState().loadInitialData();
+    // 스토어 초기화
+    useAuthStore.getState().initialize();
 
     // 검색 데이터 로드
     useSearchStore.getState().loadInitialData();

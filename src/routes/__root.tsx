@@ -1,20 +1,42 @@
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
-import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
-
 import type { QueryClient } from "@tanstack/react-query";
 import TopNavBar from "@/components/layout/TopNavBar.tsx";
 import QuickLinksBar from "@/components/layout/QuickLinksBar.tsx";
 import Footer from "@/components/layout/Footer.tsx";
 import SearchBarHeader from "@/components/route/index/search/SearchBarHeader.tsx";
+import { Toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
+import { useAuthStore } from "@/stores/authStore";
+import { useWebSocket } from "@/hooks/common/useWebSocket";
+import { useAuthCheck } from "@/hooks/auth/useAuthCheck";
+import { NotificationCenter } from "@/components/notification/NotificationCenter";
+import { ErrorFallback } from "@/components/common/GlobalErrorBoundary";
+
+import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 
 interface MyRouterContext {
   queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  component: () => (
+  component: RootLayout,
+  errorComponent: ErrorFallback,
+});
+
+function RootLayout() {
+  // Initialize global connections and state
+  useWebSocket(); // Start real-time connection for notifications
+  useAuthCheck(); // Verify user authentication status
+
+  // Initialize auth store on app load
+  const initializeAuth = useAuthStore((state) => state.initialize);
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  return (
     <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-gray-50 font-nanum_square_neo_variable font-[500]">
       <TopNavBar />
       <QuickLinksBar />
@@ -23,8 +45,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <Outlet />
       </main>
       <Footer />
+      <Toaster /> {/* Global toast notifications */}
+      <NotificationCenter /> {/* Real-time notification panel */}
       <TanStackRouterDevtools />
       <TanStackQueryLayout />
     </div>
-  ),
-});
+  );
+}

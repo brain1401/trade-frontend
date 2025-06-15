@@ -6,7 +6,7 @@ import {
   mockSearchResults,
 } from "@/data/mock/search";
 
-// 검색 관련 상태 타입 정의
+// 검색 상태 타입 정의 (데이터만 포함)
 type SearchState = {
   // 검색 쿼리 및 상태
   currentQuery: string;
@@ -29,7 +29,15 @@ type SearchState = {
   // 검색 기록 (세션 내)
   searchHistory: string[];
 
-  // 액션들
+  // 의도 감지 관련 상태
+  detectedIntent: "hscode" | "tracking" | "general" | "unknown" | null;
+  isDetecting: boolean;
+  error: string | null;
+};
+
+// 검색 액션 타입 정의 (함수들만 포함)
+type SearchActions = {
+  // 기본 액션들
   setCurrentQuery: (query: string) => void;
   setSearching: (isSearching: boolean) => void;
   setSearchResults: (results: SearchResult[], total?: number) => void;
@@ -37,6 +45,18 @@ type SearchState = {
   addRecentSearchItem: (item: RecentSearchItem) => void;
   clearSearchResults: () => void;
   clearSearchHistory: () => void;
+
+  // 의도 감지 액션들
+  setQuery: (query: string) => void;
+  setIsDetecting: (detecting: boolean) => void;
+  setDetectedIntent: (
+    intent: "hscode" | "tracking" | "general" | "unknown",
+  ) => void;
+  setError: (error: string | null) => void;
+  addToHistory: (query: string, intent: string) => void;
+  detectIntent: (
+    query: string,
+  ) => Promise<{ intent: string; extractedData?: any }>;
 
   // 검색 실행
   performSearch: (query: string) => Promise<void>;
@@ -55,6 +75,9 @@ type SearchState = {
   reset: () => void;
 };
 
+// 전체 Store 타입 조합
+type SearchStore = SearchState & SearchActions;
+
 // 초기 상태
 const initialState = {
   currentQuery: "",
@@ -66,10 +89,13 @@ const initialState = {
   searchSuggestions: [],
   showSuggestions: false,
   searchHistory: [],
+  detectedIntent: null,
+  isDetecting: false,
+  error: null,
 };
 
 // Zustand 스토어 생성
-export const useSearchStore = create<SearchState>()((set, get) => ({
+export const useSearchStore = create<SearchStore>()((set, get) => ({
   ...initialState,
 
   setCurrentQuery: (query) => {
@@ -216,5 +242,61 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
 
   reset: () => {
     set(initialState);
+  },
+
+  // 의도 감지 관련 메서드들
+  setQuery: (query) => {
+    set({ currentQuery: query });
+  },
+
+  setIsDetecting: (detecting) => {
+    set({ isDetecting: detecting });
+  },
+
+  setDetectedIntent: (intent) => {
+    set({ detectedIntent: intent });
+  },
+
+  setError: (error) => {
+    set({ error });
+  },
+
+  addToHistory: (query, intent) => {
+    const { searchHistory } = get();
+    const historyItem = `${query} (${intent})`;
+    if (!searchHistory.includes(historyItem)) {
+      const newHistory = [historyItem, ...searchHistory.slice(0, 9)];
+      set({ searchHistory: newHistory });
+    }
+  },
+
+  detectIntent: async (query) => {
+    set({ isDetecting: true, error: null });
+
+    try {
+      // Mock 의도 감지 로직
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      let intent = "general";
+      let extractedData = {};
+
+      // 간단한 의도 감지 로직
+      if (
+        query.includes("HS") ||
+        query.includes("품목") ||
+        query.includes("분류")
+      ) {
+        intent = "hscode";
+      } else if (query.match(/\d{10,}/)) {
+        intent = "tracking";
+        extractedData = { cargoNumber: query.match(/\d{10,}/)?.[0] };
+      }
+
+      set({ detectedIntent: intent as any, isDetecting: false });
+      return { intent, extractedData };
+    } catch (error) {
+      set({ error: "의도 감지 실패", isDetecting: false });
+      throw error;
+    }
   },
 }));
