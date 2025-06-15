@@ -20,6 +20,10 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
+    /* Vite 권장 옵션들 */
+    "isolatedModules": true, // esbuild 호환성을 위해 필수
+    "useDefineForClassFields": true, // ES2022+ 클래스 필드 표준 준수
+
     /* Linting */
     "skipLibCheck": true,
     "strict": true,

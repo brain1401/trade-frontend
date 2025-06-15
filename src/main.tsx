@@ -21,6 +21,7 @@ const router = createRouter({
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
+  // 404 페이지 설정
   defaultNotFoundComponent: () => <NotFound />,
   notFoundMode: "root",
 });
