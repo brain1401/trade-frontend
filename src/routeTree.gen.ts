@@ -10,43 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TradeIndexRouteImport } from './routes/trade/index'
-import { Route as TrackingIndexRouteImport } from './routes/tracking/index'
-import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
-import { Route as HscodeIndexRouteImport } from './routes/hscode/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as TradeStatisticsRouteImport } from './routes/trade/statistics'
-import { Route as TradeRegulationsRouteImport } from './routes/trade/regulations'
-import { Route as TradeExchangeRatesRouteImport } from './routes/trade/exchange-rates'
-import { Route as TrackingNumberRouteImport } from './routes/tracking/$number'
 import { Route as NewsNewsIdRouteImport } from './routes/news/$newsId'
-import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
-import { Route as DashboardBookmarksRouteImport } from './routes/dashboard/bookmarks'
-import { Route as AuthSignupRouteImport } from './routes/auth/signup'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
-import { Route as HscodeAnalyzeSessionIdRouteImport } from './routes/hscode/analyze/$sessionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TradeIndexRoute = TradeIndexRouteImport.update({
-  id: '/trade/',
-  path: '/trade/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TrackingIndexRoute = TrackingIndexRouteImport.update({
-  id: '/tracking/',
-  path: '/tracking/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchIndexRoute = SearchIndexRouteImport.update({
-  id: '/search/',
-  path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
@@ -54,227 +23,40 @@ const NewsIndexRoute = NewsIndexRouteImport.update({
   path: '/news/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HscodeIndexRoute = HscodeIndexRouteImport.update({
-  id: '/hscode/',
-  path: '/hscode/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TradeStatisticsRoute = TradeStatisticsRouteImport.update({
-  id: '/trade/statistics',
-  path: '/trade/statistics',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TradeRegulationsRoute = TradeRegulationsRouteImport.update({
-  id: '/trade/regulations',
-  path: '/trade/regulations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TradeExchangeRatesRoute = TradeExchangeRatesRouteImport.update({
-  id: '/trade/exchange-rates',
-  path: '/trade/exchange-rates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TrackingNumberRoute = TrackingNumberRouteImport.update({
-  id: '/tracking/$number',
-  path: '/tracking/$number',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NewsNewsIdRoute = NewsNewsIdRouteImport.update({
   id: '/news/$newsId',
   path: '/news/$newsId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: '/dashboard/settings',
-  path: '/dashboard/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardBookmarksRoute = DashboardBookmarksRouteImport.update({
-  id: '/dashboard/bookmarks',
-  path: '/dashboard/bookmarks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/auth/signup',
-  path: '/auth/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HscodeResultResultIdRoute = HscodeResultResultIdRouteImport.update({
-  id: '/hscode/result/$resultId',
-  path: '/hscode/result/$resultId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HscodeAnalyzeSessionIdRoute = HscodeAnalyzeSessionIdRouteImport.update({
-  id: '/hscode/analyze/$sessionId',
-  path: '/hscode/analyze/$sessionId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/dashboard/bookmarks': typeof DashboardBookmarksRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/tracking/$number': typeof TrackingNumberRoute
-  '/trade/exchange-rates': typeof TradeExchangeRatesRoute
-  '/trade/regulations': typeof TradeRegulationsRoute
-  '/trade/statistics': typeof TradeStatisticsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/hscode': typeof HscodeIndexRoute
   '/news': typeof NewsIndexRoute
-  '/search': typeof SearchIndexRoute
-  '/tracking': typeof TrackingIndexRoute
-  '/trade': typeof TradeIndexRoute
-  '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/dashboard/bookmarks': typeof DashboardBookmarksRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/tracking/$number': typeof TrackingNumberRoute
-  '/trade/exchange-rates': typeof TradeExchangeRatesRoute
-  '/trade/regulations': typeof TradeRegulationsRoute
-  '/trade/statistics': typeof TradeStatisticsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/hscode': typeof HscodeIndexRoute
   '/news': typeof NewsIndexRoute
-  '/search': typeof SearchIndexRoute
-  '/tracking': typeof TrackingIndexRoute
-  '/trade': typeof TradeIndexRoute
-  '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/dashboard/bookmarks': typeof DashboardBookmarksRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/tracking/$number': typeof TrackingNumberRoute
-  '/trade/exchange-rates': typeof TradeExchangeRatesRoute
-  '/trade/regulations': typeof TradeRegulationsRoute
-  '/trade/statistics': typeof TradeStatisticsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/hscode/': typeof HscodeIndexRoute
   '/news/': typeof NewsIndexRoute
-  '/search/': typeof SearchIndexRoute
-  '/tracking/': typeof TrackingIndexRoute
-  '/trade/': typeof TradeIndexRoute
-  '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
-  '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth/callback'
-    | '/auth/login'
-    | '/auth/signup'
-    | '/dashboard/bookmarks'
-    | '/dashboard/settings'
-    | '/news/$newsId'
-    | '/tracking/$number'
-    | '/trade/exchange-rates'
-    | '/trade/regulations'
-    | '/trade/statistics'
-    | '/dashboard'
-    | '/hscode'
-    | '/news'
-    | '/search'
-    | '/tracking'
-    | '/trade'
-    | '/hscode/analyze/$sessionId'
-    | '/hscode/result/$resultId'
+  fullPaths: '/' | '/news/$newsId' | '/news'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth/callback'
-    | '/auth/login'
-    | '/auth/signup'
-    | '/dashboard/bookmarks'
-    | '/dashboard/settings'
-    | '/news/$newsId'
-    | '/tracking/$number'
-    | '/trade/exchange-rates'
-    | '/trade/regulations'
-    | '/trade/statistics'
-    | '/dashboard'
-    | '/hscode'
-    | '/news'
-    | '/search'
-    | '/tracking'
-    | '/trade'
-    | '/hscode/analyze/$sessionId'
-    | '/hscode/result/$resultId'
-  id:
-    | '__root__'
-    | '/'
-    | '/auth/callback'
-    | '/auth/login'
-    | '/auth/signup'
-    | '/dashboard/bookmarks'
-    | '/dashboard/settings'
-    | '/news/$newsId'
-    | '/tracking/$number'
-    | '/trade/exchange-rates'
-    | '/trade/regulations'
-    | '/trade/statistics'
-    | '/dashboard/'
-    | '/hscode/'
-    | '/news/'
-    | '/search/'
-    | '/tracking/'
-    | '/trade/'
-    | '/hscode/analyze/$sessionId'
-    | '/hscode/result/$resultId'
+  to: '/' | '/news/$newsId' | '/news'
+  id: '__root__' | '/' | '/news/$newsId' | '/news/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthSignupRoute: typeof AuthSignupRoute
-  DashboardBookmarksRoute: typeof DashboardBookmarksRoute
-  DashboardSettingsRoute: typeof DashboardSettingsRoute
   NewsNewsIdRoute: typeof NewsNewsIdRoute
-  TrackingNumberRoute: typeof TrackingNumberRoute
-  TradeExchangeRatesRoute: typeof TradeExchangeRatesRoute
-  TradeRegulationsRoute: typeof TradeRegulationsRoute
-  TradeStatisticsRoute: typeof TradeStatisticsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  HscodeIndexRoute: typeof HscodeIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
-  SearchIndexRoute: typeof SearchIndexRoute
-  TrackingIndexRoute: typeof TrackingIndexRoute
-  TradeIndexRoute: typeof TradeIndexRoute
-  HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
-  HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -286,74 +68,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/trade/': {
-      id: '/trade/'
-      path: '/trade'
-      fullPath: '/trade'
-      preLoaderRoute: typeof TradeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tracking/': {
-      id: '/tracking/'
-      path: '/tracking'
-      fullPath: '/tracking'
-      preLoaderRoute: typeof TrackingIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search/': {
-      id: '/search/'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/news/': {
       id: '/news/'
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hscode/': {
-      id: '/hscode/'
-      path: '/hscode'
-      fullPath: '/hscode'
-      preLoaderRoute: typeof HscodeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trade/statistics': {
-      id: '/trade/statistics'
-      path: '/trade/statistics'
-      fullPath: '/trade/statistics'
-      preLoaderRoute: typeof TradeStatisticsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trade/regulations': {
-      id: '/trade/regulations'
-      path: '/trade/regulations'
-      fullPath: '/trade/regulations'
-      preLoaderRoute: typeof TradeRegulationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trade/exchange-rates': {
-      id: '/trade/exchange-rates'
-      path: '/trade/exchange-rates'
-      fullPath: '/trade/exchange-rates'
-      preLoaderRoute: typeof TradeExchangeRatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tracking/$number': {
-      id: '/tracking/$number'
-      path: '/tracking/$number'
-      fullPath: '/tracking/$number'
-      preLoaderRoute: typeof TrackingNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news/$newsId': {
@@ -363,78 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsNewsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/settings': {
-      id: '/dashboard/settings'
-      path: '/dashboard/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof DashboardSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/bookmarks': {
-      id: '/dashboard/bookmarks'
-      path: '/dashboard/bookmarks'
-      fullPath: '/dashboard/bookmarks'
-      preLoaderRoute: typeof DashboardBookmarksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/signup': {
-      id: '/auth/signup'
-      path: '/auth/signup'
-      fullPath: '/auth/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hscode/result/$resultId': {
-      id: '/hscode/result/$resultId'
-      path: '/hscode/result/$resultId'
-      fullPath: '/hscode/result/$resultId'
-      preLoaderRoute: typeof HscodeResultResultIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hscode/analyze/$sessionId': {
-      id: '/hscode/analyze/$sessionId'
-      path: '/hscode/analyze/$sessionId'
-      fullPath: '/hscode/analyze/$sessionId'
-      preLoaderRoute: typeof HscodeAnalyzeSessionIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthSignupRoute: AuthSignupRoute,
-  DashboardBookmarksRoute: DashboardBookmarksRoute,
-  DashboardSettingsRoute: DashboardSettingsRoute,
   NewsNewsIdRoute: NewsNewsIdRoute,
-  TrackingNumberRoute: TrackingNumberRoute,
-  TradeExchangeRatesRoute: TradeExchangeRatesRoute,
-  TradeRegulationsRoute: TradeRegulationsRoute,
-  TradeStatisticsRoute: TradeStatisticsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  HscodeIndexRoute: HscodeIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
-  SearchIndexRoute: SearchIndexRoute,
-  TrackingIndexRoute: TrackingIndexRoute,
-  TradeIndexRoute: TradeIndexRoute,
-  HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
-  HscodeResultResultIdRoute: HscodeResultResultIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

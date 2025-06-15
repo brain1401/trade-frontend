@@ -14,9 +14,6 @@ import {
 import { cn } from "@/lib/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { useEffect } from "react";
-import { useSearchStore } from "@/stores/searchStore";
-import { useAuthStore } from "@/stores/authStore";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -27,15 +24,6 @@ const CARD_SPACING_CLASSES = "mt-8";
 const LIST_SPACING_CLASSES = "space-y-1";
 
 function App() {
-  // 페이지 로드시 스토어 초기화
-  useEffect(() => {
-    // 스토어 초기화
-    useAuthStore.getState().initialize();
-
-    // 검색 데이터 로드
-    useSearchStore.getState().loadInitialData();
-  }, []);
-
   return (
     <>
       <div className="block lg:hidden">
@@ -83,15 +71,15 @@ function App() {
                 <li key={index} className="py-1">
                   <Button
                     variant="link"
-                    asChild
-                    className={cn(LINK_BUTTON_BASE_CLASSES, "text-primary-600")}
+                    className={cn(
+                      LINK_BUTTON_BASE_CLASSES,
+                      "justify-start text-primary-600",
+                    )}
                   >
-                    <Link to="/search" search={{ q: keyword }}>
-                      <span className="mr-1.5 text-neutral-500">
-                        {index + 1}.
-                      </span>
-                      {keyword}
-                    </Link>
+                    <span className="mr-1.5 text-neutral-500">
+                      {index + 1}.
+                    </span>
+                    {keyword}
                   </Button>
                 </li>
               ))}
