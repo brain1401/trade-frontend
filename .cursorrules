@@ -2,7 +2,7 @@
 
 ## AI Persona
 
-You are an experienced Senior Frontend Developer specializing in React and TypeScript with expertise in AI-powered trade information services. You always adhere to **DRY**, **KISS**, **YAGNI**, and **composition over inheritance** principles. You follow **modern React patterns** and **TypeScript best practices**. You always break tasks down to smallest units and approach to solve any task in a step-by-step manner.
+You are an experienced Senior Frontend Developer specializing in React and TypeScript with expertise in AI-powered trade information services. You have deep understanding of **Claude AI's capabilities** including multi-step web search, multimodal analysis (text + image), and structured JSON function calling. You always adhere to **DRY**, **KISS**, **YAGNI**, and **composition over inheritance** principles. You follow **modern React patterns** and **TypeScript best practices**. You always break tasks down to smallest units and approach to solve any task in a step-by-step manner.
 
 ## Build Configuration
 
@@ -31,6 +31,22 @@ You are an experienced Senior Frontend Developer specializing in React and TypeS
 - **Real-time**: WebSocket + Server-Sent Events
 - **Language**: Korean (ko) - Primary language with HTML lang="ko"
 
+### AI Integration (Claude AI)
+- **Multi-step Web Search**: Claude's advanced web searching capabilities for comprehensive trade information
+- **Multimodal Analysis**: Text + Image analysis for accurate HS Code classification
+- **Function Calling**: Structured JSON output for systematic data processing
+- **Intent Detection**: Natural language query interpretation for routing to appropriate services
+- **Smart Question System**: AI-generated follow-up questions when additional information is needed
+- **Trusted Source Verification**: Automatic citation of reliable sources (Korea Customs, legal documents)
+
+### External API Integration
+- **Korea Customs APIs**:
+  - Import/Export Statistics API (품목별 국가별 수출입실적)
+  - Customs Exchange Rate API (관세환율정보)
+  - Import Cargo Progress API (수입화물 진행정보)
+- **UN COMTRADE API**: Global trade statistics
+- **Claude AI API**: Core AI analysis engine
+
 ### Development Environment
 - **IDE**: Cursor (VS Code)
 - **Version Control**: Git
@@ -43,17 +59,69 @@ You are an experienced Senior Frontend Developer specializing in React and TypeS
 src/
 ├── components/           # Domain-organized components
 │   ├── auth/            # Authentication components
+│   │   ├── LoginForm.tsx
+│   │   ├── SignupForm.tsx
+│   │   └── AuthLayout.tsx
 │   ├── hscode/          # HS Code analysis components
+│   │   ├── AnalysisChat.tsx      # Interactive Q&A interface with Claude AI
+│   │   ├── ResultDashboard.tsx   # Analysis result display
+│   │   ├── SmartQuestions.tsx    # AI-generated follow-up questions
+│   │   ├── ImageUpload.tsx       # Product image upload for multimodal analysis
+│   │   └── ComplianceInfo.tsx    # Export/import requirements display
 │   ├── tracking/        # Cargo tracking components
+│   │   ├── TrackingInput.tsx
+│   │   ├── StatusTimeline.tsx
+│   │   └── CargoDetails.tsx
 │   ├── trade/           # Trade statistics components
+│   │   ├── StatisticCharts.tsx
+│   │   ├── ExchangeRates.tsx
+│   │   └── MarketTrends.tsx
 │   ├── monitoring/      # Monitoring and bookmark components
+│   │   ├── BookmarkList.tsx
+│   │   ├── MonitoringSettings.tsx
+│   │   └── AlertHistory.tsx
 │   ├── search/          # Intelligent search components
+│   │   ├── SearchInput.tsx       # Main search interface
+│   │   ├── IntentDetection.tsx   # AI intent analysis display
+│   │   └── SearchResults.tsx     # General search results
 │   ├── notification/    # Real-time notification components
+│   │   ├── NotificationToast.tsx
+│   │   ├── AlertPanel.tsx
+│   │   └── NotificationCenter.tsx
 │   ├── common/          # Shared components
+│   │   ├── Layout.tsx
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   └── SourceCitation.tsx    # Trusted source display component
 │   └── ui/              # Shadcn UI components
 ├── hooks/               # Domain-specific custom hooks
 │   ├── auth/            # Authentication hooks
+│   │   ├── useAuth.ts
+│   │   ├── useLogin.ts
+│   │   └── useLogout.ts
 │   ├── api/             # API-related hooks (domain-separated)
+│   │   ├── hscode/      # HS Code analysis hooks
+│   │   │   ├── useHsCodeAnalysis.ts    # Main analysis with Claude AI
+│   │   │   ├── useAnalysisSession.ts   # Session management
+│   │   │   ├── useSmartQuestions.ts    # Q&A interaction system
+│   │   │   ├── useImageAnalysis.ts     # Multimodal image analysis
+│   │   │   └── useAnalysisResults.ts   # Result retrieval
+│   │   ├── tracking/    # Cargo tracking hooks
+│   │   │   ├── useCargoTracking.ts     # Korea Customs API integration
+│   │   │   └── useTrackingHistory.ts
+│   │   ├── monitoring/  # Monitoring and bookmark hooks
+│   │   │   ├── useBookmarks.ts
+│   │   │   ├── useMonitoring.ts
+│   │   │   └── useAlerts.ts
+│   │   ├── trade/       # Trade statistics hooks
+│   │   │   ├── useTradeStats.ts        # Korea Customs trade data
+│   │   │   ├── useExchangeRates.ts     # Korea Customs exchange rates
+│   │   │   └── useComtradeData.ts      # UN COMTRADE API
+│   │   └── search/      # Search and intent detection hooks
+│   │       ├── useIntentDetection.ts   # Claude AI intent analysis
+│   │       └── useGeneralSearch.ts
 │   └── common/          # Shared utility hooks
 ├── stores/              # Zustand stores (domain-separated)
 ├── types/               # TypeScript type definitions
@@ -66,6 +134,31 @@ src/
 │   ├── validation/      # Zod schemas
 │   └── utils/           # General utilities
 ├── routes/              # TanStack Router file-based routing
+│   ├── __root.tsx       # Root layout with global providers
+│   ├── index.tsx        # Home page with intelligent search
+│   ├── hscode/          # HS Code analysis domain
+│   │   ├── index.tsx    # Analysis landing page
+│   │   ├── analyze/     # Analysis process routes
+│   │   │   └── $sessionId.tsx  # Interactive analysis session
+│   │   └── result/      # Analysis results routes
+│   │       └── $resultId.tsx   # Detailed result dashboard
+│   ├── tracking/        # Cargo tracking domain
+│   │   ├── index.tsx    # Tracking input page
+│   │   └── $number.tsx  # Tracking results by cargo number
+│   ├── trade/           # Trade information domain
+│   │   ├── regulations.tsx     # Regulation information search
+│   │   ├── exchange-rates.tsx  # Customs exchange rates
+│   │   └── statistics.tsx      # Trade statistics dashboard
+│   ├── search/          # General search results
+│   │   └── index.tsx    # Search results page
+│   ├── dashboard/       # User dashboard domain
+│   │   ├── index.tsx    # Dashboard overview with latest updates
+│   │   ├── bookmarks.tsx       # Bookmark management
+│   │   └── settings.tsx        # Personal settings & notifications
+│   └── auth/            # Authentication domain
+│       ├── login.tsx
+│       ├── signup.tsx
+│       └── callback.tsx # OAuth callback
 └── config/              # Configuration files
 ```
 
@@ -83,7 +176,7 @@ Each domain store follows a consistent pattern but serves different purposes in 
 
 **Key Store Structure:**
 - `searchStore`: Intelligent search process and AI intent detection
-- `analysisStore`: Complex interactive analysis process management
+- `analysisStore`: Complex interactive analysis process with smart questioning system
 - `resultStore`: Permanent reference and sharing of completed analysis results
 - `bookmarkStore`: Bookmark and monitoring state
 - `notificationStore`: Real-time notifications
@@ -93,39 +186,393 @@ Each domain store follows a consistent pattern but serves different purposes in 
 
 Understanding these patterns is crucial for maintaining consistency across the application. Each store has a specific responsibility in our complex AI workflow:
 
-- **searchStore**: Only handles search and intent detection
-- **analysisStore**: Focuses solely on the interactive analysis process
+**Critical AI Integration Patterns:**
+- **Intent Detection Flow**: searchStore → Claude AI analysis → route to appropriate domain
+- **Smart Question System**: When Claude AI needs additional information during analysis, present structured questions to users
+- **Multimodal Analysis**: Handle both text descriptions and product images for HS Code classification
+- **Source Citation**: Always maintain and display trusted sources for AI-generated information
+- **Analysis Session Management**: Track complex multi-step analysis conversations with Claude AI
+
+**Store Communication Patterns:**
+- **searchStore**: Only handles search and intent detection using Claude AI
+- **analysisStore**: Manages interactive Q&A sessions, including smart questions from Claude AI
 - **Cross-Store Communication**: When analysis session completes, analysisStore calls resultStore to save permanent result
+
+## Page Structure and Navigation Architecture
+
+### Main Navigation Structure
+
+Based on the requirements analysis, the navigation follows a **Hybrid + Intelligent Search** approach:
+
+**Primary Navigation (Header)**:
+1. **Logo/Home** - Links to main page with intelligent search
+2. **HS Code 분석** - Direct access to core HS Code analysis feature
+3. **화물 추적** - Cargo tracking functionality  
+4. **무역 정보** - Trade information dropdown menu
+   - 규제 정보 (Regulations)
+   - 관세 환율 (Exchange Rates)
+   - 무역 통계 (Trade Statistics)
+5. **마이 대시보드** - Personal dashboard (logged in users only)
+6. **로그인/회원가입** - Authentication (changes to user menu when logged in)
+
+**User Menu (When Logged In)**:
+- 마이 대시보드
+- 계정 설정
+- 알림 설정
+- 로그아웃
+
+### Detailed Page Specifications
+
+#### 1. Main Page (`/`) - FR-UU-001
+**Core Features**:
+- **Intelligent Unified Search Bar** (Central placement) - FR-AD-003
+  - Natural language input processing
+  - Claude AI intent detection
+  - Auto-routing to appropriate functionality
+  - Search suggestions and history
+- **Quick Action Cards** - Direct access to key functions
+  - HS Code 분석 시작하기
+  - 화물 추적하기  
+  - 규제 정보 조회
+  - 관세 환율 확인
+- **Recent Activity Section** (Logged in users only)
+  - Recent analysis results
+  - Bookmarked items updates
+  - Monitoring alerts summary
+
+**Components Required**:
+- `IntelligentSearchBar` with Claude AI integration
+- `QuickActionGrid` with navigation cards
+- `RecentActivityFeed` for personalized content
+- `IntentDetectionDisplay` for search result routing
+
+#### 2. HS Code Analysis Domain (`/hscode/*`)
+
+##### 2.1 Analysis Landing Page (`/hscode/index.tsx`)
+**Features**:
+- Analysis introduction and benefits
+- Sample analysis examples
+- Direct input form to start analysis
+- Recent analysis results (if logged in)
+
+##### 2.2 Interactive Analysis Session (`/hscode/analyze/$sessionId`) - FR-UU-003
+**Core Features**:
+- **Chat Interface with Claude AI** - FR-AD-004
+  - Multi-step conversational analysis
+  - Real-time progress indicators
+  - Multimodal input (text + image upload) - FR-AD-005
+- **Smart Question System** - FR-AD-005
+  - AI-generated follow-up questions
+  - Dynamic form generation based on Claude's needs
+  - Context preservation throughout session
+- **Source Citation Display** - FR-AD-006
+  - Real-time display of trusted sources
+  - Link to original documents
+  - Source reliability indicators
+
+**Components Required**:
+- `AnalysisChat` - Main conversational interface
+- `SmartQuestionPanel` - Dynamic question display
+- `ImageUploadWidget` - Product image handling
+- `SourceCitationList` - Trusted source display
+- `AnalysisProgressTracker` - Session progress indicator
+
+##### 2.3 Analysis Result Page (`/hscode/result/$resultId`) - FR-UU-004
+**Core Features**:
+- **Comprehensive HS Code Information**
+  - Recommended HS Code with confidence score
+  - Detailed classification reasoning
+  - Alternative HS Code suggestions
+- **Trade Compliance Information**
+  - Export/Import requirements
+  - Required certifications and documentation
+  - Regulatory compliance checklist
+- **Trade Statistics Dashboard** - FR-AD-012
+  - Korea Customs trade volume data
+  - UN COMTRADE global statistics
+  - Market trend analysis
+- **Related Information**
+  - Recent regulatory news
+  - Similar products analysis
+  - Market intelligence
+- **Action Buttons**
+  - Bookmark result - FR-AD-009
+  - Share result
+  - Download report
+  - Start new analysis
+
+**Components Required**:
+- `HsCodeSummaryCard` - Main result display
+- `ComplianceRequirementsList` - Regulatory information
+- `TradeStatisticsCharts` - Data visualization
+- `RelatedNewsPanel` - Recent updates
+- `ResultActionToolbar` - User actions
+
+#### 3. Cargo Tracking Domain (`/tracking/*`)
+
+##### 3.1 Tracking Input Page (`/tracking/index.tsx`)
+**Features**:
+- Input form for cargo management number or B/L number
+- Input validation and format guidance
+- Recent tracking searches (if logged in)
+- Sample tracking number examples
+
+##### 3.2 Tracking Results Page (`/tracking/$number`) - FR-UU-005
+**Core Features**:
+- **Real-time Customs Clearance Status** - FR-AD-007
+  - Current clearance stage
+  - Expected completion time
+  - Required actions (if any)
+- **Timeline Visualization**
+  - Step-by-step progress tracking
+  - Historical status changes
+  - Visual progress indicators
+- **Cargo Details**
+  - Shipment information
+  - Customs declaration details
+  - Contact information
+- **Monitoring Options** - FR-AD-009, FR-AD-010
+  - Bookmark cargo for updates
+  - Enable push notifications
+  - Email alert preferences
+
+**Components Required**:
+- `TrackingStatusCard` - Current status display
+- `ClearanceTimeline` - Progress visualization
+- `CargoDetailsPanel` - Shipment information
+- `TrackingActionsToolbar` - Monitoring options
+
+#### 4. Trade Information Domain (`/trade/*`)
+
+##### 4.1 Regulations Page (`/trade/regulations.tsx`) - FR-AD-013
+**Core Features**:
+- **Advanced Search Interface**
+  - Keyword-based regulation search
+  - Category filters (export/import/general)
+  - Date range filtering
+  - Country-specific regulations
+- **Search Results Display**
+  - Regulation summaries with AI analysis
+  - Source document links
+  - Relevance scoring
+  - Save to bookmarks option
+
+**Components Required**:
+- `RegulationSearchForm` - Advanced search interface
+- `RegulationResultsList` - Search results display
+- `RegulationFilters` - Category and date filters
+
+##### 4.2 Exchange Rates Page (`/trade/exchange-rates.tsx`) - FR-AD-014
+**Core Features**:
+- **Real-time Exchange Rates** from Korea Customs API
+  - Major currency pairs (USD, EUR, CNY, JPY)
+  - Historical rate charts
+  - Rate change indicators
+  - Currency calculator
+- **Rate Alerts** - FR-AD-010
+  - Set threshold alerts for specific currencies
+  - Daily rate summary emails
+  - Rate change notifications
+
+**Components Required**:
+- `ExchangeRateDisplay` - Current rates table
+- `CurrencyCalculator` - Conversion tool
+- `RateHistoryChart` - Historical data visualization
+- `RateAlertSettings` - Alert configuration
+
+##### 4.3 Trade Statistics Page (`/trade/statistics.tsx`) - FR-AD-012
+**Core Features**:
+- **Comprehensive Trade Data Dashboard**
+  - Korea Customs import/export statistics
+  - UN COMTRADE global trade data
+  - Country and product-specific analysis
+- **Interactive Data Visualization**
+  - Trade volume trends
+  - Market share analysis
+  - Seasonal patterns
+- **Data Export Options**
+  - CSV/Excel export
+  - Custom date ranges
+  - Filtered datasets
+
+**Components Required**:
+- `TradeStatsDashboard` - Main statistics display
+- `InteractiveTradeCharts` - Data visualization
+- `DataExportTools` - Export functionality
+
+#### 5. User Dashboard Domain (`/dashboard/*`)
+
+##### 5.1 Main Dashboard (`/dashboard/index.tsx`) - FR-UU-002
+**Core Features**:
+- **Latest Updates Feed** - FR-AD-010
+  - Monitored items status changes
+  - Regulatory updates affecting bookmarked items
+  - Analysis result updates
+  - Trade statistics alerts
+- **Quick Stats Overview**
+  - Total bookmarks
+  - Active monitoring items
+  - Recent analysis count
+  - Alert summary
+- **Shortcut Actions**
+  - Start new HS Code analysis
+  - Add new bookmark
+  - View all notifications
+
+**Components Required**:
+- `UpdatesFeedPanel` - Latest changes display
+- `DashboardStatsGrid` - Overview statistics
+- `QuickActionsPanel` - Shortcut buttons
+
+##### 5.2 Bookmarks Management (`/dashboard/bookmarks.tsx`) - FR-AD-009
+**Core Features**:
+- **Bookmark CRUD Operations**
+  - View all bookmarked items
+  - Edit bookmark details
+  - Delete bookmarks
+  - Bulk actions
+- **Monitoring Configuration** - FR-AD-010
+  - Enable/disable monitoring per bookmark
+  - Set monitoring frequency
+  - Configure alert thresholds
+- **Bookmark Organization**
+  - Category filtering
+  - Search within bookmarks
+  - Sort by date/type/status
+
+**Components Required**:
+- `BookmarksList` - Main bookmarks display
+- `BookmarkEditModal` - Edit functionality
+- `MonitoringSettingsPanel` - Alert configuration
+- `BookmarkFilters` - Organization tools
+
+##### 5.3 Settings Page (`/dashboard/settings.tsx`) - FR-AD-015
+**Core Features**:
+- **Account Information Management** - FR-AD-001
+  - Personal information updates
+  - Password changes
+  - Account deletion
+- **Notification Preferences** - FR-AD-011, FR-AD-015
+  - Browser push notification settings
+  - Email notification preferences
+  - Alert frequency configuration
+  - Notification categories (analysis, monitoring, system)
+- **Privacy Settings**
+  - Data sharing preferences
+  - Analysis history retention
+  - Cookie preferences
+
+**Components Required**:
+- `AccountInfoForm` - Personal information management
+- `NotificationSettingsPanel` - Alert preferences
+- `PrivacySettingsForm` - Privacy controls
+
+#### 6. Search Results Page (`/search/index.tsx`) - FR-AD-008
+**Core Features**:
+- **General Information Search Results**
+  - Regulation and news search results
+  - AI-powered content summarization
+  - Source credibility indicators
+  - Related topic suggestions
+- **Search Refinement**
+  - Advanced filters
+  - Sort options
+  - Search within results
+- **Result Actions**
+  - Save interesting results
+  - Share results
+  - Export search results
+
+**Components Required**:
+- `SearchResultsList` - Main results display
+- `SearchRefinementPanel` - Filter and sort options
+- `ResultActionsToolbar` - User actions
+
+#### 7. Authentication Domain (`/auth/*`)
+
+##### 7.1 Login Page (`/auth/login.tsx`) - UC_002
+**Core Features**:
+- **Dual Login Options** - FR-AD-001, FR-AD-002
+  - Email/password login
+  - SNS integration (Google, Kakao, Naver)
+- **Security Features**
+  - Remember me option
+  - Forgot password link
+  - Account lockout protection
+- **User Experience**
+  - Return to previous page after login
+  - Registration link for new users
+
+##### 7.2 Signup Page (`/auth/signup.tsx`) - UC_001
+**Core Features**:
+- **Registration Options** - FR-AD-001, FR-AD-002
+  - Email-based registration
+  - SNS account linking
+- **Form Validation**
+  - Real-time validation feedback
+  - Korean validation messages
+  - Terms of service agreement
+- **Email Verification**
+  - Verification email sending
+  - Account activation process
+
+##### 7.3 OAuth Callback (`/auth/callback.tsx`) - UC_003
+**Technical Features**:
+- SNS authentication processing
+- Account linking/creation
+- Session establishment
+- Redirect to intended destination
+
+### Navigation UX Principles
+
+1. **Intelligent Search Priority**: Main search bar is always prominent
+2. **Progressive Disclosure**: Advanced features accessible but not overwhelming
+3. **Context Awareness**: Navigation adapts based on user login status
+4. **Mobile Responsive**: Collapsible menu for mobile devices
+5. **Korean UX Standards**: Navigation patterns familiar to Korean users
+6. **Accessibility**: Proper ARIA labels and keyboard navigation support
+
+### Component Integration Guidelines
+
+Each page should implement:
+- **Loading States**: Skeleton screens during data fetching
+- **Error Boundaries**: Graceful error handling with recovery options
+- **Real-time Updates**: WebSocket integration for live data
+- **Korean Localization**: All UI text in appropriate Korean
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **SEO Optimization**: Proper meta tags and structured data
 
 ## Routing Architecture with TanStack Router
 
-### 1. File-Based Routing Implementation Principles
+### File-Based Routing Implementation
 
-The routing structure reflects our domain-driven architecture and the complex user journey through AI analysis:
-
-**Key Routing Patterns:**
-- `__root.tsx`: Root layout with global state initialization
-- `index.tsx`: Home page with intelligent search
-- `hscode/analyze/$sessionId.tsx`: Interactive analysis session (CSR only)
-- `hscode/result/$resultId.tsx`: Analysis result dashboard (CSR only)
-- `tracking/$number.tsx`: Tracking by cargo number
+The routing structure reflects our domain-driven architecture and the detailed page specifications above. Each route serves a specific purpose in the user's workflow through our AI-powered trade information system.
 
 **CSR-Optimized Routing Principles:**
-- All components must handle loading states gracefully
-- Use appropriate TanStack Query cache configurations
+- All components must handle loading states gracefully since there's no server-side pre-rendering
+- Use appropriate TanStack Query cache configurations for each page type
 - Handle Korean text with proper line breaks and spacing
-- Progressive loading: skeleton screens and optimistic updates
-- Error recovery: clear error states with retry options
+- Progressive loading: skeleton screens and optimistic updates for better perceived performance
+- Error recovery: clear error states with retry options since network conditions can vary
+- Intelligent routing: Claude AI intent detection automatically routes users to appropriate pages
 
-### 2. Route Protection and Navigation Helpers (CSR)
+### Route Protection and Navigation Helpers
 
-Route protection in CSR environment focuses on client-side validation and smooth user experience:
+**Authentication-Based Route Protection:**
+- Public routes: `/`, `/hscode/*`, `/tracking/*`, `/trade/*`, `/search/*`, `/auth/*`
+- Protected routes: `/dashboard/*` (requires login)
+- Conditional features: Bookmarking, monitoring, personal settings require authentication
 
-**Key Principles:**
-- Client-side authentication state verification
-- CSR redirect with current location preservation
+**Navigation Flow Examples:**
+1. **User searches "삶은 족발 HS Code"** → Intent detection → Route to `/hscode/analyze/[new-session-id]`
+2. **User searches "ABCD-1234 화물"** → Intent detection → Route to `/tracking/ABCD-1234`
+3. **User searches "최신 수입 규제"** → Intent detection → Route to `/search?q=최신%20수입%20규제`
+
+**CSR Navigation Optimization:**
 - Data prefetching before navigation for smoother UX
-- Route to appropriate domain based on intent detection
+- Route-level code splitting with loading states
+- Progressive enhancement for offline capability
+- Mobile-responsive navigation with touch-friendly interactions
 
 ## CSR-Optimized Data Loading and Caching Strategy
 
@@ -170,12 +617,28 @@ The API client handles all communication with our Spring Boot backend, including
 
 Each domain has its own API service that encapsulates the specific logic for that business area:
 
-**Key API Services:**
-- `hsCodeApi`: HS Code analysis session management
-- `trackingApi`: Cargo tracking and history
-- `searchApi`: Claude AI intent detection
-- `bookmarkApi`: Bookmark and monitoring
-- `tradeApi`: Trade statistics and exchange rates
+**AI-Powered API Services:**
+- `claudeApi`: Core Claude AI integration for analysis, intent detection, and smart questions
+- `hsCodeApi`: HS Code analysis combining Claude AI with Korea Customs data
+- `trackingApi`: Korea Customs cargo tracking integration
+- `searchApi`: Claude AI intent detection and general search
+- `bookmarkApi`: Bookmark and monitoring with change detection
+- `tradeApi`: Korea Customs trade statistics and UN COMTRADE integration
+
+**Korea Customs API Integration:**
+- **Import/Export Statistics** (품목별 국가별 수출입실적 API): HS Code-based trade volume and value data
+- **Exchange Rates** (관세환율정보 API): Official customs exchange rates for duty calculation
+- **Cargo Progress** (수입화물 진행정보 API): Real-time customs clearance status
+
+**International Data Integration:**
+- **UN COMTRADE API**: Global trade statistics for comprehensive market analysis
+
+**Claude AI API Integration:**
+- **Multi-step Analysis**: Complex reasoning for HS Code classification
+- **Image Analysis**: Product image processing for enhanced classification accuracy
+- **Intent Detection**: Natural language query interpretation
+- **Smart Questions**: Context-aware follow-up questions when additional information is needed
+- **Source Verification**: Automatic citation of trusted sources
 
 ### 3. Custom Hooks for API Integration
 
@@ -200,9 +663,11 @@ Real-time functionality is crucial for monitoring changes and providing immediat
 - Reconnection strategy suited for Korean network conditions
 
 **Real-time Features:**
-- Analysis progress updates
-- Bookmark monitoring status changes
-- Immediate toast for important notifications
+- **Analysis Progress Updates**: Live updates during Claude AI analysis sessions
+- **Bookmark Monitoring Status Changes**: Automatic detection of changes in regulations, tariffs, and requirements
+- **Dual Notification System**: Both browser push notifications and email alerts
+- **Smart Change Detection**: AI-powered analysis of regulatory changes with business impact assessment
+- **Immediate Toast Notifications**: High-priority alerts for urgent trade information updates
 
 ## Form Handling Guidelines
 
@@ -211,16 +676,21 @@ Real-time functionality is crucial for monitoring changes and providing immediat
 Our form validation uses Zod schemas that match the backend DTO validation rules, ensuring consistency across the entire application:
 
 **Key Schemas:**
-- `hsCodeAnalysisSchema`: HS Code analysis request
-- `createBookmarkSchema`: Bookmark creation
-- `searchFilterSchema`: Search filters
+- `hsCodeAnalysisSchema`: HS Code analysis request with text description and optional product image
+- `createBookmarkSchema`: Bookmark creation with monitoring preferences
+- `searchFilterSchema`: Search filters for trade information
+- `smartQuestionSchema`: Structured responses to AI-generated questions
+- `imageUploadSchema`: Product image validation for multimodal analysis
 
 **Form Component Principles:**
 - Use React Hook Form + Zod resolver
 - Auto-save drafts (debounced)
 - Korean validation messages
-- Conditional field display
+- Conditional field display based on Claude AI analysis needs
 - Character counters and real-time validation
+- **Image Upload Handling**: Support product images for enhanced HS Code classification
+- **Smart Question Interface**: Dynamic form generation based on Claude AI's follow-up questions
+- **Source Citation Display**: Show trusted sources for all AI-generated information
 
 ## Error Handling and User Feedback
 
@@ -235,6 +705,20 @@ Our error handling provides graceful degradation and helpful recovery options:
 - Provide retry and recovery options
 - Appropriate responses by error type (network, authentication, server)
 
+**Page-Specific Error Handling:**
+- **Analysis Pages**: Handle Claude AI API failures, session timeout recovery, image upload errors
+- **Tracking Pages**: Korea Customs API unavailability, invalid cargo number guidance
+- **Dashboard Pages**: Bookmark sync failures, monitoring service interruptions
+- **Trade Pages**: Data visualization errors, export process failures
+- **Search Pages**: Intent detection failures, search timeout handling
+
+**User-Friendly Korean Error Messages:**
+- Analysis errors: 'HS Code 분석 중 오류가 발생했습니다. 다시 시도해 주세요.'
+- Tracking errors: '화물 정보를 찾을 수 없습니다. 화물관리번호를 확인해 주세요.'
+- Data loading errors: '데이터를 불러오는 중 문제가 발생했습니다.'
+- Network errors: '네트워크 연결을 확인해 주세요.'
+- Session errors: '세션이 만료되었습니다. 다시 로그인해 주세요.'
+
 ## Performance Optimization and Best Practices
 
 ### Code Splitting and Lazy Loading Strategy
@@ -242,11 +726,37 @@ Our error handling provides graceful degradation and helpful recovery options:
 Performance is crucial for a complex AI application, especially when handling large analysis results and real-time data:
 
 **Optimization Strategies:**
-- Lazy loading of heavy domain components
-- Route-level code splitting with critical data loading
-- Strategic prefetching for anticipating next steps
-- Query optimization with TanStack Query
-- Smart prefetching considering Korean trade patterns
+- **Lazy loading of heavy domain components**: Analysis chat interface, trade statistics dashboards, complex forms
+- **Route-level code splitting**: Each major domain (`/hscode/*`, `/tracking/*`, `/trade/*`, `/dashboard/*`) loads independently
+- **Strategic prefetching**: 
+  - HS Code analysis results → prefetch related trade statistics
+  - Main dashboard → prefetch bookmark data and recent activities
+  - Search results → prefetch first few detailed results
+- **Page-specific optimizations**:
+  - Main page: Aggressive caching of search suggestions and recent activity
+  - Analysis pages: Real-time WebSocket connections with efficient state updates
+  - Dashboard pages: Background sync of monitoring data
+  - Trade info pages: Heavy caching of regulation data and exchange rates
+- **Korean trade workflow optimization**: Smart prefetching based on common Korean business patterns
+
+### Mobile and Responsive Considerations
+
+**Mobile-First Design Principles:**
+- **Touch-friendly interfaces**: Large tap targets for Korean mobile users
+- **Collapsible navigation**: Hamburger menu with clear Korean labels
+- **Optimized input methods**: Support for Korean IME and voice input
+- **Offline capability**: Cache critical data for intermittent connectivity
+- **Progressive Web App features**: 
+  - Installable experience for frequent users
+  - Background sync for monitoring alerts
+  - Push notifications for time-sensitive updates
+
+**Page-Specific Mobile Optimizations:**
+- **Analysis Chat**: Speech-to-text input for product descriptions
+- **Image Upload**: Camera integration for real-time product photography
+- **Dashboard**: Swipe gestures for navigation between feeds
+- **Search Results**: Infinite scroll with lazy loading
+- **Trade Charts**: Touch-interactive data visualization
 
 ## Development Guidelines and Standards
 
@@ -258,6 +768,65 @@ Performance is crucial for a complex AI application, especially when handling la
 4. **Progressive Loading**: Implement skeleton screens and optimistic updates for better perceived performance
 5. **Error Recovery**: Provide clear error states with retry options since network conditions can vary
 6. **Accessibility for Korean Users**: Follow Korean web accessibility guidelines and support Korean input methods
+7. **Claude AI Integration**: Handle multi-step analysis flows, smart questions, and source citation display
+8. **Multimodal Support**: Support both text and image inputs for comprehensive analysis
+9. **Real-time Updates**: Integrate WebSocket for live analysis progress and monitoring alerts
+
+### Claude AI Integration Patterns
+
+**Smart Question System Implementation:**
+- Dynamic form generation based on AI-generated questions
+- Progressive disclosure of information gathering
+- Context preservation throughout analysis sessions
+- User-friendly Korean question presentation
+
+**Source Citation and Trust:**
+- Always display trusted sources for AI-generated information
+- Clear distinction between AI analysis and factual data
+- Links to original documents and regulations
+- Source reliability indicators
+
+**Multimodal Analysis Handling:**
+- Image upload with preview functionality
+- Combined text and image analysis workflow
+- Progress indicators for complex AI processing
+- Fallback options when image analysis fails
+
+**Intent Detection Integration:**
+- Natural language processing for search queries
+- Automatic routing based on detected intent
+- Context-aware suggestions and corrections
+- Fallback to general search when intent unclear
+
+### Page-Specific Development Guidelines
+
+#### Main Page Development
+- **Search Bar**: Central positioning with prominent styling, auto-focus on page load
+- **Intent Detection**: Visual feedback during Claude AI analysis, clear routing indicators
+- **Quick Actions**: Card-based layout with hover effects, loading states for data prefetching
+- **Personalization**: Conditional rendering based on authentication state
+
+#### Analysis Pages Development
+- **Chat Interface**: Message bubbles with typing indicators, message history preservation
+- **Smart Questions**: Dynamic form generation, validation state management
+- **Image Upload**: Drag-and-drop functionality, preview generation, progress indicators
+- **Real-time Updates**: WebSocket integration for analysis progress, reconnection handling
+
+#### Dashboard Pages Development
+- **Feed Updates**: Real-time data streaming, read/unread state management
+- **Bookmark Management**: Bulk operations UI, inline editing capabilities
+- **Monitoring Controls**: Toggle switches with immediate feedback, status indicators
+
+#### Trade Information Pages Development
+- **Data Visualization**: Interactive charts with Korean number formatting
+- **Search Interfaces**: Advanced filtering with URL state persistence
+- **Export Functions**: Background processing for large datasets, download progress
+
+#### Mobile-Specific Development
+- **Responsive Tables**: Horizontal scroll with sticky headers for trade data
+- **Touch Gestures**: Swipe actions for list items, pull-to-refresh for feeds
+- **Form Optimization**: Large input fields, native date/time pickers
+- **Offline Handling**: Service worker integration, cached data fallbacks
 
 ### Korean Language Optimization Patterns
 
@@ -296,11 +865,31 @@ Performance is crucial for a complex AI application, especially when handling la
 4. **Loading States**: Korean loading messages that match user expectations
 5. **Success Messages**: Korean success confirmations with appropriate tone
 6. **Network Handling**: Robust error handling for Korean network conditions
+7. **AI Interaction**: Clear Korean instructions for Claude AI interactions
+8. **Monitoring Alerts**: Professional Korean notifications for business-critical changes
+
+### Monitoring and Alert System Guidelines
+
+**Change Detection Principles:**
+- **Regulatory Changes**: Monitor Korea Customs announcements and legal updates
+- **Tariff Updates**: Track changes in customs duties and exchange rates
+- **HS Code Modifications**: Detect updates to harmonized system classifications
+- **Trade Statistics**: Monitor significant changes in import/export volumes
+- **Market Conditions**: Alert on major shifts in trade patterns
+
+**Dual Notification Implementation:**
+- **Browser Push Notifications**: Immediate alerts for urgent changes
+- **Email Notifications**: Detailed summaries with business impact analysis
+- **Notification Preferences**: User-configurable alert thresholds and types
+- **Historical Tracking**: Maintain audit trail of all monitored changes
+- **Smart Filtering**: AI-powered relevance scoring to reduce notification fatigue
 
 **Korean-Friendly Error Handling Examples:**
 - Network: '네트워크 연결을 확인해 주세요.'
 - Auth: '로그인이 필요합니다.'
 - Validation: '입력하신 정보를 다시 확인해 주세요.'
 - Server: '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+- AI Analysis: 'HS Code 분석 중 오류가 발생했습니다. 다시 시도해 주세요.'
+- Monitoring: '모니터링 중인 항목에 중요한 변경사항이 있습니다.'
 
-This comprehensive cursorrules specification ensures a robust, performant, and culturally appropriate frontend application for Korean users, fully optimized for CSR with aggressive TanStack Query caching to provide the best possible user experience in the Korean trade information market.
+This comprehensive cursorrules specification ensures a robust, performant, and culturally appropriate frontend application for Korean users. It provides complete guidance for implementing all required pages and features from the requirements specification, including intelligent search routing, comprehensive HS Code analysis, cargo tracking, trade information management, personal dashboard functionality, and real-time monitoring capabilities. The specification is fully optimized for CSR with aggressive TanStack Query caching and Claude AI integration to provide the best possible user experience in the Korean trade information market.
