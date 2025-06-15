@@ -17,28 +17,28 @@ export const Route = createFileRoute("/regulations/")({
 const getStatusColor = (status: string) => {
   switch (status) {
     case "신규":
-      return "bg-red-100 text-red-800";
+      return "bg-danger-100 text-danger-800";
     case "업데이트":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-warning-100 text-warning-800";
     case "해제":
-      return "bg-green-100 text-green-800";
+      return "bg-success-100 text-success-800";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-neutral-100 text-neutral-800";
   }
 };
 
 const getImpactColor = (impact: string) => {
   switch (impact) {
     case "매우 높음":
-      return "text-red-600";
+      return "text-danger-600";
     case "높음":
-      return "text-orange-600";
+      return "text-warning-600";
     case "중간":
-      return "text-yellow-600";
+      return "text-warning-400";
     case "낮음":
-      return "text-green-600";
+      return "text-success-600";
     default:
-      return "text-gray-600";
+      return "text-neutral-600";
   }
 };
 const regulations = [
@@ -93,22 +93,22 @@ function RouteComponent() {
     {
       title: "이번 주 신규 규제",
       value: 24,
-      icon: <AlertTriangle className="h-8 w-8 text-red-500" />,
+      icon: <AlertTriangle className="h-8 w-8 text-danger-500" />,
     },
     {
       title: "이번 달 전체 규제",
       value: 156,
-      icon: <TrendingUp className="h-8 w-8 text-blue-500" />,
+      icon: <TrendingUp className="h-8 w-8 text-primary-500" />,
     },
     {
       title: "모니터링 국가",
       value: 45,
-      icon: <Globe className="h-8 w-8 text-green-500" />,
+      icon: <Globe className="h-8 w-8 text-success-500" />,
     },
     {
       title: "주요 품목 카테고리",
       value: 12,
-      icon: <Filter className="h-8 w-8 text-purple-500" />,
+      icon: <Filter className="h-8 w-8 text-brand-500" />,
     },
   ];
 
@@ -121,8 +121,8 @@ function RouteComponent() {
             <CardContent className="flex flex-col items-center">
               <div className="text-center">{icon}</div>
 
-              <p className="text-2xl font-bold text-gray-800">{value}</p>
-              <p className="text-sm text-gray-600">{title}</p>
+              <p className="text-2xl font-bold text-neutral-800">{value}</p>
+              <p className="text-sm text-neutral-600">{title}</p>
             </CardContent>
           </Card>
         ))}
@@ -173,7 +173,7 @@ function RouteComponent() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="mb-2 text-xl text-gray-800">
+                  <CardTitle className="mb-2 text-xl text-neutral-800">
                     {regulation.title}
                   </CardTitle>
                   <div className="mb-3 flex flex-wrap gap-2">
@@ -186,7 +186,7 @@ function RouteComponent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="mb-1 text-sm text-gray-500">
+                  <p className="mb-1 text-sm text-neutral-500">
                     <Calendar className="mr-1 inline h-4 w-4" />
                     {regulation.date}
                   </p>
@@ -199,9 +199,9 @@ function RouteComponent() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-gray-600">{regulation.summary}</p>
+              <p className="mb-4 text-neutral-600">{regulation.summary}</p>
               <div className="flex items-center justify-between">
-                <Button variant="link" className="p-0 text-blue-600">
+                <Button variant="link" className="p-0 text-primary-600">
                   자세히 보기 →
                 </Button>
                 <Button variant="outline" size="sm">
@@ -221,7 +221,7 @@ function RouteComponent() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4 leading-relaxed text-gray-600">
+          <p className="mb-4 leading-relaxed text-neutral-600">
             관심 있는 국가나 품목의 규제 변경사항을 실시간으로 받아보세요.
           </p>
           <Button className="bg-brand-700 hover:bg-brand-800">

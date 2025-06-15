@@ -19,7 +19,7 @@ function CargoTrackingPage() {
   if (error) {
     return (
       <div className="container mx-auto py-6">
-        <div className="text-center text-red-500">
+        <div className="text-center text-danger-500">
           추적 정보를 불러오는데 실패했습니다.
         </div>
       </div>

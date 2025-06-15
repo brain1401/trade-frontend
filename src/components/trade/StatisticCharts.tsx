@@ -33,10 +33,10 @@ const tradeData = {
     activePartners: 156,
   },
   topProducts: [
-    { name: "반도체", value: 35, color: "#0088FE" },
-    { name: "자동차", value: 28, color: "#00C49F" },
-    { name: "화학제품", value: 20, color: "#FFBB28" },
-    { name: "기계류", value: 17, color: "#FF8042" },
+    { name: "반도체", value: 35, color: "var(--color-chart-primary)" },
+    { name: "자동차", value: 28, color: "var(--color-chart-secondary)" },
+    { name: "화학제품", value: 20, color: "var(--color-chart-tertiary)" },
+    { name: "기계류", value: 17, color: "var(--color-chart-quaternary)" },
   ],
   tradePartners: [
     { country: "중국", volume: 89000 },
@@ -127,8 +127,16 @@ export const StatisticCharts: React.FC = () => {
                 labelStyle={{ color: "#000" }}
               />
               <Legend />
-              <Bar dataKey="export" fill="#0088FE" name="수출" />
-              <Bar dataKey="import" fill="#00C49F" name="수입" />
+              <Bar
+                dataKey="export"
+                fill="var(--color-chart-primary)"
+                name="수출"
+              />
+              <Bar
+                dataKey="import"
+                fill="var(--color-chart-secondary)"
+                name="수입"
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -152,7 +160,7 @@ export const StatisticCharts: React.FC = () => {
                     `${name} ${(percent * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="var(--color-chart-accent)"
                   dataKey="value"
                 >
                   {tradeData.topProducts.map((entry, index) => (
@@ -183,7 +191,7 @@ export const StatisticCharts: React.FC = () => {
                   ]}
                   labelStyle={{ color: "#000" }}
                 />
-                <Bar dataKey="volume" fill="#8884d8" />
+                <Bar dataKey="volume" fill="var(--color-chart-accent)" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -212,10 +220,10 @@ export const StatisticCharts: React.FC = () => {
               <Line
                 type="monotone"
                 dataKey={(data: any) => data.export - data.import}
-                stroke="#ff7300"
+                stroke="var(--color-chart-highlight)"
                 strokeWidth={2}
                 name="무역수지"
-                dot={{ fill: "#ff7300" }}
+                dot={{ fill: "var(--color-chart-highlight)" }}
               />
             </LineChart>
           </ResponsiveContainer>

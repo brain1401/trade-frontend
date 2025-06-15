@@ -70,7 +70,7 @@ function SearchResultPage() {
       /** 아이콘 컴포넌트 */
       icon: Eye,
       /** 스타일 클래스 */
-      styleClass: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
+      styleClass: "border-info-200 bg-info-50 text-info-700 hover:bg-info-100",
       /** 클릭 핸들러 함수명 */
       action: "handleViewDetails",
       /** 대상 경로 */
@@ -82,7 +82,7 @@ function SearchResultPage() {
       description: "분석 결과를 북마크에 저장하여 나중에 확인할 수 있습니다",
       icon: Save,
       styleClass:
-        "border-green-200 bg-green-50 text-green-700 hover:bg-green-100",
+        "border-success-200 bg-success-50 text-success-700 hover:bg-success-100",
       action: "handleSaveResult",
       targetPath: null,
     },
@@ -106,16 +106,16 @@ function SearchResultPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans antialiased">
+    <div className="min-h-screen bg-neutral-50 font-sans antialiased">
       <div className="container mx-auto px-4 py-8 md:py-16">
         {/* 페이지 헤더 */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-slate-800">
+          <h1 className="mb-2 text-3xl font-bold text-neutral-800">
             {pageHeader.title}
           </h1>
-          <p className="mb-1 text-slate-600">{pageHeader.subtitle}</p>
+          <p className="mb-1 text-neutral-600">{pageHeader.subtitle}</p>
           {analysisResult.status === "completed" && (
-            <p className="text-sm font-medium text-green-600">
+            <p className="text-sm font-medium text-success-600">
               {pageHeader.successMessage}
             </p>
           )}
@@ -130,7 +130,7 @@ function SearchResultPage() {
         {/* 추가 액션 영역 */}
         <div className="mx-auto mt-8 max-w-5xl">
           <div className="rounded-xl bg-white p-6 shadow-md">
-            <h2 className="mb-4 text-xl font-semibold text-slate-700">
+            <h2 className="mb-4 text-xl font-semibold text-neutral-700">
               다음 단계
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -153,8 +153,8 @@ function SearchResultPage() {
             </div>
 
             {/* 분석 메타 정보 */}
-            <div className="mt-6 border-t border-slate-200 pt-4">
-              <div className="flex items-center justify-between text-sm text-slate-500">
+            <div className="mt-6 border-t border-neutral-200 pt-4">
+              <div className="flex items-center justify-between text-sm text-neutral-500">
                 <span>분석 처리 시간: {analysisResult.processingTime}초</span>
                 <span>질문 길이: {queryInfo.decodedQuery.length}자</span>
               </div>

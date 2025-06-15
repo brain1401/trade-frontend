@@ -84,6 +84,26 @@ body {
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
 
+  /* Chart Colors (차트 전용 컬러) */
+  --color-chart-primary: #0088fe;
+  --color-chart-secondary: #00c49f;
+  --color-chart-tertiary: #ffbb28;
+  --color-chart-quaternary: #ff8042;
+  --color-chart-accent: #8884d8;
+  --color-chart-highlight: #ff7300;
+
+  /* Info Colors (정보성 컬러) */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+
   --line-height-relaxed: 1.75;
   --line-height-comfortable: 1.6;
 

@@ -11,8 +11,8 @@ function RouteComponent() {
     <div className="space-y-3">
       {/* 사용자 섹션 헤더 */}
       <div className="text-center">
-        <h1 className="mb-4 text-3xl font-bold text-gray-800">마이페이지</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="mb-4 text-3xl font-bold text-neutral-800">마이페이지</h1>
+        <p className="text-lg text-neutral-600">
           개인 설정 및 저장된 정보를 관리하세요
         </p>
       </div>
@@ -24,28 +24,28 @@ function RouteComponent() {
             <nav className="space-y-1">
               <Link
                 to="/user/profile"
-                className="flex items-center gap-2 rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
+                className="flex items-center gap-2 rounded-lg p-2 text-neutral-700 transition-colors hover:bg-neutral-100"
               >
                 <User className="h-5 w-5" />
                 프로필 관리
               </Link>
               <Link
                 to="/user/bookmarks"
-                className="flex items-center gap-2 rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
+                className="flex items-center gap-2 rounded-lg p-2 text-neutral-700 transition-colors hover:bg-neutral-100"
               >
                 <Bookmark className="h-5 w-5" />
                 북마크
               </Link>
               <Link
                 to="/user/settings"
-                className="flex items-center gap-2 rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
+                className="flex items-center gap-2 rounded-lg p-2 text-neutral-700 transition-colors hover:bg-neutral-100"
               >
                 <Settings className="h-5 w-5" />
                 설정
               </Link>
               <Link
                 to="/user/notifications"
-                className="flex items-center gap-2 rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
+                className="flex items-center gap-2 rounded-lg p-2 text-neutral-700 transition-colors hover:bg-neutral-100"
               >
                 <Bell className="h-5 w-5" />
                 알림 설정
