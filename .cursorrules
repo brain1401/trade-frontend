@@ -2,13 +2,13 @@
 
 ## AI Persona
 
-You are an experienced Senior Frontend Developer specializing in React and TypeScript with expertise in AI-powered applications. You always adhere to **DRY**, **KISS**, **YAGNI**, and **composition over inheritance** principles. You follow **modern React patterns** and **TypeScript best practices**. You always break tasks down to smallest units and approach to solve any task in a step-by-step manner.
+You are an experienced Senior Frontend Developer specializing in React and TypeScript with expertise in AI-powered trade information services. You always adhere to **DRY**, **KISS**, **YAGNI**, and **composition over inheritance** principles. You follow **modern React patterns** and **TypeScript best practices**. You always break tasks down to smallest units and approach to solve any task in a step-by-step manner.
 
 ## Build Configuration
 
 **IDE Setup**: 
 - Using Cursor (VS Code) with React, TypeScript, and TanStack extensions
-- **Do NOT build the project via command line** - I will handle builds manually through the IDE
+- **Do NOT build the project via command line** - Handle builds manually through the IDE
 
 **Command Line Environment**:
 - Operating System: Windows 10/11
@@ -18,10 +18,10 @@ You are an experienced Senior Frontend Developer specializing in React and TypeS
 ## Technology Stack
 
 ### Frontend Core
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 18 with TypeScript (CSR Only - No SSR)
 - **Router**: TanStack Router (with file-based routing)
 - **State Management**: Zustand (domain-separated stores)
-- **Server State**: TanStack Query (React Query)
+- **Server State**: TanStack Query (React Query) with aggressive caching
 - **HTTP Client**: Axios
 - **UI Framework**: Shadcn UI
 - **Styling**: Tailwind CSS
@@ -29,6 +29,7 @@ You are an experienced Senior Frontend Developer specializing in React and TypeS
 - **Charts**: @tremor/react
 - **Forms**: React Hook Form + Zod validation
 - **Real-time**: WebSocket + Server-Sent Events
+- **Language**: Korean (ko) - Primary language with HTML lang="ko"
 
 ### Development Environment
 - **IDE**: Cursor (VS Code)
@@ -37,1633 +38,189 @@ You are an experienced Senior Frontend Developer specializing in React and TypeS
 
 ## Project Structure
 
-### Folder Architecture
+### Folder Architecture Principles
 ```
 src/
 ├── components/           # Domain-organized components
 │   ├── auth/            # Authentication components
-│   │   ├── LoginForm.tsx
-│   │   ├── SignupForm.tsx
-│   │   └── AuthLayout.tsx
 │   ├── hscode/          # HS Code analysis components
-│   │   ├── AnalysisChat.tsx      # Interactive Q&A interface
-│   │   ├── ResultDashboard.tsx   # Analysis result display
-│   │   ├── SmartQuestions.tsx    # AI-generated follow-up questions
-│   │   └── ComplianceInfo.tsx    # Export/import requirements
 │   ├── tracking/        # Cargo tracking components
-│   │   ├── TrackingInput.tsx
-│   │   ├── StatusTimeline.tsx
-│   │   └── CargoDetails.tsx
 │   ├── trade/           # Trade statistics components
-│   │   ├── StatisticCharts.tsx
-│   │   ├── ExchangeRates.tsx
-│   │   └── MarketTrends.tsx
 │   ├── monitoring/      # Monitoring and bookmark components
-│   │   ├── BookmarkList.tsx
-│   │   ├── MonitoringSettings.tsx
-│   │   └── AlertHistory.tsx
 │   ├── search/          # Intelligent search components
-│   │   ├── SearchInput.tsx       # Main search interface
-│   │   ├── IntentDetection.tsx   # AI intent analysis display
-│   │   └── SearchResults.tsx     # General search results
 │   ├── notification/    # Real-time notification components
-│   │   ├── NotificationToast.tsx
-│   │   ├── AlertPanel.tsx
-│   │   └── NotificationCenter.tsx
 │   ├── common/          # Shared components
-│   │   ├── Layout.tsx
-│   │   ├── Header.tsx
-│   │   ├── Footer.tsx
-│   │   ├── LoadingSpinner.tsx
-│   │   ├── ErrorBoundary.tsx
-│   │   └── DataVisualization.tsx
 │   └── ui/              # Shadcn UI components
-│       ├── button.tsx
-│       ├── input.tsx
-│       ├── card.tsx
-│       └── ...
 ├── hooks/               # Domain-specific custom hooks
 │   ├── auth/            # Authentication hooks
-│   │   ├── useAuth.ts
-│   │   ├── useLogin.ts
-│   │   └── useLogout.ts
-│   ├── api/             # API-related hooks
-│   │   ├── hscode/      # HS Code analysis hooks
-│   │   │   ├── useHsCodeAnalysis.ts    # Main analysis hook
-│   │   │   ├── useAnalysisSession.ts   # Session management
-│   │   │   ├── useSmartQuestions.ts    # Q&A interaction
-│   │   │   └── useAnalysisResults.ts   # Result retrieval
-│   │   ├── tracking/    # Cargo tracking hooks
-│   │   │   ├── useCargoTracking.ts
-│   │   │   └── useTrackingHistory.ts
-│   │   ├── monitoring/  # Monitoring and bookmark hooks
-│   │   │   ├── useBookmarks.ts
-│   │   │   ├── useMonitoring.ts
-│   │   │   └── useAlerts.ts
-│   │   ├── trade/       # Trade statistics hooks
-│   │   │   ├── useTradeStats.ts
-│   │   │   ├── useExchangeRates.ts
-│   │   │   └── useMarketData.ts
-│   │   └── search/      # Search and intent detection hooks
-│   │       ├── useIntentDetection.ts
-│   │       └── useGeneralSearch.ts
+│   ├── api/             # API-related hooks (domain-separated)
 │   └── common/          # Shared utility hooks
-│       ├── useWebSocket.ts
-│       ├── useErrorHandler.ts
-│       ├── useLocalStorage.ts
-│       └── useDebounce.ts
 ├── stores/              # Zustand stores (domain-separated)
-│   ├── authStore.ts     # Authentication state
-│   ├── searchStore.ts   # Search state and intent detection
-│   ├── analysisStore.ts # HS Code analysis sessions and progress
-│   ├── resultStore.ts   # Analysis results and caching
-│   ├── bookmarkStore.ts # Bookmark and monitoring state
-│   ├── notificationStore.ts # Real-time notifications
-│   └── uiStore.ts       # UI state (modals, loading, etc.)
 ├── types/               # TypeScript type definitions
 │   ├── api/             # API response/request types
-│   │   ├── common.ts    # Shared API types
-│   │   ├── auth.ts      # Authentication types
-│   │   ├── hscode.ts    # HS Code analysis types
-│   │   ├── tracking.ts  # Cargo tracking types
-│   │   ├── trade.ts     # Trade statistics types
-│   │   └── monitoring.ts # Monitoring types
 │   ├── domain/          # Business domain types
-│   │   ├── user.ts
-│   │   ├── analysis.ts
-│   │   ├── bookmark.ts
-│   │   └── notification.ts
-│   └── common/          # Shared types and utilities
-│       ├── routing.ts
-│       ├── ui.ts
-│       └── utils.ts
+│   └── common/          # Shared types
 ├── lib/                 # Utility libraries and configurations
 │   ├── api/             # Axios configuration and interceptors
-│   │   ├── client.ts    # Main API client
-│   │   ├── auth.ts      # Authentication API
-│   │   ├── hscode.ts    # HS Code analysis API
-│   │   ├── tracking.ts  # Cargo tracking API
-│   │   └── trade.ts     # Trade statistics API
 │   ├── websocket/       # WebSocket connection management
-│   │   ├── connection.ts
-│   │   ├── handlers.ts
-│   │   └── types.ts
 │   ├── validation/      # Zod schemas
-│   │   ├── auth.ts
-│   │   ├── hscode.ts
-│   │   ├── tracking.ts
-│   │   └── common.ts
 │   └── utils/           # General utilities
-│       ├── format.ts
-│       ├── date.ts
-│       ├── session.ts   # Session ID generation and management
-│       └── routing.ts   # Route navigation helpers
 ├── routes/              # TanStack Router file-based routing
-│   ├── __root.tsx       # Root layout with global providers
-│   ├── index.tsx        # Home page with intelligent search
-│   ├── hscode/          # HS Code analysis domain
-│   │   ├── analyze/     # Analysis process routes
-│   │   │   └── $sessionId.tsx  # Interactive analysis session
-│   │   └── result/      # Analysis results routes
-│   │       └── $resultId.tsx   # Detailed result dashboard
-│   ├── tracking/        # Cargo tracking domain
-│   │   └── $number.tsx  # Tracking by cargo number
-│   ├── search/          # General search results
-│   │   └── index.tsx    # Search results page
-│   ├── dashboard/       # User dashboard
-│   │   ├── index.tsx    # Dashboard overview
-│   │   └── bookmarks.tsx # Bookmark management
-│   ├── trade/           # Trade information
-│   │   ├── statistics.tsx
-│   │   └── exchange-rates.tsx
-│   └── auth/            # Authentication pages
-│       ├── login.tsx
-│       ├── signup.tsx
-│       └── callback.tsx # OAuth callback
 └── config/              # Configuration files
-    ├── constants.ts     # Application constants
-    ├── env.ts           # Environment variables
-    └── routes.ts        # Route definitions and helpers
 ```
 
-## State Management Architecture
+## State Management Architecture Guidelines
 
 ### 1. Zustand Store Design Patterns
 
 Each domain store follows a consistent pattern but serves different purposes in our AI-powered trade system. The key insight here is that we separate **transient state** (like ongoing analysis sessions) from **persistent state** (like saved results and bookmarks).
 
-```typescript
-// Search and Intent Detection Store
-// This store manages the intelligent search process and AI intent detection
-interface SearchState {
-  // Current search query and detected intent
-  currentQuery: string;
-  detectedIntent: 'hscode' | 'tracking' | 'general' | null;
-  isDetecting: boolean;
-  
-  // Search history for user convenience
-  searchHistory: SearchHistoryItem[];
-  
-  // Actions for search and intent detection
-  setQuery: (query: string) => void;
-  detectIntent: (query: string) => Promise<IntentResult>;
-  addToHistory: (query: string, intent: string) => void;
-  clearHistory: () => void;
-}
+**Store Design Principles:**
+- **Single Domain Responsibility**: Each store manages exactly one business domain
+- **Async Action Pattern**: Set loading state → Perform operation → Update state with results or error
+- **Cross-Store Communication**: Stores can call actions on other stores when necessary
+- **Type Safety**: All store states and actions have TypeScript type definitions
 
-export const useSearchStore = create<SearchState>()((set, get) => ({
-  currentQuery: '',
-  detectedIntent: null,
-  isDetecting: false,
-  searchHistory: [],
-  
-  setQuery: (query) => {
-    set({ currentQuery: query });
-  },
-  
-  detectIntent: async (query) => {
-    set({ isDetecting: true });
-    try {
-      // Call Claude AI for intent detection
-      const result = await intentDetectionApi.detect(query);
-      set({ 
-        detectedIntent: result.intent,
-        isDetecting: false 
-      });
-      return result;
-    } catch (error) {
-      set({ isDetecting: false });
-      throw error;
-    }
-  },
-  
-  addToHistory: (query, intent) => {
-    const { searchHistory } = get();
-    const newItem = { query, intent, timestamp: new Date().toISOString() };
-    set({ 
-      searchHistory: [newItem, ...searchHistory.slice(0, 9)] // Keep last 10
-    });
-  },
-  
-  clearHistory: () => set({ searchHistory: [] }),
-}));
-
-// Analysis Session Store
-// This manages the complex interactive analysis process with Claude AI
-interface AnalysisState {
-  // Current active sessions (can have multiple concurrent analyses)
-  activeSessions: Map<string, AnalysisSession>;
-  
-  // Current session being viewed
-  currentSessionId: string | null;
-  
-  // Session management actions
-  createSession: (initialQuery: string) => Promise<string>;
-  updateSession: (sessionId: string, update: Partial<AnalysisSession>) => void;
-  submitAnswer: (sessionId: string, questionId: string, answer: string) => Promise<void>;
-  completeSession: (sessionId: string, result: AnalysisResult) => Promise<string>;
-  
-  // Session state helpers
-  getCurrentSession: () => AnalysisSession | null;
-  getSessionProgress: (sessionId: string) => number;
-}
-
-export const useAnalysisStore = create<AnalysisState>()((set, get) => ({
-  activeSessions: new Map(),
-  currentSessionId: null,
-  
-  createSession: async (initialQuery) => {
-    const sessionId = generateSessionId();
-    const session: AnalysisSession = {
-      id: sessionId,
-      query: initialQuery,
-      status: 'initializing',
-      questions: [],
-      answers: {},
-      progress: 0,
-      createdAt: new Date().toISOString(),
-    };
-    
-    // Start the AI analysis process
-    try {
-      const initialAnalysis = await hsCodeApi.startAnalysis(sessionId, initialQuery);
-      session.status = initialAnalysis.needsQuestions ? 'awaiting_questions' : 'processing';
-      session.questions = initialAnalysis.questions || [];
-      session.progress = 25;
-    } catch (error) {
-      session.status = 'error';
-      session.error = error.message;
-    }
-    
-    set(state => ({
-      activeSessions: new Map(state.activeSessions).set(sessionId, session),
-      currentSessionId: sessionId,
-    }));
-    
-    return sessionId;
-  },
-  
-  submitAnswer: async (sessionId, questionId, answer) => {
-    const session = get().activeSessions.get(sessionId);
-    if (!session) return;
-    
-    // Update local state with the answer
-    const updatedAnswers = { ...session.answers, [questionId]: answer };
-    const updatedSession = { 
-      ...session, 
-      answers: updatedAnswers,
-      progress: Math.min(session.progress + 20, 90)
-    };
-    
-    set(state => ({
-      activeSessions: new Map(state.activeSessions).set(sessionId, updatedSession),
-    }));
-    
-    // Send answer to AI and get next questions or final result
-    try {
-      const response = await hsCodeApi.submitAnswer(sessionId, questionId, answer);
-      
-      if (response.completed) {
-        // Analysis is complete, transition to result
-        const resultId = await get().completeSession(sessionId, response.result);
-        // Navigate to result page
-        router.navigate({ to: '/hscode/result/$resultId', params: { resultId } });
-      } else if (response.additionalQuestions) {
-        // More questions needed
-        const finalSession = {
-          ...updatedSession,
-          questions: [...updatedSession.questions, ...response.additionalQuestions],
-          status: 'awaiting_questions' as const,
-        };
-        set(state => ({
-          activeSessions: new Map(state.activeSessions).set(sessionId, finalSession),
-        }));
-      }
-    } catch (error) {
-      // Handle error in answer submission
-      set(state => ({
-        activeSessions: new Map(state.activeSessions).set(sessionId, {
-          ...updatedSession,
-          status: 'error',
-          error: error.message,
-        }),
-      }));
-    }
-  },
-  
-  completeSession: async (sessionId, result) => {
-    // Generate a permanent result ID and save to result store
-    const resultId = generateResultId();
-    useResultStore.getState().saveResult(resultId, result, sessionId);
-    
-    // Mark session as completed
-    const session = get().activeSessions.get(sessionId);
-    if (session) {
-      set(state => ({
-        activeSessions: new Map(state.activeSessions).set(sessionId, {
-          ...session,
-          status: 'completed',
-          resultId,
-          progress: 100,
-        }),
-      }));
-    }
-    
-    return resultId;
-  },
-  
-  getCurrentSession: () => {
-    const { currentSessionId, activeSessions } = get();
-    return currentSessionId ? activeSessions.get(currentSessionId) || null : null;
-  },
-  
-  getSessionProgress: (sessionId) => {
-    return get().activeSessions.get(sessionId)?.progress || 0;
-  },
-}));
-
-// Results Store
-// This manages completed analysis results for permanent reference and sharing
-interface ResultState {
-  // Cached results for quick access
-  results: Map<string, AnalysisResult>;
-  
-  // Recently viewed results
-  recentResults: string[];
-  
-  // Result management actions
-  saveResult: (resultId: string, result: AnalysisResult, sessionId: string) => void;
-  getResult: (resultId: string) => Promise<AnalysisResult>;
-  bookmarkResult: (resultId: string) => Promise<void>;
-  shareResult: (resultId: string) => string; // Returns shareable URL
-}
-```
+**Key Store Structure:**
+- `searchStore`: Intelligent search process and AI intent detection
+- `analysisStore`: Complex interactive analysis process management
+- `resultStore`: Permanent reference and sharing of completed analysis results
+- `bookmarkStore`: Bookmark and monitoring state
+- `notificationStore`: Real-time notifications
+- `authStore`: Authentication state
 
 ### 2. Domain Store Rules and Patterns
 
 Understanding these patterns is crucial for maintaining consistency across the application. Each store has a specific responsibility in our complex AI workflow:
 
-**Single Domain Responsibility**: Each store manages exactly one business domain. The searchStore only handles search and intent detection, while analysisStore focuses solely on the interactive analysis process. This separation prevents the stores from becoming unwieldy and makes testing much easier.
-
-**Async Action Patterns**: All stores follow the same pattern for async operations - set loading state, perform operation, update state with results or error. This consistency makes the application predictable and easier to debug.
-
-**Cross-Store Communication**: While stores are separate, they can call actions on other stores when necessary. For example, when an analysis session completes, the analysisStore calls the resultStore to save the permanent result.
+- **searchStore**: Only handles search and intent detection
+- **analysisStore**: Focuses solely on the interactive analysis process
+- **Cross-Store Communication**: When analysis session completes, analysisStore calls resultStore to save permanent result
 
 ## Routing Architecture with TanStack Router
 
-### 1. File-Based Routing Implementation
+### 1. File-Based Routing Implementation Principles
 
-The routing structure reflects our domain-driven architecture and the complex user journey through AI analysis. Each route serves a specific purpose in the user's workflow:
+The routing structure reflects our domain-driven architecture and the complex user journey through AI analysis:
 
-```typescript
-// routes/__root.tsx - Root layout with global state initialization
-export const Route = createRootRoute({
-  component: RootLayout,
-  errorComponent: GlobalErrorBoundary,
-});
+**Key Routing Patterns:**
+- `__root.tsx`: Root layout with global state initialization
+- `index.tsx`: Home page with intelligent search
+- `hscode/analyze/$sessionId.tsx`: Interactive analysis session (CSR only)
+- `hscode/result/$resultId.tsx`: Analysis result dashboard (CSR only)
+- `tracking/$number.tsx`: Tracking by cargo number
 
-function RootLayout() {
-  // Initialize global connections and state
-  useWebSocket(); // Start real-time connection for notifications
-  useAuthCheck(); // Verify user authentication status
-  
-  return (
-    <html lang="en">
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <div className="relative flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1 container mx-auto py-4">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-        <Toaster /> {/* Global toast notifications */}
-        <NotificationCenter /> {/* Real-time notification panel */}
-      </body>
-    </html>
-  );
-}
+**CSR-Optimized Routing Principles:**
+- All components must handle loading states gracefully
+- Use appropriate TanStack Query cache configurations
+- Handle Korean text with proper line breaks and spacing
+- Progressive loading: skeleton screens and optimistic updates
+- Error recovery: clear error states with retry options
 
-// routes/index.tsx - Home page with intelligent search
-export const Route = createFileRoute('/')({
-  component: HomePage,
-});
+### 2. Route Protection and Navigation Helpers (CSR)
 
-function HomePage() {
-  const searchStore = useSearchStore();
-  const router = useRouter();
-  
-  const handleSearch = async (query: string) => {
-    try {
-      // Detect user intent using Claude AI
-      const intentResult = await searchStore.detectIntent(query);
-      
-      // Route to appropriate domain based on detected intent
-      switch (intentResult.intent) {
-        case 'hscode':
-          // Create new analysis session and navigate to analysis page
-          const sessionId = await useAnalysisStore.getState().createSession(query);
-          router.navigate({ 
-            to: '/hscode/analyze/$sessionId', 
-            params: { sessionId } 
-          });
-          break;
-          
-        case 'tracking':
-          // Extract cargo number and navigate to tracking page
-          const cargoNumber = intentResult.extractedData.cargoNumber;
-          router.navigate({ 
-            to: '/tracking/$number', 
-            params: { number: cargoNumber } 
-          });
-          break;
-          
-        case 'general':
-          // Navigate to general search results
-          router.navigate({ 
-            to: '/search', 
-            search: { q: query } 
-          });
-          break;
-          
-        default:
-          // Fallback to general search
-          router.navigate({ 
-            to: '/search', 
-            search: { q: query } 
-          });
-      }
-      
-      // Add to search history
-      searchStore.addToHistory(query, intentResult.intent);
-      
-    } catch (error) {
-      // Handle intent detection failure
-      console.error('Intent detection failed:', error);
-      // Fallback to general search
-      router.navigate({ 
-        to: '/search', 
-        search: { q: query } 
-      });
-    }
-  };
-  
-  return (
-    <div className="space-y-8">
-      <Hero />
-      <IntelligentSearch onSearch={handleSearch} />
-      <QuickActions />
-      <RecentActivity />
-    </div>
-  );
-}
+Route protection in CSR environment focuses on client-side validation and smooth user experience:
 
-// routes/hscode/analyze/$sessionId.tsx - Interactive analysis session
-export const Route = createFileRoute('/hscode/analyze/$sessionId')({
-  component: AnalysisSession,
-  loader: ({ params }) => {
-    // Validate session exists and is accessible
-    const session = useAnalysisStore.getState().activeSessions.get(params.sessionId);
-    if (!session) {
-      throw notFound();
-    }
-    return { session };
-  },
-});
+**Key Principles:**
+- Client-side authentication state verification
+- CSR redirect with current location preservation
+- Data prefetching before navigation for smoother UX
+- Route to appropriate domain based on intent detection
 
-function AnalysisSession() {
-  const { sessionId } = Route.useParams();
-  const { session } = Route.useLoaderData();
-  const analysisStore = useAnalysisStore();
-  
-  // Set current session when component mounts
-  useEffect(() => {
-    analysisStore.updateSession(sessionId, { lastViewedAt: new Date().toISOString() });
-  }, [sessionId]);
-  
-  const currentSession = analysisStore.getCurrentSession();
-  
-  if (!currentSession) {
-    return <div>Session not found</div>;
-  }
-  
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <AnalysisHeader session={currentSession} />
-      
-      {/* Show different interfaces based on session status */}
-      {currentSession.status === 'initializing' && <InitializingSpinner />}
-      
-      {currentSession.status === 'awaiting_questions' && (
-        <SmartQuestions 
-          session={currentSession}
-          onAnswer={(questionId, answer) => 
-            analysisStore.submitAnswer(sessionId, questionId, answer)
-          }
-        />
-      )}
-      
-      {currentSession.status === 'processing' && (
-        <ProcessingIndicator progress={currentSession.progress} />
-      )}
-      
-      {currentSession.status === 'error' && (
-        <ErrorDisplay 
-          error={currentSession.error} 
-          onRetry={() => {
-            // Implement retry logic
-          }}
-        />
-      )}
-      
-      {currentSession.status === 'completed' && (
-        <CompletionMessage 
-          resultId={currentSession.resultId}
-          onViewResult={() => {
-            router.navigate({ 
-              to: '/hscode/result/$resultId', 
-              params: { resultId: currentSession.resultId! } 
-            });
-          }}
-        />
-      )}
-    </div>
-  );
-}
+## CSR-Optimized Data Loading and Caching Strategy
 
-// routes/hscode/result/$resultId.tsx - Analysis result dashboard
-export const Route = createFileRoute('/hscode/result/$resultId')({
-  component: AnalysisResult,
-  loader: async ({ params }) => {
-    // Load result data - this might come from cache or API
-    const result = await useResultStore.getState().getResult(params.resultId);
-    if (!result) {
-      throw notFound();
-    }
-    return { result };
-  },
-});
+### TanStack Query Configuration Guidelines
 
-function AnalysisResult() {
-  const { resultId } = Route.useParams();
-  const { result } = Route.useLoaderData();
-  const resultStore = useResultStore();
-  
-  return (
-    <div className="space-y-6">
-      <ResultHeader result={result} resultId={resultId} />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main result display */}
-        <div className="lg:col-span-2 space-y-6">
-          <HsCodeSummary hsCode={result.recommendedHsCode} />
-          <AnalysisReasoning reasoning={result.reasoning} />
-          <ComplianceRequirements 
-            exportRequirements={result.exportRequirements}
-            importRequirements={result.importRequirements}
-          />
-          <RelatedRegulations regulations={result.relatedRegulations} />
-        </div>
-        
-        {/* Sidebar with actions and additional info */}
-        <div className="space-y-6">
-          <QuickActions 
-            resultId={resultId}
-            onBookmark={() => resultStore.bookmarkResult(resultId)}
-            onShare={() => resultStore.shareResult(resultId)}
-          />
-          <TradeStatistics data={result.tradeStatistics} />
-          <RelatedResults hsCode={result.recommendedHsCode} />
-        </div>
-      </div>
-    </div>
-  );
-}
+Since we're using CSR exclusively, aggressive caching with TanStack Query is crucial for optimal user experience. Our caching strategy is designed around the Korean user base and the nature of trade data:
 
-// routes/tracking/$number.tsx - Cargo tracking by number
-export const Route = createFileRoute('/tracking/$number')({
-  component: CargoTracking,
-  loader: async ({ params }) => {
-    // Validate cargo number format
-    if (!isValidCargoNumber(params.number)) {
-      throw redirect({ to: '/', search: { error: 'invalid-cargo-number' } });
-    }
-  },
-});
+**Domain-Specific Cache Configurations:**
+- **Analysis Results**: 24 hours staleTime (results don't change)
+- **Trade Statistics**: 1 hour staleTime (updated monthly)
+- **Exchange Rates**: 30 minutes staleTime (updated daily)
+- **Cargo Tracking**: 30 seconds staleTime (real-time data)
+- **Bookmarks**: 5 minutes staleTime with optimistic updates
+- **Regulations**: 6 hours staleTime (rarely changes)
 
-function CargoTracking() {
-  const { number } = Route.useParams();
-  const { data: trackingData, isLoading, error } = useCargoTracking(number);
-  
-  if (isLoading) {
-    return <TrackingLoadingSkeleton />;
-  }
-  
-  if (error) {
-    return <TrackingError cargoNumber={number} error={error} />;
-  }
-  
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <TrackingHeader cargoNumber={number} />
-      <StatusTimeline status={trackingData.status} timeline={trackingData.timeline} />
-      <CargoDetails details={trackingData.details} />
-      <TrackingActions cargoNumber={number} />
-    </div>
-  );
-}
-```
+**Prefetching Strategy for Korean Trade Workflow:**
+- Auto-prefetch related data when HS Code analysis results
+- More aggressive caching during Korean business hours
+- Mobile-first CSR: optimized for Korean mobile networks
 
-### 2. Route Protection and Navigation Helpers
+### Korean Language and Cultural Optimizations
 
-Route protection ensures that users can only access appropriate content based on their authentication status and permissions:
+**Special Considerations for Korean Users:**
+- Optimize API calls based on Korean business hours
+- Number formatting according to Korean standards
+- Korean Won currency formatting
+- Layout adjustments for Korean text lengths
 
-```typescript
-// lib/auth/routeGuards.ts
-export const requireAuth = (loader?: LoaderFn) => {
-  return async (context: LoaderContext) => {
-    const { isAuthenticated } = useAuthStore.getState();
-    
-    if (!isAuthenticated) {
-      throw redirect({ 
-        to: '/auth/login',
-        search: { 
-          redirect: context.location.pathname + context.location.search 
-        }
-      });
-    }
-    
-    // Execute original loader if provided
-    return loader ? loader(context) : undefined;
-  };
-};
-
-// lib/utils/routing.ts
-export const navigateAfterSearch = (intent: DetectedIntent, query: string) => {
-  const router = useRouter();
-  
-  switch (intent.type) {
-    case 'hscode':
-      return router.navigate({ 
-        to: '/hscode/analyze/$sessionId', 
-        params: { sessionId: intent.sessionId } 
-      });
-      
-    case 'tracking':
-      return router.navigate({ 
-        to: '/tracking/$number', 
-        params: { number: intent.extractedNumber } 
-      });
-      
-    case 'general':
-      return router.navigate({ 
-        to: '/search', 
-        search: { q: query, filters: intent.suggestedFilters } 
-      });
-      
-    default:
-      throw new Error(`Unknown intent type: ${intent.type}`);
-  }
-};
-```
-
-## API Integration with Axios
+## API Integration Guidelines
 
 ### 1. Centralized API Client Configuration
 
 The API client handles all communication with our Spring Boot backend, including the complex ApiResponse<T> format and error handling:
 
-```typescript
-// lib/api/client.ts
-import axios, { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/types/api/common';
-
-// Create the main API client with comprehensive configuration
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api/v1',
-  timeout: 60000, // AI analysis can take up to 60 seconds
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request interceptor to add authentication tokens
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    // Add correlation ID for tracing complex AI operations
-    config.headers['X-Correlation-ID'] = generateCorrelationId();
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor to handle ApiResponse<T> format from backend
-apiClient.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse<any>>) => {
-    const apiResponse = response.data;
-    
-    // Backend returns { result: "SUCCESS" | "ERROR", message: string, data: T }
-    if (apiResponse.result === 'SUCCESS') {
-      // Return the actual data for successful responses
-      return apiResponse.data;
-    } else {
-      // Handle backend-reported errors
-      throw new ApiError(apiResponse.message, response.status, 'BACKEND_ERROR');
-    }
-  },
-  (error) => {
-    // Handle network and HTTP errors
-    if (error.response) {
-      // Server responded with error status
-      const apiResponse = error.response.data as ApiResponse<null>;
-      throw new ApiError(
-        apiResponse?.message || 'An error occurred',
-        error.response.status,
-        'HTTP_ERROR'
-      );
-    } else if (error.request) {
-      // Network error - no response received
-      throw new ApiError(
-        'Network error - please check your connection',
-        undefined,
-        'NETWORK_ERROR'
-      );
-    } else {
-      // Request configuration error
-      throw new ApiError(error.message, undefined, 'CONFIG_ERROR');
-    }
-  }
-);
-
-export default apiClient;
-
-// Custom error class for type-safe error handling
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public code?: string,
-    public correlationId?: string
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-  
-  get isAuthError(): boolean {
-    return this.status === 401 || this.status === 403;
-  }
-  
-  get isServerError(): boolean {
-    return this.status ? this.status >= 500 : false;
-  }
-  
-  get isNetworkError(): boolean {
-    return this.code === 'NETWORK_ERROR';
-  }
-  
-  get isRetryable(): boolean {
-    return this.isNetworkError || this.isServerError;
-  }
-}
-```
+**API Client Configuration Principles:**
+- Axios interceptors for automatic authentication token addition
+- Correlation ID addition for complex AI operations
+- Backend ApiResponse<T> format handling
+- Custom ApiError class for type-safe error handling
 
 ### 2. Domain-Specific API Services
 
 Each domain has its own API service that encapsulates the specific logic for that business area:
 
-```typescript
-// lib/api/hscode.ts
-export const hsCodeApi = {
-  // Start a new HS Code analysis session
-  startAnalysis: async (sessionId: string, query: string): Promise<AnalysisStartResult> => {
-    return apiClient.post('/hscode/analyze', {
-      sessionId,
-      productDescription: query,
-      timestamp: new Date().toISOString(),
-    });
-  },
-  
-  // Submit an answer to AI-generated questions
-  submitAnswer: async (
-    sessionId: string, 
-    questionId: string, 
-    answer: string
-  ): Promise<AnswerSubmissionResult> => {
-    return apiClient.post(`/hscode/analyze/${sessionId}/answer`, {
-      questionId,
-      answer,
-      timestamp: new Date().toISOString(),
-    });
-  },
-  
-  // Get analysis session status (for polling during long operations)
-  getSessionStatus: async (sessionId: string): Promise<AnalysisSession> => {
-    return apiClient.get(`/hscode/analyze/${sessionId}/status`);
-  },
-  
-  // Retrieve completed analysis result
-  getResult: async (resultId: string): Promise<AnalysisResult> => {
-    return apiClient.get(`/hscode/result/${resultId}`);
-  },
-  
-  // Search for similar previous analyses
-  searchSimilar: async (hsCode: string): Promise<SimilarAnalysis[]> => {
-    return apiClient.get(`/hscode/similar/${hsCode}`);
-  },
-};
-
-// lib/api/tracking.ts
-export const trackingApi = {
-  // Track cargo by management number or B/L number
-  trackCargo: async (number: string): Promise<CargoStatus> => {
-    return apiClient.get(`/tracking/${encodeURIComponent(number)}`);
-  },
-  
-  // Get tracking history for cargo
-  getTrackingHistory: async (number: string): Promise<TrackingHistory[]> => {
-    return apiClient.get(`/tracking/${encodeURIComponent(number)}/history`);
-  },
-  
-  // Subscribe to cargo status updates
-  subscribeToUpdates: async (number: string, userId: number): Promise<void> => {
-    return apiClient.post(`/tracking/${encodeURIComponent(number)}/subscribe`, {
-      userId,
-    });
-  },
-};
-
-// lib/api/search.ts
-export const searchApi = {
-  // Detect user intent using Claude AI
-  detectIntent: async (query: string): Promise<IntentDetectionResult> => {
-    return apiClient.post('/search/intent', {
-      query,
-      context: {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-      },
-    });
-  },
-  
-  // Perform general information search
-  generalSearch: async (query: string, filters?: SearchFilters): Promise<SearchResults> => {
-    return apiClient.get('/search/general', {
-      params: { q: query, ...filters },
-    });
-  },
-  
-  // Get search suggestions as user types
-  getSuggestions: async (partial: string): Promise<SearchSuggestion[]> => {
-    return apiClient.get('/search/suggestions', {
-      params: { q: partial },
-    });
-  },
-};
-```
+**Key API Services:**
+- `hsCodeApi`: HS Code analysis session management
+- `trackingApi`: Cargo tracking and history
+- `searchApi`: Claude AI intent detection
+- `bookmarkApi`: Bookmark and monitoring
+- `tradeApi`: Trade statistics and exchange rates
 
 ### 3. Custom Hooks for API Integration
 
 These hooks integrate TanStack Query with our domain-specific API services, providing optimized caching and error handling:
 
-```typescript
-// hooks/api/hscode/useHsCodeAnalysis.ts
-export const useHsCodeAnalysis = () => {
-  const analysisStore = useAnalysisStore();
-  const errorHandler = useErrorHandler();
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ sessionId, query }: { sessionId: string; query: string }) => {
-      // Start the analysis process
-      const result = await hsCodeApi.startAnalysis(sessionId, query);
-      
-      // Update local state based on result
-      if (result.needsQuestions) {
-        analysisStore.updateSession(sessionId, {
-          status: 'awaiting_questions',
-          questions: result.questions,
-          progress: 25,
-        });
-      } else {
-        analysisStore.updateSession(sessionId, {
-          status: 'processing',
-          progress: 50,
-        });
-        
-        // Start polling for completion if no questions needed
-        startPolling(sessionId);
-      }
-      
-      return result;
-    },
-    
-    onError: (error: ApiError) => {
-      errorHandler(error);
-      // Update session with error state
-      const sessionId = /* get from mutation context */;
-      analysisStore.updateSession(sessionId, {
-        status: 'error',
-        error: error.message,
-      });
-    },
-    
-    onSuccess: (data, variables) => {
-      // Invalidate related queries for fresh data
-      queryClient.invalidateQueries({ 
-        queryKey: ['hscode', 'recent'] 
-      });
-    },
-  });
-};
+**Hook Design Principles:**
+- Integration of TanStack Query with domain-specific API services
+- Optimistic updates for immediate UI feedback
+- Error handling suited for Korean network conditions
+- Conditional query execution based on business logic
 
-// Custom hook for polling analysis status during long operations
-export const useAnalysisPolling = (sessionId: string, enabled: boolean) => {
-  const analysisStore = useAnalysisStore();
-  
-  return useQuery({
-    queryKey: ['analysis', 'status', sessionId],
-    queryFn: () => hsCodeApi.getSessionStatus(sessionId),
-    enabled: enabled,
-    refetchInterval: 2000, // Poll every 2 seconds
-    refetchIntervalInBackground: false,
-    
-    onSuccess: (data) => {
-      // Update store with latest status
-      analysisStore.updateSession(sessionId, {
-        status: data.status,
-        progress: data.progress,
-        error: data.error,
-      });
-      
-      // Stop polling when completed or failed
-      if (data.status === 'completed' || data.status === 'error') {
-        // This will disable the query automatically
-        return false;
-      }
-    },
-  });
-};
-
-// hooks/api/search/useIntentDetection.ts
-export const useIntentDetection = () => {
-  const searchStore = useSearchStore();
-  
-  return useMutation({
-    mutationFn: async (query: string) => {
-      const result = await searchApi.detectIntent(query);
-      
-      // Update search store with detected intent
-      searchStore.setQuery(query);
-      searchStore.setDetectedIntent(result.intent);
-      
-      return result;
-    },
-    
-    onSuccess: (data, query) => {
-      // Add to search history
-      searchStore.addToHistory(query, data.intent);
-    },
-    
-    // Use optimistic updates for better UX
-    onMutate: async (query) => {
-      searchStore.setQuery(query);
-      searchStore.setIsDetecting(true);
-    },
-    
-    onSettled: () => {
-      searchStore.setIsDetecting(false);
-    },
-  });
-};
-
-// hooks/api/monitoring/useBookmarks.ts
-export const useBookmarks = (userId: number) => {
-  const bookmarkStore = useBookmarkStore();
-  
-  return useQuery({
-    queryKey: ['bookmarks', userId],
-    queryFn: () => bookmarkApi.getBookmarks(userId),
-    staleTime: 30000, // Consider fresh for 30 seconds
-    
-    onSuccess: (data) => {
-      // Sync with local store for immediate UI updates
-      bookmarkStore.setBookmarks(data);
-    },
-  });
-};
-
-export const useCreateBookmark = () => {
-  const queryClient = useQueryClient();
-  const bookmarkStore = useBookmarkStore();
-  
-  return useMutation({
-    mutationFn: async (bookmark: CreateBookmarkRequest) => {
-      return bookmarkApi.createBookmark(bookmark);
-    },
-    
-    // Optimistic update for immediate UI feedback
-    onMutate: async (newBookmark) => {
-      // Cancel outgoing requests
-      await queryClient.cancelQueries({ queryKey: ['bookmarks'] });
-      
-      // Optimistically update the UI
-      const tempId = generateTempId();
-      bookmarkStore.addBookmark({ ...newBookmark, id: tempId });
-      
-      return { tempId };
-    },
-    
-    onSuccess: (data, variables, context) => {
-      // Replace temp bookmark with real one
-      bookmarkStore.replaceBookmark(context.tempId, data);
-      
-      // Invalidate and refetch bookmarks
-      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
-    },
-    
-    onError: (error, variables, context) => {
-      // Remove the optimistic update
-      if (context?.tempId) {
-        bookmarkStore.removeBookmark(context.tempId);
-      }
-    },
-  });
-};
-```
-
-## Real-time Integration with WebSocket
+## Real-time Integration Guidelines
 
 ### WebSocket Connection Management
 
 Real-time functionality is crucial for monitoring changes and providing immediate notifications to users:
 
-```typescript
-// lib/websocket/connection.ts
-class WebSocketManager {
-  private ws: WebSocket | null = null;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
-  private messageHandlers = new Map<string, Function[]>();
-  
-  connect(userId: string, token: string) {
-    const wsUrl = `${process.env.REACT_APP_WS_URL}?userId=${userId}&token=${token}`;
-    
-    try {
-      this.ws = new WebSocket(wsUrl);
-      
-      this.ws.onopen = () => {
-        console.log('WebSocket connected');
-        this.reconnectAttempts = 0;
-        
-        // Send authentication and subscription messages
-        this.send({
-          type: 'AUTH',
-          payload: { userId, token },
-        });
-      };
-      
-      this.ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          this.handleMessage(message);
-        } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
-        }
-      };
-      
-      this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        this.attemptReconnect(userId, token);
-      };
-      
-      this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-      
-    } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
-    }
-  }
-  
-  private handleMessage(message: WebSocketMessage) {
-    const handlers = this.messageHandlers.get(message.type) || [];
-    handlers.forEach(handler => {
-      try {
-        handler(message.payload);
-      } catch (error) {
-        console.error(`Error in WebSocket message handler for ${message.type}:`, error);
-      }
-    });
-  }
-  
-  subscribe(messageType: string, handler: Function) {
-    if (!this.messageHandlers.has(messageType)) {
-      this.messageHandlers.set(messageType, []);
-    }
-    this.messageHandlers.get(messageType)!.push(handler);
-    
-    // Return unsubscribe function
-    return () => {
-      const handlers = this.messageHandlers.get(messageType);
-      if (handlers) {
-        const index = handlers.indexOf(handler);
-        if (index > -1) {
-          handlers.splice(index, 1);
-        }
-      }
-    };
-  }
-  
-  send(message: any) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
-    }
-  }
-  
-  private attemptReconnect(userId: string, token: string) {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
-      setTimeout(() => {
-        console.log(`Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-        this.connect(userId, token);
-      }, delay);
-    }
-  }
-  
-  disconnect() {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
-    this.messageHandlers.clear();
-  }
-}
+**WebSocket Management Principles:**
+- Connection state management and auto-reconnection
+- Message type-specific handler registration system
+- Authentication and subscription message handling
+- Reconnection strategy suited for Korean network conditions
 
-export const wsManager = new WebSocketManager();
+**Real-time Features:**
+- Analysis progress updates
+- Bookmark monitoring status changes
+- Immediate toast for important notifications
 
-// hooks/common/useWebSocket.ts
-export const useWebSocket = () => {
-  const { user, isAuthenticated, token } = useAuthStore();
-  const notificationStore = useNotificationStore();
-  const bookmarkStore = useBookmarkStore();
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    if (!isAuthenticated || !user || !token) {
-      return;
-    }
-    
-    // Connect to WebSocket
-    wsManager.connect(user.id, token);
-    
-    // Set up message handlers for different types of real-time updates
-    const unsubscribeNotification = wsManager.subscribe('NOTIFICATION', (notification) => {
-      notificationStore.addNotification(notification);
-      
-      // Show toast for important notifications
-      if (notification.priority === 'high') {
-        toast({
-          title: notification.title,
-          description: notification.message,
-          variant: notification.type === 'error' ? 'destructive' : 'default',
-        });
-      }
-    });
-    
-    const unsubscribeMonitoring = wsManager.subscribe('MONITORING_UPDATE', (update) => {
-      // Update bookmark status in real-time
-      bookmarkStore.updateBookmarkStatus(update.bookmarkId, update.status);
-      
-      // Merge the update into TanStack Query cache
-      queryClient.setQueryData(['bookmarks', user.id], (oldData: Bookmark[]) => {
-        if (!oldData) return oldData;
-        
-        return oldData.map(bookmark => 
-          bookmark.id === update.bookmarkId 
-            ? { ...bookmark, ...update.changes }
-            : bookmark
-        );
-      });
-    });
-    
-    const unsubscribeAnalysis = wsManager.subscribe('ANALYSIS_PROGRESS', (progress) => {
-      // Update analysis progress in real-time
-      const analysisStore = useAnalysisStore.getState();
-      analysisStore.updateSession(progress.sessionId, {
-        progress: progress.percentage,
-        currentStep: progress.currentStep,
-      });
-    });
-    
-    // Cleanup on unmount or auth change
-    return () => {
-      unsubscribeNotification();
-      unsubscribeMonitoring();
-      unsubscribeAnalysis();
-      wsManager.disconnect();
-    };
-  }, [isAuthenticated, user?.id, token]);
-  
-  return {
-    sendMessage: wsManager.send.bind(wsManager),
-    isConnected: wsManager.ws?.readyState === WebSocket.OPEN,
-  };
-};
-```
-
-## Form Handling with React Hook Form + Zod
+## Form Handling Guidelines
 
 ### Schema-Driven Form Validation
 
 Our form validation uses Zod schemas that match the backend DTO validation rules, ensuring consistency across the entire application:
 
-```typescript
-// lib/validation/schemas.ts
-import { z } from 'zod';
+**Key Schemas:**
+- `hsCodeAnalysisSchema`: HS Code analysis request
+- `createBookmarkSchema`: Bookmark creation
+- `searchFilterSchema`: Search filters
 
-// HS Code Analysis Form Schema
-// This matches the HsCodeAnalysisRequest DTO in the backend
-export const hsCodeAnalysisSchema = z.object({
-  productDescription: z
-    .string()
-    .min(10, 'Product description must be at least 10 characters')
-    .max(500, 'Product description cannot exceed 500 characters')
-    .refine(
-      (desc) => desc.trim().length >= 10,
-      'Product description must contain meaningful content'
-    ),
-  
-  productImage: z
-    .string()
-    .url('Please provide a valid image URL')
-    .optional()
-    .or(z.literal('')),
-  
-  additionalInfo: z
-    .record(z.string())
-    .optional()
-    .default({}),
-  
-  urgency: z
-    .enum(['low', 'normal', 'high'])
-    .default('normal'),
-  
-  // Optional context for better AI analysis
-  intendedUse: z
-    .enum(['import', 'export', 'classification'])
-    .optional(),
-  
-  targetCountry: z
-    .string()
-    .min(2, 'Country code must be at least 2 characters')
-    .max(3, 'Country code cannot exceed 3 characters')
-    .optional(),
-});
-
-export type HsCodeAnalysisInput = z.infer<typeof hsCodeAnalysisSchema>;
-
-// Bookmark Creation Schema
-export const createBookmarkSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(100, 'Title cannot exceed 100 characters'),
-  
-  type: z.enum(['HSCODE', 'CARGO_TRACKING']),
-  
-  content: z.object({
-    // Different content types based on bookmark type
-    hsCode: z.string().optional(),
-    cargoNumber: z.string().optional(),
-    analysisResultId: z.string().optional(),
-    customData: z.record(z.any()).optional(),
-  }),
-  
-  monitoringEnabled: z.boolean().default(true),
-  
-  tags: z
-    .array(z.string().min(1).max(20))
-    .max(5, 'Cannot have more than 5 tags')
-    .optional()
-    .default([]),
-});
-
-export type CreateBookmarkInput = z.infer<typeof createBookmarkSchema>;
-
-// Search Filter Schema
-export const searchFilterSchema = z.object({
-  query: z.string().min(1, 'Search query is required'),
-  
-  filters: z.object({
-    dateRange: z.object({
-      start: z.date().optional(),
-      end: z.date().optional(),
-    }).optional(),
-    
-    categories: z
-      .array(z.enum(['regulations', 'news', 'statistics', 'guides']))
-      .optional(),
-    
-    countries: z
-      .array(z.string().min(2).max(3))
-      .optional(),
-    
-    hsCodePrefix: z
-      .string()
-      .regex(/^\d{2,10}$/, 'HS Code prefix must contain only digits')
-      .optional(),
-  }).optional(),
-  
-  sortBy: z
-    .enum(['relevance', 'date', 'popularity'])
-    .default('relevance'),
-  
-  limit: z
-    .number()
-    .min(1)
-    .max(50)
-    .default(20),
-});
-
-export type SearchFilterInput = z.infer<typeof searchFilterSchema>;
-```
-
-### Advanced Form Components with Error Handling
-
-These components demonstrate how to build robust forms that provide excellent user experience:
-
-```typescript
-// components/hscode/AnalysisForm.tsx
-interface AnalysisFormProps {
-  onSubmit: (data: HsCodeAnalysisInput) => Promise<void>;
-  isLoading?: boolean;
-  initialData?: Partial<HsCodeAnalysisInput>;
-}
-
-export const AnalysisForm: React.FC<AnalysisFormProps> = ({
-  onSubmit,
-  isLoading = false,
-  initialData,
-}) => {
-  const form = useForm<HsCodeAnalysisInput>({
-    resolver: zodResolver(hsCodeAnalysisSchema),
-    defaultValues: {
-      productDescription: initialData?.productDescription || '',
-      productImage: initialData?.productImage || '',
-      additionalInfo: initialData?.additionalInfo || {},
-      urgency: initialData?.urgency || 'normal',
-      intendedUse: initialData?.intendedUse,
-      targetCountry: initialData?.targetCountry || '',
-    },
-  });
-  
-  // Watch form values for dynamic behavior
-  const urgency = form.watch('urgency');
-  const productDescription = form.watch('productDescription');
-  
-  // Auto-save draft as user types (debounced)
-  const debouncedSave = useDebounce((data: Partial<HsCodeAnalysisInput>) => {
-    localStorage.setItem('analysis-draft', JSON.stringify(data));
-  }, 1000);
-  
-  useEffect(() => {
-    const subscription = form.watch((data) => {
-      debouncedSave(data);
-    });
-    return () => subscription.unsubscribe();
-  }, [form.watch, debouncedSave]);
-  
-  // Load draft on mount
-  useEffect(() => {
-    const draft = localStorage.getItem('analysis-draft');
-    if (draft && !initialData) {
-      try {
-        const parsedDraft = JSON.parse(draft);
-        form.reset(parsedDraft);
-      } catch (error) {
-        console.error('Failed to load draft:', error);
-      }
-    }
-  }, []);
-  
-  const handleSubmit = async (data: HsCodeAnalysisInput) => {
-    try {
-      await onSubmit(data);
-      // Clear draft after successful submission
-      localStorage.removeItem('analysis-draft');
-    } catch (error) {
-      // Error handling is done by the parent component
-      console.error('Form submission failed:', error);
-    }
-  };
-  
-  // Character count for description field
-  const descriptionLength = productDescription?.length || 0;
-  const maxDescriptionLength = 500;
-  
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        {/* Product Description Field */}
-        <FormField
-          control={form.control}
-          name="productDescription"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold">
-                Product Description *
-              </FormLabel>
-              <FormControl>
-                <div className="space-y-2">
-                  <Textarea
-                    {...field}
-                    placeholder="Describe your product in detail. Include materials, intended use, processing methods, and any other relevant characteristics..."
-                    className="min-h-[120px] resize-y"
-                    disabled={isLoading}
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Be as specific as possible for accurate analysis</span>
-                    <span className={descriptionLength > maxDescriptionLength ? 'text-destructive' : ''}>
-                      {descriptionLength}/{maxDescriptionLength}
-                    </span>
-                  </div>
-                </div>
-              </FormControl>
-              <FormDescription>
-                The more detailed your description, the more accurate the HS Code classification will be.
-                Include information about materials, manufacturing processes, and intended use.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {/* Product Image Field */}
-        <FormField
-          control={form.control}
-          name="productImage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Product Image (Optional)</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  <Input
-                    {...field}
-                    type="url"
-                    placeholder="https://example.com/product-image.jpg"
-                    disabled={isLoading}
-                  />
-                  {field.value && (
-                    <div className="border rounded-lg p-4">
-                      <img
-                        src={field.value}
-                        alt="Product preview"
-                        className="max-w-full h-auto max-h-48 mx-auto rounded"
-                        onError={() => {
-                          form.setError('productImage', {
-                            message: 'Unable to load image from this URL'
-                          });
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </FormControl>
-              <FormDescription>
-                An image can help improve classification accuracy, especially for complex products.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {/* Urgency and Context Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="urgency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Analysis Priority</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="low">Low Priority</SelectItem>
-                    <SelectItem value="normal">Normal Priority</SelectItem>
-                    <SelectItem value="high">High Priority</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  {urgency === 'high' && 'High priority requests may receive additional validation steps.'}
-                  {urgency === 'normal' && 'Standard processing time applies.'}
-                  {urgency === 'low' && 'Request will be processed when resources are available.'}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="intendedUse"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Intended Use</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ''} disabled={isLoading}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select intended use" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="import">Import to Korea</SelectItem>
-                    <SelectItem value="export">Export from Korea</SelectItem>
-                    <SelectItem value="classification">Classification Only</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  This helps determine relevant regulations and requirements.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/* Target Country Field - Conditional */}
-        {form.watch('intendedUse') && form.watch('intendedUse') !== 'classification' && (
-          <FormField
-            control={form.control}
-            name="targetCountry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {form.watch('intendedUse') === 'import' ? 'Country of Origin' : 'Destination Country'}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g., US, CN, JP"
-                    disabled={isLoading}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Use ISO country codes for specific trade regulations and requirements.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Submit Button */}
-        <div className="flex flex-col space-y-4">
-          <Button 
-            type="submit" 
-            disabled={isLoading || !form.formState.isValid} 
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Starting Analysis...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                Start HS Code Analysis
-              </>
-            )}
-          </Button>
-          
-          {/* Form State Info */}
-          <div className="text-sm text-muted-foreground text-center">
-            {form.formState.isDirty && (
-              <span>Draft saved automatically</span>
-            )}
-          </div>
-        </div>
-      </form>
-    </Form>
-  );
-};
-```
+**Form Component Principles:**
+- Use React Hook Form + Zod resolver
+- Auto-save drafts (debounced)
+- Korean validation messages
+- Conditional field display
+- Character counters and real-time validation
 
 ## Error Handling and User Feedback
 
@@ -1671,256 +228,12 @@ export const AnalysisForm: React.FC<AnalysisFormProps> = ({
 
 Our error handling provides graceful degradation and helpful recovery options:
 
-```typescript
-// components/common/GlobalErrorBoundary.tsx
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
-}
-
-export class GlobalErrorBoundary extends Component<
-  React.PropsWithChildren<{}>,
-  ErrorBoundaryState
-> {
-  constructor(props: React.PropsWithChildren<{}>) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-  
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return { hasError: true, error };
-  }
-  
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Global error boundary caught error:', error, errorInfo);
-    
-    this.setState({ errorInfo });
-    
-    // Report critical errors to monitoring service
-    if (this.isCriticalError(error)) {
-      this.reportError(error, errorInfo);
-    }
-  }
-  
-  private isCriticalError(error: Error): boolean {
-    const criticalPatterns = [
-      'ChunkLoadError', // Code splitting failures
-      'Authentication', // Auth system failures
-      'WebSocket', // Real-time connection failures
-      'Analysis', // AI analysis system failures
-    ];
-    
-    return criticalPatterns.some(pattern => 
-      error.name.includes(pattern) || error.message.includes(pattern)
-    );
-  }
-  
-  private reportError(error: Error, errorInfo: ErrorInfo) {
-    // Send error report to backend monitoring
-    try {
-      apiClient.post('/system/error-report', {
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        },
-        errorInfo: {
-          componentStack: errorInfo.componentStack,
-        },
-        context: {
-          url: window.location.href,
-          userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString(),
-        },
-      });
-    } catch (reportingError) {
-      console.error('Failed to report error:', reportingError);
-    }
-  }
-  
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
-  };
-  
-  private handleReload = () => {
-    window.location.reload();
-  };
-  
-  render() {
-    if (this.state.hasError && this.state.error) {
-      return (
-        <ErrorFallback 
-          error={this.state.error}
-          onRetry={this.handleRetry}
-          onReload={this.handleReload}
-          isCritical={this.isCriticalError(this.state.error)}
-        />
-      );
-    }
-    
-    return this.props.children;
-  }
-}
-
-// components/common/ErrorFallback.tsx
-interface ErrorFallbackProps {
-  error: Error;
-  onRetry: () => void;
-  onReload: () => void;
-  isCritical: boolean;
-}
-
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({
-  error,
-  onRetry,
-  onReload,
-  isCritical,
-}) => {
-  const [showDetails, setShowDetails] = useState(false);
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="max-w-lg w-full">
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            <CardTitle>
-              {isCritical ? 'System Error' : 'Something went wrong'}
-            </CardTitle>
-          </div>
-          <CardDescription>
-            {isCritical 
-              ? 'A critical system error has occurred. Our team has been notified.'
-              : 'An unexpected error occurred. You can try to recover or reload the page.'
-            }
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          {/* Error actions */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            {!isCritical && (
-              <Button onClick={onRetry} variant="default" className="flex-1">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Try Again
-              </Button>
-            )}
-            <Button onClick={onReload} variant="outline" className="flex-1">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reload Page
-            </Button>
-          </div>
-          
-          {/* Error details toggle */}
-          <div className="space-y-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDetails(!showDetails)}
-              className="w-full justify-between"
-            >
-              <span>Error Details</span>
-              <ChevronDown 
-                className={`h-4 w-4 transition-transform ${
-                  showDetails ? 'rotate-180' : ''
-                }`} 
-              />
-            </Button>
-            
-            {showDetails && (
-              <div className="bg-muted p-3 rounded text-sm font-mono overflow-auto max-h-32">
-                <div><strong>Error:</strong> {error.name}</div>
-                <div><strong>Message:</strong> {error.message}</div>
-                {error.stack && (
-                  <details className="mt-2">
-                    <summary className="cursor-pointer">Stack Trace</summary>
-                    <pre className="mt-1 text-xs">{error.stack}</pre>
-                  </details>
-                )}
-              </div>
-            )}
-          </div>
-          
-          {/* Help links */}
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p>If the problem persists:</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Check your internet connection</li>
-              <li>Clear your browser cache</li>
-              <li>Contact support if the issue continues</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// hooks/common/useErrorHandler.ts
-export const useErrorHandler = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const authStore = useAuthStore();
-  
-  return useCallback((error: unknown, context?: string) => {
-    console.error(`Error ${context ? `in ${context}` : ''}:`, error);
-    
-    if (error instanceof ApiError) {
-      if (error.isAuthError) {
-        // Handle authentication errors
-        authStore.logout();
-        navigate({ to: '/auth/login' });
-        toast({
-          title: 'Authentication Required',
-          description: 'Your session has expired. Please log in again.',
-          variant: 'destructive',
-        });
-      } else if (error.isNetworkError) {
-        // Handle network errors
-        toast({
-          title: 'Connection Error',
-          description: 'Please check your internet connection and try again.',
-          variant: 'destructive',
-          action: (
-            <ToastAction altText="Retry" onClick={() => window.location.reload()}>
-              Retry
-            </ToastAction>
-          ),
-        });
-      } else if (error.isServerError) {
-        // Handle server errors
-        toast({
-          title: 'Server Error',
-          description: 'Our servers are experiencing issues. Please try again later.',
-          variant: 'destructive',
-        });
-      } else {
-        // Handle other API errors
-        toast({
-          title: 'Error',
-          description: error.message || 'An unexpected error occurred.',
-          variant: 'destructive',
-        });
-      }
-    } else if (error instanceof Error) {
-      // Handle JavaScript errors
-      toast({
-        title: 'Application Error',
-        description: 'An unexpected error occurred. Please try refreshing the page.',
-        variant: 'destructive',
-      });
-    } else {
-      // Handle unknown errors
-      toast({
-        title: 'Unknown Error',
-        description: 'An unknown error occurred. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  }, [toast, navigate, authStore]);
-};
-```
+**Error Handling Principles:**
+- Global error boundary to catch unexpected errors
+- Monitoring service reporting for critical errors
+- User-friendly Korean error messages
+- Provide retry and recovery options
+- Appropriate responses by error type (network, authentication, server)
 
 ## Performance Optimization and Best Practices
 
@@ -1928,200 +241,66 @@ export const useErrorHandler = () => {
 
 Performance is crucial for a complex AI application, especially when handling large analysis results and real-time data:
 
-```typescript
-// Lazy load heavy domain components
-const HsCodeAnalysisDashboard = lazy(() => 
-  import('@/components/hscode/AnalysisDashboard').then(module => ({
-    default: module.AnalysisDashboard
-  }))
-);
-
-const TradeStatisticsPanel = lazy(() => 
-  import('@/components/trade/StatisticsPanel').then(module => ({
-    default: module.StatisticsPanel  
-  }))
-);
-
-const MonitoringDashboard = lazy(() => 
-  import('@/components/monitoring/MonitoringDashboard').then(module => ({
-    default: module.MonitoringDashboard
-  }))
-);
-
-// Route-level code splitting with loading states
-export const Route = createFileRoute('/hscode/result/$resultId')({
-  component: () => (
-    <Suspense fallback={<AnalysisResultSkeleton />}>
-      <AnalysisResultPage />
-    </Suspense>
-  ),
-  
-  // Pre-load critical data
-  loader: async ({ params }) => {
-    const resultPromise = useResultStore.getState().getResult(params.resultId);
-    const relatedDataPromise = queryClient.prefetchQuery({
-      queryKey: ['related-results', params.resultId],
-      queryFn: () => hsCodeApi.getRelatedResults(params.resultId),
-    });
-    
-    // Wait for critical data, but don't block on related data
-    const result = await resultPromise;
-    
-    // Start related data loading in background
-    relatedDataPromise.catch(error => {
-      console.warn('Failed to prefetch related data:', error);
-    });
-    
-    return { result };
-  },
-});
-
-// Query optimization with strategic prefetching
-export const useHsCodeAnalysisWithOptimization = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: hsCodeApi.startAnalysis,
-    
-    onSuccess: async (data, variables) => {
-      // Prefetch likely next steps based on analysis type
-      if (data.recommendedHsCode) {
-        // Prefetch trade statistics for this HS code
-        queryClient.prefetchQuery({
-          queryKey: ['trade-stats', data.recommendedHsCode],
-          queryFn: () => tradeApi.getStatistics(data.recommendedHsCode),
-          staleTime: 5 * 60 * 1000, // 5 minutes
-        });
-        
-        // Prefetch related regulations
-        queryClient.prefetchQuery({
-          queryKey: ['regulations', data.recommendedHsCode],
-          queryFn: () => regulationApi.getByHsCode(data.recommendedHsCode),
-          staleTime: 10 * 60 * 1000, // 10 minutes
-        });
-        
-        // Prefetch similar analyses for suggestions
-        queryClient.prefetchQuery({
-          queryKey: ['similar-analyses', data.recommendedHsCode],
-          queryFn: () => hsCodeApi.getSimilarAnalyses(data.recommendedHsCode),
-          staleTime: 15 * 60 * 1000, // 15 minutes
-        });
-      }
-    },
-  });
-};
-
-// Optimized real-time data synchronization
-export const useOptimizedWebSocketSync = () => {
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    const unsubscribe = wsManager.subscribe('BULK_UPDATE', (updates) => {
-      // Batch multiple updates to reduce re-renders
-      queryClient.setQueriesData(
-        { queryKey: ['bookmarks'] },
-        (oldData: Bookmark[]) => {
-          if (!oldData) return oldData;
-          
-          const updatesMap = new Map(
-            updates.map((update: any) => [update.id, update])
-          );
-          
-          return oldData.map(bookmark => {
-            const update = updatesMap.get(bookmark.id);
-            return update ? { ...bookmark, ...update.changes } : bookmark;
-          });
-        }
-      );
-    });
-    
-    return unsubscribe;
-  }, [queryClient]);
-};
-```
+**Optimization Strategies:**
+- Lazy loading of heavy domain components
+- Route-level code splitting with critical data loading
+- Strategic prefetching for anticipating next steps
+- Query optimization with TanStack Query
+- Smart prefetching considering Korean trade patterns
 
 ## Development Guidelines and Standards
 
-### Component Development Standards
+### CSR-Specific Component Development Rules
 
-Follow these patterns to maintain consistency and quality across the application:
+1. **Client-Side Rendering First**: All components must handle loading states gracefully since there's no server-side pre-rendering
+2. **TanStack Query Integration**: Always use appropriate cache configurations for different types of data
+3. **Korean Language Support**: Components must handle Korean text properly with appropriate line breaks and spacing
+4. **Progressive Loading**: Implement skeleton screens and optimistic updates for better perceived performance
+5. **Error Recovery**: Provide clear error states with retry options since network conditions can vary
+6. **Accessibility for Korean Users**: Follow Korean web accessibility guidelines and support Korean input methods
 
-```typescript
-// Standard component pattern with all best practices
-interface ComponentProps {
-  // Props interface with clear documentation
-  data: ComplexData;
-  onAction?: (result: ActionResult) => void;
-  className?: string;
-  children?: React.ReactNode;
-}
+### Korean Language Optimization Patterns
 
-export const ExampleComponent = React.memo<ComponentProps>(({
-  data,
-  onAction,
-  className,
-  children,
-}) => {
-  // Memoize expensive calculations
-  const processedData = useMemo(() => {
-    return complexDataProcessing(data);
-  }, [data]);
-  
-  // Memoize callback functions to prevent unnecessary re-renders
-  const handleAction = useCallback((param: string) => {
-    const result = performAction(param);
-    onAction?.(result);
-  }, [onAction]);
-  
-  // Use error boundaries for robust error handling
-  if (!data) {
-    return <ErrorState message="No data available" />;
-  }
-  
-  return (
-    <div className={cn("base-styles", className)}>
-      {children}
-      {/* Component implementation */}
-    </div>
-  );
-});
+**Component Pattern Principles:**
+- Layout adjustments considering Korean text tends to be longer in UI
+- Increased spacing for Korean text
+- Number formatting for Korean trade data
+- Cache behavior optimization according to Korean business patterns
 
-ExampleComponent.displayName = 'ExampleComponent';
-```
+### CSR Performance Best Practices
 
-### TypeScript Best Practices
+1. **Lazy Loading Strategy**: Load heavy components only when needed
+2. **Cache-First Approach**: Always check TanStack Query cache before making new requests  
+3. **Optimistic Updates**: Update UI immediately for user actions, then sync with server
+4. **Background Sync**: Refresh stale data in background without blocking UI
+5. **Korean Network Patterns**: Optimize for Korean internet infrastructure and usage patterns
+6. **Mobile-First CSR**: Ensure fast loading on Korean mobile networks
 
-Maintain strict type safety throughout the application:
+### TanStack Query Integration Patterns
 
-```typescript
-// Use strict type definitions for all data structures
-interface StrictAnalysisResult {
-  readonly id: string;
-  readonly hsCode: string;
-  readonly confidence: number;
-  readonly requirements: readonly Requirement[];
-  readonly sources: readonly Source[];
-}
+**Standard Query Hook Pattern:**
+- Adjust cache times based on Korean business patterns
+- More aggressive refetching during Korean business hours
+- Better error handling for Korean network conditions
 
-// Use discriminated unions for complex state management
-type AnalysisStatus = 
-  | { status: 'idle' }
-  | { status: 'loading'; progress: number }
-  | { status: 'questioning'; questions: Question[] }
-  | { status: 'completed'; result: AnalysisResult }
-  | { status: 'error'; error: string };
+**Mutation Pattern with Optimistic Updates:**
+- Optimistic updates for Korean users who expect instant feedback
+- Revert optimistic updates on error
+- Korean-friendly error messages
 
-// Use utility types for API responses
-type ApiAnalysisResult = ApiResponse<AnalysisResult>;
-type CreateBookmarkResponse = ApiResponse<{ id: string; createdAt: string }>;
+### Code Quality Standards for Korean Market
 
-// Use branded types for important identifiers
-type SessionId = string & { readonly brand: unique symbol };
-type ResultId = string & { readonly brand: unique symbol };
+1. **Korean Comment Style**: Korean for business logic, English for technical implementation
+2. **Error Messages**: All user-facing errors must be in natural Korean
+3. **Validation Messages**: Form validation in Korean with proper honorifics
+4. **Loading States**: Korean loading messages that match user expectations
+5. **Success Messages**: Korean success confirmations with appropriate tone
+6. **Network Handling**: Robust error handling for Korean network conditions
 
-function createSessionId(id: string): SessionId {
-  return id as SessionId;
-}
-```
+**Korean-Friendly Error Handling Examples:**
+- Network: '네트워크 연결을 확인해 주세요.'
+- Auth: '로그인이 필요합니다.'
+- Validation: '입력하신 정보를 다시 확인해 주세요.'
+- Server: '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
 
-This comprehensive cursorrules specification provides everything needed to build a robust, performant, and maintainable frontend for the AI HS Code Radar System. The architecture supports complex AI interactions while maintaining excellent user experience and developer productivity.
+This comprehensive cursorrules specification ensures a robust, performant, and culturally appropriate frontend application for Korean users, fully optimized for CSR with aggressive TanStack Query caching to provide the best possible user experience in the Korean trade information market.
