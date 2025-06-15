@@ -54,6 +54,9 @@ type AuthActions = {
   hasPermission: (permission: string) => boolean;
   getDisplayName: () => string;
   isTokenExpired: () => boolean;
+  hasUnreadMessages: () => boolean;
+  hasBookmarks: () => boolean;
+  loadUserData: (userId: string) => Promise<void>;
 };
 
 // 전체 Store 타입 조합
@@ -344,6 +347,62 @@ export const useAuthStore = create<AuthStore>()(
           throw error;
         }
       },
+
+      hasUnreadMessages: () => {
+        const { userStats } = get();
+        return userStats.messageCount > 0;
+      },
+
+      hasBookmarks: () => {
+        const { userStats } = get();
+        return userStats.bookmarkCount > 0;
+      },
+
+      loadUserData: async (userId: string) => {
+        set({ isLoading: true, error: null });
+
+        try {
+          // Mock 데이터 로드 시뮬레이션
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          // Mock 사용자 데이터
+          const mockUser: User = {
+            id: userId,
+            email: "user@example.com",
+            name: "김분석",
+            displayName: "김분석",
+            avatar: null,
+            role: "user",
+            permissions: ["read", "write"],
+            createdAt: new Date().toISOString(),
+            lastLoginAt: new Date().toISOString(),
+          };
+
+          const mockStats = {
+            messageCount: 3,
+            bookmarkCount: 12,
+            analysisCount: 8,
+            searchCount: 25,
+          };
+
+          set({
+            user: mockUser,
+            userStats: mockStats,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "사용자 데이터 로드에 실패했습니다";
+          set({
+            error: errorMessage,
+            isLoading: false,
+          });
+          throw error;
+        }
+      },
     }),
     {
       name: "auth-storage",
@@ -358,3 +417,9 @@ export const useAuthStore = create<AuthStore>()(
     },
   ),
 );
+
+// Mock 사용자 초기화 함수
+export const initializeMockUser = () => {
+  const authStore = useAuthStore.getState();
+  authStore.loadUserData("mock-user-id");
+};

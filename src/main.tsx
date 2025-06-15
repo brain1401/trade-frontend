@@ -9,7 +9,7 @@ import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
 import reportWebVitals from "./reportWebVitals.ts";
-import NotFound from "@/components/not-fount/NotFount.tsx";
+import NotFound from "@/components/not-found/NotFound";
 
 // 새로운 라우터 인스턴스 생성
 const router = createRouter({

@@ -5,24 +5,24 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
 import { mockUserQuickLinks } from "@/data/mock/user";
 
 const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
 const AVATAR_BORDER_CLASSES = "border-2 border-white";
 
 const UserInfoCard = () => {
-  const { currentUser, userStats, isAuthenticated, logout, getDisplayName } =
-    useUserStore();
+  const { user, userStats, isAuthenticated, logout, getDisplayName } =
+    useAuthStore();
 
   // 인증되지 않은 경우 로그인 유도 카드 표시
-  if (!isAuthenticated || !currentUser) {
+  if (!isAuthenticated || !user) {
     return (
       <Card className="mb-4 overflow-hidden py-0 shadow-lg">
         <CardContent className="p-4 text-center">
           <p className="mb-3 text-neutral-600">로그인이 필요합니다</p>
           <Button variant="default" asChild className="w-full">
-            <Link to="/user">로그인</Link>
+            <Link to="/auth/login">로그인</Link>
           </Button>
         </CardContent>
       </Card>
@@ -37,9 +37,9 @@ const UserInfoCard = () => {
             <Avatar className="mr-3 h-12 w-12">
               <AvatarImage
                 src={
-                  currentUser.avatar ||
+                  user.avatar ||
                   "https://placehold.co/48x48/FFFFFF/004E98?text=" +
-                    currentUser.name.charAt(0)
+                    user.name.charAt(0)
                 }
                 alt="사용자 프로필"
                 className={AVATAR_BORDER_CLASSES}
@@ -47,14 +47,14 @@ const UserInfoCard = () => {
               <AvatarFallback
                 className={cn(AVATAR_BORDER_CLASSES, "bg-white text-brand-700")}
               >
-                {currentUser.name.charAt(0).toUpperCase()}
+                {user.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-lg font-semibold text-white">
                 {getDisplayName()} 님
               </p>
-              <p className="text-xs text-blue-100">{currentUser.email}</p>
+              <p className="text-xs text-blue-100">{user.email}</p>
             </div>
           </div>
           <Button
@@ -74,8 +74,8 @@ const UserInfoCard = () => {
             asChild
             className={cn(LINK_BUTTON_BASE_CLASSES, "text-primary-600")}
           >
-            <Link to="/support" className="flex items-center">
-              <LifeBuoy size={16} className="mr-1.5 text-blue-500" /> 문의하기
+            <Link to="/dashboard" className="flex items-center">
+              <LifeBuoy size={16} className="mr-1.5 text-blue-500" /> 대시보드
             </Link>
           </Button>
           <Button
@@ -86,7 +86,7 @@ const UserInfoCard = () => {
               "ml-4 text-neutral-700 hover:text-primary-600",
             )}
           >
-            <Link to="/user/profile">프로필 수정</Link>
+            <Link to="/dashboard/settings">프로필 수정</Link>
           </Button>
         </div>
         <ul className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">

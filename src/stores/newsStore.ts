@@ -22,6 +22,7 @@ export type NewsItem = {
   isRead: boolean;
   priority: "low" | "normal" | "high";
   relevanceScore?: number;
+  businessImpact?: "low" | "normal" | "high" | "critical"; // WebSocket handlers에서 사용
 };
 
 // 뉴스 필터 옵션
@@ -60,6 +61,8 @@ type NewsActions = {
   // 뉴스 데이터 관리
   setNews: (news: NewsItem[]) => void;
   addNews: (newsItems: NewsItem[]) => void;
+  addArticle: (article: NewsItem) => void; // WebSocket용 단일 기사 추가
+  updateArticle: (id: string, updates: Partial<NewsItem>) => void; // WebSocket용 기사 업데이트
   markAsRead: (newsId: string) => void;
   markAllAsRead: () => void;
 
@@ -122,6 +125,28 @@ export const useNewsStore = create<NewsStore>()((set, get) => ({
 
     set({
       news: [...news, ...newItems],
+      lastFetchedAt: new Date().toISOString(),
+    });
+  },
+
+  addArticle: (article) => {
+    const { news } = get();
+    const existingIds = new Set(news.map((item) => item.id));
+
+    if (!existingIds.has(article.id)) {
+      set({
+        news: [article, ...news],
+        lastFetchedAt: new Date().toISOString(),
+      });
+    }
+  },
+
+  updateArticle: (id, updates) => {
+    const { news } = get();
+    set({
+      news: news.map((item) =>
+        item.id === id ? { ...item, ...updates } : item,
+      ),
       lastFetchedAt: new Date().toISOString(),
     });
   },

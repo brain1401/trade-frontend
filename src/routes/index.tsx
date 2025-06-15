@@ -1,6 +1,6 @@
-import ContentCard from "@/components/route/index/cards/ContentCard";
-import ExchangeRateCard from "@/components/route/index/cards/ExchangeRateCard";
-import UserInfoCard from "@/components/user/UserInfoCard";
+import ContentCard from "@/components/common/ContentCard";
+import ExchangeRateCard from "@/components/trade/ExchangeRateCard";
+import UserInfoCard from "@/components/dashboard/UserInfoCard";
 import HSCodeNewsSection from "@/components/route/index/news/HSCodeNewsSection";
 import NewsItem from "@/components/route/index/news/NewsItem";
 import { Button } from "@/components/ui/button";

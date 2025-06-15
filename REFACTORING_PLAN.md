@@ -195,19 +195,24 @@ components/
 ### Phase 1: 핵심 인프라 정리 
 
 #### 1.1 불필요한 파일 정리
-- [ ] `src/components/user/` 디렉토리 삭제
-- [ ] `src/components/route/` 디렉토리 삭제  
-- [ ] `src/components/layout/` → `src/components/common/`로 통합
-- [ ] `src/components/not-fount/` → `src/components/not-found/` 이름 수정
-- [ ] `src/stores/userStore.ts` → `src/stores/authStore.ts`로 통합
+- [x] `src/components/user/` 디렉토리 삭제
+- [x] `src/components/route/` 디렉토리 삭제  
+- [x] `src/components/layout/` → `src/components/common/`로 통합
+- [x] `src/components/not-fount/` → `src/components/not-found/` 이름 수정
+- [x] `src/stores/userStore.ts` → `src/stores/authStore.ts`로 통합
 
 #### 1.2 타입 정의 확장
-- [ ] `src/types/api/` 하위에 도메인별 API 타입 추가
-- [ ] `src/types/domain/` 하위에 비즈니스 로직 타입 추가
-- [ ] Claude AI 관련 타입 정의 추가
+- [x] `src/types/api/` 하위에 도메인별 API 타입 추가
+- [x] `src/types/domain/` 하위에 비즈니스 로직 타입 추가
+- [x] Claude AI 관련 타입 정의 추가
 
 #### 1.3 기본 라이브러리 설정
-- [ ] `src/lib/websocket/` 디렉토리 생성 및 WebSocket 관리 모듈 추가
+- [x] `src/lib/websocket/` 디렉토리 생성 및 WebSocket 관리 모듈 추가
+- [x] WebSocket 연결 관리자 구현 (connection.ts)
+- [x] 실시간 이벤트 핸들러 구현 (handlers.ts)
+- [x] Analysis Store WebSocket 메서드 추가 (setError, updateSessionStatus, updateProgress, setResult)
+- [x] Notification Store 타입 확장 (monitoring, bookmark, news, system, exchange_rate 지원)
+- [x] News Store WebSocket 메서드 추가 (addArticle, updateArticle)
 - [ ] `src/lib/api/` 하위에 Claude AI API 클라이언트 추가
 - [ ] 한국어 에러 메시지 상수 파일 생성
 

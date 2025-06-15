@@ -10,14 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TradeIndexRouteImport } from './routes/trade/index'
 import { Route as TrackingIndexRouteImport } from './routes/tracking/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as HscodeIndexRouteImport } from './routes/hscode/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as TradeStatisticsRouteImport } from './routes/trade/statistics'
 import { Route as TradeRegulationsRouteImport } from './routes/trade/regulations'
 import { Route as TradeExchangeRatesRouteImport } from './routes/trade/exchange-rates'
 import { Route as TrackingNumberRouteImport } from './routes/tracking/$number'
+import { Route as NewsNewsIdRouteImport } from './routes/news/$newsId'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardBookmarksRouteImport } from './routes/dashboard/bookmarks'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
@@ -31,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TradeIndexRoute = TradeIndexRouteImport.update({
+  id: '/trade/',
+  path: '/trade/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingIndexRoute = TrackingIndexRouteImport.update({
   id: '/tracking/',
   path: '/tracking/',
@@ -39,6 +47,11 @@ const TrackingIndexRoute = TrackingIndexRouteImport.update({
 const SearchIndexRoute = SearchIndexRouteImport.update({
   id: '/search/',
   path: '/search/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HscodeIndexRoute = HscodeIndexRouteImport.update({
@@ -69,6 +82,11 @@ const TradeExchangeRatesRoute = TradeExchangeRatesRouteImport.update({
 const TrackingNumberRoute = TrackingNumberRouteImport.update({
   id: '/tracking/$number',
   path: '/tracking/$number',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsNewsIdRoute = NewsNewsIdRouteImport.update({
+  id: '/news/$newsId',
+  path: '/news/$newsId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
@@ -114,14 +132,17 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/news/$newsId': typeof NewsNewsIdRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
   '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
   '/dashboard': typeof DashboardIndexRoute
   '/hscode': typeof HscodeIndexRoute
+  '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/tracking': typeof TrackingIndexRoute
+  '/trade': typeof TradeIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
@@ -132,14 +153,17 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/news/$newsId': typeof NewsNewsIdRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
   '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
   '/dashboard': typeof DashboardIndexRoute
   '/hscode': typeof HscodeIndexRoute
+  '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/tracking': typeof TrackingIndexRoute
+  '/trade': typeof TradeIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
@@ -151,14 +175,17 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/news/$newsId': typeof NewsNewsIdRoute
   '/tracking/$number': typeof TrackingNumberRoute
   '/trade/exchange-rates': typeof TradeExchangeRatesRoute
   '/trade/regulations': typeof TradeRegulationsRoute
   '/trade/statistics': typeof TradeStatisticsRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/hscode/': typeof HscodeIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/search/': typeof SearchIndexRoute
   '/tracking/': typeof TrackingIndexRoute
+  '/trade/': typeof TradeIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
 }
@@ -171,14 +198,17 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/dashboard/bookmarks'
     | '/dashboard/settings'
+    | '/news/$newsId'
     | '/tracking/$number'
     | '/trade/exchange-rates'
     | '/trade/regulations'
     | '/trade/statistics'
     | '/dashboard'
     | '/hscode'
+    | '/news'
     | '/search'
     | '/tracking'
+    | '/trade'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
   fileRoutesByTo: FileRoutesByTo
@@ -189,14 +219,17 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/dashboard/bookmarks'
     | '/dashboard/settings'
+    | '/news/$newsId'
     | '/tracking/$number'
     | '/trade/exchange-rates'
     | '/trade/regulations'
     | '/trade/statistics'
     | '/dashboard'
     | '/hscode'
+    | '/news'
     | '/search'
     | '/tracking'
+    | '/trade'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
   id:
@@ -207,14 +240,17 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/dashboard/bookmarks'
     | '/dashboard/settings'
+    | '/news/$newsId'
     | '/tracking/$number'
     | '/trade/exchange-rates'
     | '/trade/regulations'
     | '/trade/statistics'
     | '/dashboard/'
     | '/hscode/'
+    | '/news/'
     | '/search/'
     | '/tracking/'
+    | '/trade/'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
   fileRoutesById: FileRoutesById
@@ -226,14 +262,17 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   DashboardBookmarksRoute: typeof DashboardBookmarksRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
+  NewsNewsIdRoute: typeof NewsNewsIdRoute
   TrackingNumberRoute: typeof TrackingNumberRoute
   TradeExchangeRatesRoute: typeof TradeExchangeRatesRoute
   TradeRegulationsRoute: typeof TradeRegulationsRoute
   TradeStatisticsRoute: typeof TradeStatisticsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   HscodeIndexRoute: typeof HscodeIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   TrackingIndexRoute: typeof TrackingIndexRoute
+  TradeIndexRoute: typeof TradeIndexRoute
   HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
 }
@@ -245,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trade/': {
+      id: '/trade/'
+      path: '/trade'
+      fullPath: '/trade'
+      preLoaderRoute: typeof TradeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tracking/': {
@@ -259,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hscode/': {
@@ -301,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/tracking/$number'
       fullPath: '/tracking/$number'
       preLoaderRoute: typeof TrackingNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$newsId': {
+      id: '/news/$newsId'
+      path: '/news/$newsId'
+      fullPath: '/news/$newsId'
+      preLoaderRoute: typeof NewsNewsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/settings': {
@@ -362,14 +422,17 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   DashboardBookmarksRoute: DashboardBookmarksRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
+  NewsNewsIdRoute: NewsNewsIdRoute,
   TrackingNumberRoute: TrackingNumberRoute,
   TradeExchangeRatesRoute: TradeExchangeRatesRoute,
   TradeRegulationsRoute: TradeRegulationsRoute,
   TradeStatisticsRoute: TradeStatisticsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   HscodeIndexRoute: HscodeIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   TrackingIndexRoute: TrackingIndexRoute,
+  TradeIndexRoute: TradeIndexRoute,
   HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
 }

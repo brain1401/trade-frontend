@@ -8,7 +8,7 @@ const QuickLinksBar = () => {
     {
       name: "최신 규제",
       icon: <Filter size={18} className="mr-1.5" />,
-      path: "/regulations",
+      path: "/trade/regulations",
     },
     {
       name: "무역 통계",
@@ -18,17 +18,17 @@ const QuickLinksBar = () => {
     {
       name: "국가별 정보",
       icon: <Globe size={18} className="mr-1.5" />,
-      path: "/country-info",
+      path: "/trade",
     },
     {
       name: "품목별 통계",
       icon: <BarChart3 size={18} className="mr-1.5" />,
-      path: "/statistics",
+      path: "/trade/statistics",
     },
     {
       name: "도움말",
       icon: <HelpCircle size={18} className="mr-1.5" />,
-      path: "/help",
+      path: "/",
     },
   ];
 

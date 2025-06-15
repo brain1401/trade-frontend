@@ -57,6 +57,15 @@ type AnalysisActions = {
   setGlobalLoading: (loading: boolean) => void;
   setGlobalError: (error: string | null) => void;
 
+  // WebSocket용 특수 메서드들
+  setError: (sessionId: string, error: string) => void;
+  updateSessionStatus: (
+    sessionId: string,
+    status: AnalysisSession["status"],
+  ) => void;
+  updateProgress: (sessionId: string, progress: number) => void;
+  setResult: (sessionId: string, result: AnalysisResult) => void;
+
   // 초기화
   reset: () => void;
 };
@@ -273,6 +282,29 @@ export const useAnalysisStore = create<AnalysisStore>()(
 
     setGlobalError: (error: string | null) => {
       set({ globalError: error });
+    },
+
+    // WebSocket용 특수 메서드들 구현
+    setError: (sessionId: string, error: string) => {
+      get().updateSession(sessionId, {
+        status: "error",
+        error: error,
+      });
+    },
+
+    updateSessionStatus: (
+      sessionId: string,
+      status: AnalysisSession["status"],
+    ) => {
+      get().updateSession(sessionId, { status });
+    },
+
+    updateProgress: (sessionId: string, progress: number) => {
+      get().updateSession(sessionId, { progress });
+    },
+
+    setResult: (sessionId: string, result: AnalysisResult) => {
+      get().completeSession(sessionId, result);
     },
 
     reset: () => {

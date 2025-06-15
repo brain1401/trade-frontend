@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronRight, ListFilter, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ContentCard from "../cards/ContentCard";
+import ContentCard from "@/components/common/ContentCard";
 import NewsItem from "./NewsItem";
 import type { FilterOption } from "@/types";
 import { mockHSCodeNewsAll } from "@/data/mockData";

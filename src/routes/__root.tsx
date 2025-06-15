@@ -1,10 +1,10 @@
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-import TopNavBar from "@/components/layout/TopNavBar.tsx";
-import QuickLinksBar from "@/components/layout/QuickLinksBar.tsx";
-import Footer from "@/components/layout/Footer.tsx";
-import SearchBarHeader from "@/components/route/index/search/SearchBarHeader.tsx";
+import TopNavBar from "@/components/common/TopNavBar";
+import QuickLinksBar from "@/components/common/QuickLinksBar";
+import Footer from "@/components/common/Footer";
+import SearchBarHeader from "@/components/search/SearchBarHeader";
 import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";

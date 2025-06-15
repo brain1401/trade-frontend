@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ContentCard from "./ContentCard";
+import ContentCard from "@/components/common/ContentCard";
 import { mockExchangeRates } from "@/data/mockData";
 
 const rateClasses = "px-[.2rem] text-center";

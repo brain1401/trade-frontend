@@ -5,10 +5,21 @@ export type Notification = {
   id: string;
   title: string;
   message: string;
-  type: "info" | "success" | "warning" | "error";
-  priority: "low" | "normal" | "high";
+  type:
+    | "info"
+    | "success"
+    | "warning"
+    | "error"
+    | "monitoring"
+    | "bookmark"
+    | "news"
+    | "system"
+    | "exchange_rate";
+  priority: "low" | "normal" | "high" | "medium" | "critical";
   category: "system" | "analysis" | "monitoring" | "trade";
   data?: Record<string, any>;
+  metadata?: Record<string, any>;
+  timestamp?: string; // WebSocket handlers에서 사용하는 필드명 지원
   read: boolean;
   createdAt: string;
   expiresAt?: string;
