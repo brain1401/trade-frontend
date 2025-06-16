@@ -1,13 +1,9 @@
 import {
-  Filter,
-  BarChart3,
   TrendingUp,
   HelpCircle,
   DollarSign,
   Truck,
-  Search,
   FileText,
-  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
@@ -35,14 +31,14 @@ const QuickLinksBar = () => {
       id: "exchange_rate",
       label: "관세 환율",
       icon: <DollarSign size={18} className="mr-1.5" />,
-      href: "/",
+      href: "/exchange-rate/detail",
       description: "최신 관세 환율 정보",
     },
     {
       id: "trade_statistics",
       label: "무역 통계",
       icon: <TrendingUp size={18} className="mr-1.5" />,
-      href: "/search/results?category=statistics",
+      href: "/trade/statistics",
       description: "국가별 품목별 무역 데이터",
     },
     {

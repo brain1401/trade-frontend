@@ -21,6 +21,7 @@ import { Route as SearchResultsRouteImport } from './routes/search/results'
 import { Route as NewsNewsIdRouteImport } from './routes/news/$newsId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as TradeStatisticsIndexRouteImport } from './routes/trade/statistics/index'
 import { Route as ExchangeRateDetailIndexRouteImport } from './routes/exchange-rate/detail/index'
 import { Route as TrackingResultNumberRouteImport } from './routes/tracking/result/$number'
 import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
@@ -86,6 +87,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TradeStatisticsIndexRoute = TradeStatisticsIndexRouteImport.update({
+  id: '/trade/statistics/',
+  path: '/trade/statistics/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExchangeRateDetailIndexRoute = ExchangeRateDetailIndexRouteImport.update({
   id: '/exchange-rate/detail/',
   path: '/exchange-rate/detail/',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
+  '/trade/statistics': typeof TradeStatisticsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
+  '/trade/statistics': typeof TradeStatisticsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail/': typeof ExchangeRateDetailIndexRoute
+  '/trade/statistics/': typeof TradeStatisticsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail'
+    | '/trade/statistics'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail'
+    | '/trade/statistics'
   id:
     | '__root__'
     | '/'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail/'
+    | '/trade/statistics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
   TrackingResultNumberRoute: typeof TrackingResultNumberRoute
   ExchangeRateDetailIndexRoute: typeof ExchangeRateDetailIndexRoute
+  TradeStatisticsIndexRoute: typeof TradeStatisticsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -324,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trade/statistics/': {
+      id: '/trade/statistics/'
+      path: '/trade/statistics'
+      fullPath: '/trade/statistics'
+      preLoaderRoute: typeof TradeStatisticsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exchange-rate/detail/': {
       id: '/exchange-rate/detail/'
       path: '/exchange-rate/detail'
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
   TrackingResultNumberRoute: TrackingResultNumberRoute,
   ExchangeRateDetailIndexRoute: ExchangeRateDetailIndexRoute,
+  TradeStatisticsIndexRoute: TradeStatisticsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
