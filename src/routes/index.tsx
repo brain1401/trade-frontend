@@ -1,8 +1,8 @@
 import ContentCard from "@/components/common/ContentCard";
 import ExchangeRateCard from "@/components/trade/ExchangeRateCard";
 import UserInfoCard from "@/components/dashboard/UserInfoCard";
-import HSCodeNewsSection from "@/components/route/index/news/HSCodeNewsSection";
-import NewsItem from "@/components/route/index/news/NewsItem";
+import HSCodeNewsSection from "@/components/news/TradeNewsSection";
+import NewsItem from "@/components/news/TradeNewsItem";
 import { Button } from "@/components/ui/button";
 
 import { ScrollArea } from "@/components/ui/scroll-area";

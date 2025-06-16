@@ -1,12 +1,12 @@
 import { Badge } from "@/components/ui/badge";
-import type { TradeNews } from "../../../../types";
+import type { TradeNews } from "../../types";
 import { Link } from "@tanstack/react-router";
 
 const SOURCE_TEXT_CLASSES = "text-black";
 
 type NewsItemProps = TradeNews;
 
-const NewsItem = ({
+export default function TradeNewsItem({
   title,
   summary,
   source,
@@ -14,7 +14,7 @@ const NewsItem = ({
   category,
   tags,
   uuid,
-}: NewsItemProps) => {
+}: NewsItemProps) {
   // published_at을 date로 변환
   const date = new Date(published_at || "2025-01-01").toLocaleDateString(
     "ko-KR",
@@ -22,7 +22,7 @@ const NewsItem = ({
   // category를 type으로 사용
   const type = category;
   // tags에서 hscode 추출 (있다면)
-  const hscode = tags?.find((tag: string) => tag && tag.startsWith("HS"));
+  const hscode = tags.find((tag) => tag && tag.startsWith("HS"));
   let badgeVariant: "secondary" | "destructive" | "default" = "secondary";
   if (type === "규제") badgeVariant = "destructive";
   else if (type === "관세") badgeVariant = "default";
@@ -55,6 +55,4 @@ const NewsItem = ({
       </div>
     </div>
   );
-};
-
-export default NewsItem;
+}

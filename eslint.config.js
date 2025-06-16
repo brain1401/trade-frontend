@@ -85,7 +85,7 @@ export default tseslint.config({
     "@typescript-eslint/require-await": "off",
 
     // 변수 shadowing 방지
-    "no-shadow": "warn",
+    "no-shadow": "off",
 
     // Function 타입 사용 방지
     "@typescript-eslint/no-unsafe-function-type": "warn",

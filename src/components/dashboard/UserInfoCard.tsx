@@ -28,6 +28,7 @@ const mockUserStats = {
 const UserInfoCard = () => {
   const user = mockUser;
   const userStats = mockUserStats;
+  // TODO: 인증 여부 확인
   const isAuthenticated = true;
 
   // 인증되지 않은 경우 로그인 유도 카드 표시

@@ -26,35 +26,33 @@ export type NewsCategory = "규제" | "관세" | "무역" | "기타";
 // 무역 뉴스 관련 타입
 export type TradeNews = {
   uuid: string;
-  id?: number;
   title: string;
   summary: string;
-  content?: string;
+  content: string;
   source: string;
-  published_at?: string;
-  date?: string;
-  category?: NewsCategory;
-  tags?: string[];
-  importance?: "high" | "medium" | "low";
+  published_at: string;
+  date: string;
+  category: NewsCategory;
+  tags: string[];
+  importance: "high" | "medium" | "low";
   hscode?: string;
-  type?: string;
-  url?: string;
+  type: string;
+  url: string;
 };
 
 export type HSCodeNews = {
-  id: number;
   uuid: string;
   hscode: string;
   title: string;
   summary: string;
   source: string;
   date: string;
-  type: string;
   bookmarked: boolean;
-  content?: string;
-  category?: string;
-  publishedAt?: string;
+  content: string;
+  category: NewsCategory;
+  publishedAt: string;
   impact?: "high" | "medium" | "low";
+  url: string;
 };
 
 // 검색 관련 타입
@@ -191,6 +189,24 @@ export type Bookmark = {
   createdAt: string;
   lastChecked?: string;
   changes: number;
+};
+
+// HS Code 최신 정보 타입
+export type HSCodeInfo = {
+  uuid: string;
+  hsCode: string;
+  title: string;
+  summary: string;
+  content: string;
+  category: string;
+  type: "regulation" | "tariff" | "certification" | "news";
+  source: string;
+  published_at: string;
+  tags: string[];
+  importance: "high" | "medium" | "low";
+  effectiveDate?: string;
+  relatedRegulations?: string[];
+  url: string;
 };
 
 // 알림 관련 타입

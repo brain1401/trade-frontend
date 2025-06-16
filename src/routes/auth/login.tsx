@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import ContentCard from "@/components/common/ContentCard";
 import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
 
@@ -102,11 +102,10 @@ function LoginPage() {
             {/* 옵션 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <input
+                <Checkbox
                   id="remember"
-                  type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onCheckedChange={(checked) => setRememberMe(!!checked)}
                   className="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
                 />
                 <Label htmlFor="remember" className="text-sm text-neutral-600">

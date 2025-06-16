@@ -91,10 +91,16 @@ const ExchangeRateCard = () => (
     <p className="mt-2 text-right text-xs text-neutral-400">
       데이터 제공 : 관세청 API (Mock)
     </p>
-    <div className="mt-3 text-right">
-      <Link to="/search">
-        더보기 <ChevronRight size={16} className="ml-0.5" />
-      </Link>
+    <div className="mt-3 flex items-center justify-end">
+      <Button
+        variant="link"
+        className="h-auto p-0 text-sm text-primary-600 hover:underline"
+        asChild
+      >
+        <Link to="/search" className="flex items-center">
+          더보기 <ChevronRight size={16} className="ml-0.5" />
+        </Link>
+      </Button>
     </div>
   </ContentCard>
 );

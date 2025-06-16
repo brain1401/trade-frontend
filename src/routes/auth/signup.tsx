@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import ContentCard from "@/components/common/ContentCard";
 import {
   Eye,
@@ -258,12 +259,11 @@ function SignupPage() {
         <ContentCard title="약관 동의" className="mt-6">
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <input
+              <Checkbox
                 id="terms"
-                type="checkbox"
                 checked={agreements.terms}
-                onChange={(e) =>
-                  handleAgreementChange("terms", e.target.checked)
+                onCheckedChange={(checked) =>
+                  handleAgreementChange("terms", !checked)
                 }
                 className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
               />
@@ -281,12 +281,11 @@ function SignupPage() {
             </div>
 
             <div className="flex items-start space-x-3">
-              <input
+              <Checkbox
                 id="privacy"
-                type="checkbox"
                 checked={agreements.privacy}
-                onChange={(e) =>
-                  handleAgreementChange("privacy", e.target.checked)
+                onCheckedChange={(checked) =>
+                  handleAgreementChange("privacy", !checked)
                 }
                 className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
               />
@@ -304,12 +303,11 @@ function SignupPage() {
             </div>
 
             <div className="flex items-start space-x-3">
-              <input
+              <Checkbox
                 id="marketing"
-                type="checkbox"
                 checked={agreements.marketing}
-                onChange={(e) =>
-                  handleAgreementChange("marketing", e.target.checked)
+                onCheckedChange={(checked) =>
+                  handleAgreementChange("marketing", !checked)
                 }
                 className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
               />
