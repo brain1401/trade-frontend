@@ -87,12 +87,17 @@ export type ExchangeRate = {
 };
 
 export type TradeStatistics = {
-  country: string;
+  hsCode?: string;
+  country?: string;
   exportValue: number;
   importValue: number;
-  tradeBalance: number;
-  growthRate: number;
+  tradeBalance?: number;
+  exportGrowthRate: number;
+  importGrowthRate: number;
+  growthRate?: number;
   period: string;
+  mainExportCountries?: CountryInfo[];
+  mainImportCountries?: CountryInfo[];
 };
 
 export type CountryInfo = {

@@ -1,5 +1,5 @@
 import ContentCard from "@/components/common/ContentCard";
-import ExchangeRateCard from "@/components/trade/ExchangeRateCard";
+import ExchangeRateCard from "@/components/exchange-rate/ExchangeRateCard";
 import UserInfoCard from "@/components/dashboard/UserInfoCard";
 import HSCodeNewsSection from "@/components/news/TradeNewsSection";
 import NewsItem from "@/components/news/TradeNewsItem";

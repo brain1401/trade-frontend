@@ -21,6 +21,7 @@ import { Route as SearchResultsRouteImport } from './routes/search/results'
 import { Route as NewsNewsIdRouteImport } from './routes/news/$newsId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as ExchangeRateDetailIndexRouteImport } from './routes/exchange-rate/detail/index'
 import { Route as TrackingResultNumberRouteImport } from './routes/tracking/result/$number'
 import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
 import { Route as HscodeAnalyzeSessionIdRouteImport } from './routes/hscode/analyze/$sessionId'
@@ -85,6 +86,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExchangeRateDetailIndexRoute = ExchangeRateDetailIndexRouteImport.update({
+  id: '/exchange-rate/detail/',
+  path: '/exchange-rate/detail/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingResultNumberRoute = TrackingResultNumberRouteImport.update({
   id: '/tracking/result/$number',
   path: '/tracking/result/$number',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
+  '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
+  '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
+  '/exchange-rate/detail/': typeof ExchangeRateDetailIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
+    | '/exchange-rate/detail'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
+    | '/exchange-rate/detail'
   id:
     | '__root__'
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
+    | '/exchange-rate/detail/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
   TrackingResultNumberRoute: typeof TrackingResultNumberRoute
+  ExchangeRateDetailIndexRoute: typeof ExchangeRateDetailIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exchange-rate/detail/': {
+      id: '/exchange-rate/detail/'
+      path: '/exchange-rate/detail'
+      fullPath: '/exchange-rate/detail'
+      preLoaderRoute: typeof ExchangeRateDetailIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tracking/result/$number': {
       id: '/tracking/result/$number'
       path: '/tracking/result/$number'
@@ -351,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
   TrackingResultNumberRoute: TrackingResultNumberRoute,
+  ExchangeRateDetailIndexRoute: ExchangeRateDetailIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

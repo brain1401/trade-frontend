@@ -7,14 +7,14 @@ import { Link } from "@tanstack/react-router";
 
 const rateClasses = "px-[.2rem] text-center";
 
-// 환율 변동률 포매팅 함수
+// 환율 변동률 포매팅 함수 (THEME_GUIDE 준수 - styles.css @theme 컬러 사용)
 const formatChange = (change: number): React.ReactNode => {
   const sign = change > 0 ? "+" : change < 0 ? "" : "";
   const color =
     change > 0
-      ? "text-red-500"
+      ? "text-danger-500"
       : change < 0
-        ? "text-blue-500"
+        ? "text-info-500"
         : "text-neutral-500";
   return (
     <span className={`${color} text-xs`}>
@@ -97,7 +97,7 @@ const ExchangeRateCard = () => (
         className="h-auto p-0 text-sm text-primary-600 hover:underline"
         asChild
       >
-        <Link to="/search" className="flex items-center">
+        <Link to="/exchange-rate/detail" className="flex items-center">
           더보기 <ChevronRight size={16} className="ml-0.5" />
         </Link>
       </Button>

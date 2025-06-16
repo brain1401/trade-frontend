@@ -3,7 +3,18 @@ export {
   mockTradeNews,
   mockHSCodeNews as mockHSCodeNewsAll,
 } from "./mock/news";
-export { mockExchangeRates } from "./mock/trade";
+export {
+  mockExchangeRates,
+  mockCurrencyTrends,
+  mockExchangeRateNews,
+  mockGlobalExchangeRates,
+  getCurrencyTrendByCurrency,
+  getExchangeRateByCurrency,
+  getContinents,
+  getPopularCurrencies,
+  searchExchangeRates,
+} from "./mock/trade";
+export type { EnhancedExchangeRate } from "./mock/trade";
 
 // 레거시 지원을 위한 변환된 데이터 - 기존 형태 유지
 export const mockPopularKeywords: string[] = [
