@@ -56,23 +56,32 @@ export type HSCodeNews = {
 };
 
 // 검색 관련 타입
-export type PopularKeyword = string;
+export type PopularKeyword = {
+  keyword: string;
+  searchCount: number;
+  trending: boolean;
+};
 
 export type RecentSearchItem = {
   hscode: string;
   text: string;
   timestamp?: string;
+  searchedAt: Date;
 };
 
 export type SearchResult = {
   id: string;
   title: string;
-  summary: string;
-  source: string;
-  url: string;
-  publishedAt: string;
-  relevance: number;
-  category: string;
+  description: string;
+  type: "hscode" | "regulation" | "news";
+  relevanceScore: number;
+  highlightedText: string;
+  metadata: {
+    hsCode?: string;
+    category?: string;
+    regions?: string[];
+    industry?: string[];
+  };
 };
 
 // 무역 관련 타입
@@ -128,15 +137,23 @@ export type UserPreferences = {
   };
   language: "ko" | "en";
   timezone: string;
-  defaultView: string;
+  defaultView: "dashboard" | "analysis" | "news" | "regulation";
 };
 
 export type UserStats = {
-  totalAnalyses: number;
-  totalBookmarks: number;
-  totalSearches: number;
+  analysisCount: number;
+  bookmarkCount: number;
+  searchCount: number;
   accuracyRate: number;
   lastActiveDate: string;
+  analysisHistory: AnalysisHistory[];
+};
+
+export type AnalysisHistory = {
+  id: string;
+  hsCode: string;
+  timestamp: string;
+  result: string;
 };
 
 // 추적 관련 타입

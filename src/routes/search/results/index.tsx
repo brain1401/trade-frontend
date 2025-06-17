@@ -11,7 +11,7 @@ type SearchParams = {
   period?: string;
 };
 
-export const Route = createFileRoute("/search/results")({
+export const Route = createFileRoute("/search/results/")({
   component: SearchResultsPage,
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     return {
@@ -144,7 +144,10 @@ function SearchResultsPage() {
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">카테고리</label>
-              <select className="mt-1 w-full rounded border border-neutral-200 px-2 py-1">
+              <select
+                title="카테고리"
+                className="mt-1 w-full rounded border border-neutral-200 px-2 py-1"
+              >
                 <option>전체</option>
                 <option>규제</option>
                 <option>인증</option>
@@ -153,7 +156,10 @@ function SearchResultsPage() {
             </div>
             <div>
               <label className="text-sm font-medium">기간</label>
-              <select className="mt-1 w-full rounded border border-neutral-200 px-2 py-1">
+              <select
+                title="기간"
+                className="mt-1 w-full rounded border border-neutral-200 px-2 py-1"
+              >
                 <option>전체</option>
                 <option>최근 1주일</option>
                 <option>최근 1개월</option>

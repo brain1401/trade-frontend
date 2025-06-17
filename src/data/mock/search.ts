@@ -14,27 +14,27 @@ export const mockRecentSearchItems: RecentSearchItem[] = [
   {
     text: "HS Code 8517.12 (스마트폰)",
     hscode: "8517.12",
-    searchedAt: "2025-01-12T14:30:00Z",
+    searchedAt: new Date("2025-01-12T14:30:00Z"),
   },
   {
     text: "HS Code 3304.99 (기타 화장품)",
     hscode: "3304.99",
-    searchedAt: "2025-01-12T13:15:00Z",
+    searchedAt: new Date("2025-01-12T13:15:00Z"),
   },
   {
     text: "HS Code 8542.31 (반도체)",
     hscode: "8542.31",
-    searchedAt: "2025-01-12T11:45:00Z",
+    searchedAt: new Date("2025-01-12T11:45:00Z"),
   },
   {
     text: "HS Code 9018.90 (기타 의료기기)",
     hscode: "9018.90",
-    searchedAt: "2025-01-12T10:20:00Z",
+    searchedAt: new Date("2025-01-12T10:20:00Z"),
   },
   {
     text: "HS Code 6203.42 (면바지)",
     hscode: "6203.42",
-    searchedAt: "2025-01-12T09:00:00Z",
+    searchedAt: new Date("2025-01-12T09:00:00Z"),
   },
 ];
 
@@ -67,7 +67,7 @@ export const mockSearchResults: SearchResult[] = [
     type: "regulation",
     relevanceScore: 0.82,
     highlightedText: "의료기기 FDA 인증",
-    metadata: { category: "인증", region: "US", industry: "의료" },
+    metadata: { category: "인증", regions: ["US"], industry: ["의료"] },
   },
   {
     id: "search-4",
@@ -77,7 +77,7 @@ export const mockSearchResults: SearchResult[] = [
     type: "news",
     relevanceScore: 0.78,
     highlightedText: "자동차 부품 관세율",
-    metadata: { category: "관세", industry: "자동차" },
+    metadata: { category: "관세", industry: ["자동차"] },
   },
 ];
 

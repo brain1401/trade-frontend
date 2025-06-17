@@ -11,17 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrackingIndexRouteImport } from './routes/tracking/index'
+import { Route as TestIndexRouteImport } from './routes/test/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as NotificationsIndexRouteImport } from './routes/notifications/index'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as HscodeIndexRouteImport } from './routes/hscode/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as TrackingSearchRouteImport } from './routes/tracking/search'
-import { Route as SearchResultsRouteImport } from './routes/search/results'
 import { Route as NewsNewsIdRouteImport } from './routes/news/$newsId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as TradeStatisticsIndexRouteImport } from './routes/trade/statistics/index'
+import { Route as SearchResultsIndexRouteImport } from './routes/search/results/index'
 import { Route as ExchangeRateDetailIndexRouteImport } from './routes/exchange-rate/detail/index'
 import { Route as TrackingResultNumberRouteImport } from './routes/tracking/result/$number'
 import { Route as HscodeResultResultIdRouteImport } from './routes/hscode/result/$resultId'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const TrackingIndexRoute = TrackingIndexRouteImport.update({
   id: '/tracking/',
   path: '/tracking/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestIndexRoute = TestIndexRouteImport.update({
+  id: '/test/',
+  path: '/test/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchIndexRoute = SearchIndexRouteImport.update({
@@ -67,11 +73,6 @@ const TrackingSearchRoute = TrackingSearchRouteImport.update({
   path: '/tracking/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SearchResultsRoute = SearchResultsRouteImport.update({
-  id: '/search/results',
-  path: '/search/results',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NewsNewsIdRoute = NewsNewsIdRouteImport.update({
   id: '/news/$newsId',
   path: '/news/$newsId',
@@ -90,6 +91,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 const TradeStatisticsIndexRoute = TradeStatisticsIndexRouteImport.update({
   id: '/trade/statistics/',
   path: '/trade/statistics/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchResultsIndexRoute = SearchResultsIndexRouteImport.update({
+  id: '/search/results/',
+  path: '/search/results/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExchangeRateDetailIndexRoute = ExchangeRateDetailIndexRouteImport.update({
@@ -118,18 +124,19 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/search/results': typeof SearchResultsRoute
   '/tracking/search': typeof TrackingSearchRoute
   '/dashboard': typeof DashboardIndexRoute
   '/hscode': typeof HscodeIndexRoute
   '/news': typeof NewsIndexRoute
   '/notifications': typeof NotificationsIndexRoute
   '/search': typeof SearchIndexRoute
+  '/test': typeof TestIndexRoute
   '/tracking': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
+  '/search/results': typeof SearchResultsIndexRoute
   '/trade/statistics': typeof TradeStatisticsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -137,18 +144,19 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/search/results': typeof SearchResultsRoute
   '/tracking/search': typeof TrackingSearchRoute
   '/dashboard': typeof DashboardIndexRoute
   '/hscode': typeof HscodeIndexRoute
   '/news': typeof NewsIndexRoute
   '/notifications': typeof NotificationsIndexRoute
   '/search': typeof SearchIndexRoute
+  '/test': typeof TestIndexRoute
   '/tracking': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail': typeof ExchangeRateDetailIndexRoute
+  '/search/results': typeof SearchResultsIndexRoute
   '/trade/statistics': typeof TradeStatisticsIndexRoute
 }
 export interface FileRoutesById {
@@ -157,18 +165,19 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/news/$newsId': typeof NewsNewsIdRoute
-  '/search/results': typeof SearchResultsRoute
   '/tracking/search': typeof TrackingSearchRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/hscode/': typeof HscodeIndexRoute
   '/news/': typeof NewsIndexRoute
   '/notifications/': typeof NotificationsIndexRoute
   '/search/': typeof SearchIndexRoute
+  '/test/': typeof TestIndexRoute
   '/tracking/': typeof TrackingIndexRoute
   '/hscode/analyze/$sessionId': typeof HscodeAnalyzeSessionIdRoute
   '/hscode/result/$resultId': typeof HscodeResultResultIdRoute
   '/tracking/result/$number': typeof TrackingResultNumberRoute
   '/exchange-rate/detail/': typeof ExchangeRateDetailIndexRoute
+  '/search/results/': typeof SearchResultsIndexRoute
   '/trade/statistics/': typeof TradeStatisticsIndexRoute
 }
 export interface FileRouteTypes {
@@ -178,18 +187,19 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/news/$newsId'
-    | '/search/results'
     | '/tracking/search'
     | '/dashboard'
     | '/hscode'
     | '/news'
     | '/notifications'
     | '/search'
+    | '/test'
     | '/tracking'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail'
+    | '/search/results'
     | '/trade/statistics'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -197,18 +207,19 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/news/$newsId'
-    | '/search/results'
     | '/tracking/search'
     | '/dashboard'
     | '/hscode'
     | '/news'
     | '/notifications'
     | '/search'
+    | '/test'
     | '/tracking'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail'
+    | '/search/results'
     | '/trade/statistics'
   id:
     | '__root__'
@@ -216,18 +227,19 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/news/$newsId'
-    | '/search/results'
     | '/tracking/search'
     | '/dashboard/'
     | '/hscode/'
     | '/news/'
     | '/notifications/'
     | '/search/'
+    | '/test/'
     | '/tracking/'
     | '/hscode/analyze/$sessionId'
     | '/hscode/result/$resultId'
     | '/tracking/result/$number'
     | '/exchange-rate/detail/'
+    | '/search/results/'
     | '/trade/statistics/'
   fileRoutesById: FileRoutesById
 }
@@ -236,18 +248,19 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
   NewsNewsIdRoute: typeof NewsNewsIdRoute
-  SearchResultsRoute: typeof SearchResultsRoute
   TrackingSearchRoute: typeof TrackingSearchRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   HscodeIndexRoute: typeof HscodeIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
   NotificationsIndexRoute: typeof NotificationsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
+  TestIndexRoute: typeof TestIndexRoute
   TrackingIndexRoute: typeof TrackingIndexRoute
   HscodeAnalyzeSessionIdRoute: typeof HscodeAnalyzeSessionIdRoute
   HscodeResultResultIdRoute: typeof HscodeResultResultIdRoute
   TrackingResultNumberRoute: typeof TrackingResultNumberRoute
   ExchangeRateDetailIndexRoute: typeof ExchangeRateDetailIndexRoute
+  SearchResultsIndexRoute: typeof SearchResultsIndexRoute
   TradeStatisticsIndexRoute: typeof TradeStatisticsIndexRoute
 }
 
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/tracking'
       fullPath: '/tracking'
       preLoaderRoute: typeof TrackingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test/': {
+      id: '/test/'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search/': {
@@ -309,13 +329,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrackingSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/search/results': {
-      id: '/search/results'
-      path: '/search/results'
-      fullPath: '/search/results'
-      preLoaderRoute: typeof SearchResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/news/$newsId': {
       id: '/news/$newsId'
       path: '/news/$newsId'
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/trade/statistics'
       fullPath: '/trade/statistics'
       preLoaderRoute: typeof TradeStatisticsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search/results/': {
+      id: '/search/results/'
+      path: '/search/results'
+      fullPath: '/search/results'
+      preLoaderRoute: typeof SearchResultsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exchange-rate/detail/': {
@@ -380,18 +400,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
   NewsNewsIdRoute: NewsNewsIdRoute,
-  SearchResultsRoute: SearchResultsRoute,
   TrackingSearchRoute: TrackingSearchRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   HscodeIndexRoute: HscodeIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
   NotificationsIndexRoute: NotificationsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
+  TestIndexRoute: TestIndexRoute,
   TrackingIndexRoute: TrackingIndexRoute,
   HscodeAnalyzeSessionIdRoute: HscodeAnalyzeSessionIdRoute,
   HscodeResultResultIdRoute: HscodeResultResultIdRoute,
   TrackingResultNumberRoute: TrackingResultNumberRoute,
   ExchangeRateDetailIndexRoute: ExchangeRateDetailIndexRoute,
+  SearchResultsIndexRoute: SearchResultsIndexRoute,
   TradeStatisticsIndexRoute: TradeStatisticsIndexRoute,
 }
 export const routeTree = rootRouteImport
