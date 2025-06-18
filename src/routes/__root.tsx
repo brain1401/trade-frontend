@@ -10,9 +10,9 @@ import SearchBarHeader from "@/components/search/SearchBarHeader.tsx";
 import Footer from "@/components/common/Footer.tsx";
 import { useAuthBackgroundInit } from "@/hooks/common/useAuthBackgroundInit.ts";
 
-interface MyRouterContext {
+type MyRouterContext = {
   queryClient: QueryClient;
-}
+};
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootLayout,
