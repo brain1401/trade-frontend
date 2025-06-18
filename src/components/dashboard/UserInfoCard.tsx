@@ -11,7 +11,7 @@ import { useAuthStore } from "@/stores/authStore";
 const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
 const AVATAR_BORDER_CLASSES = "border-white";
 
-const UserInfoCard = () => {
+function UserInfoCard() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const notificationStats = user?.notificationStats;
 
@@ -20,8 +20,12 @@ const UserInfoCard = () => {
     return (
       <Card className="mb-4 overflow-hidden py-0 shadow-lg">
         <CardContent className="p-4 text-center">
-          <p className="mb-3 text-neutral-600">로그인이 필요합니다</p>
-          <Button variant="default" asChild className="w-full">
+          <p className="mb-3 font-bold">로그인이 필요합니다.</p>
+          <Button
+            variant="default"
+            asChild
+            className="w-full bg-primary-600 hover:bg-primary-700"
+          >
             <Link to="/auth/login">로그인</Link>
           </Button>
         </CardContent>
@@ -137,6 +141,6 @@ const UserInfoCard = () => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default UserInfoCard;
