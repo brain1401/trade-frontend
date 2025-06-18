@@ -68,7 +68,7 @@ function App() {
           <ContentCard title="인기 검색어" className={CARD_SPACING_CLASSES}>
             <ul className={LIST_SPACING_CLASSES}>
               {mockPopularKeywords.map((keyword, index) => (
-                <li key={index} className="py-1">
+                <li key={keyword + index} className="py-1">
                   <Button
                     variant="link"
                     className={cn(
