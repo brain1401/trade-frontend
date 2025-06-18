@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useRouteGuard } from "@/hooks/common/useRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,9 +40,13 @@ type LoginResponse = {
 };
 
 function LoginPage() {
+  // 로그인 페이지 가드 - 비로그인 사용자만 접근 허용
+  const { isAllowed, LoadingComponent } = useRouteGuard("auth-only");
+
   const navigate = useNavigate();
   const { login, isLoading } = useAuthStore();
 
+  // 모든 useState 호출을 조기 반환 이전에 배치 (Hook 규칙 준수)
   const [formData, setFormData] = useState<LoginRequest>({
     email: "",
     password: "",
@@ -50,6 +55,16 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false); // 로그인 정보 유지 옵션
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 인증 상태 확인 중이면 스켈레톤 UI 표시
+  if (!isAllowed && LoadingComponent) {
+    return <LoadingComponent />;
+  }
+
+  // 인증 상태 확인 완료 후 접근 권한 없으면 null 반환 (리다이렉션됨)
+  if (!isAllowed) {
+    return null;
+  }
 
   // 폼 입력 핸들러
   const handleInputChange =
@@ -91,8 +106,8 @@ function LoginPage() {
       } else {
         setError("이메일 또는 비밀번호가 올바르지 않습니다.");
       }
-    } catch (error) {
-      console.error("로그인 오류:", error);
+    } catch (loginError) {
+      console.error("로그인 오류:", loginError);
       setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
     } finally {
       setIsSubmitting(false);

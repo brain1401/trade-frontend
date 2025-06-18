@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useRouteGuard } from "@/hooks/common/useRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,10 @@ export const Route = createFileRoute("/auth/signup")({
 });
 
 function SignupPage() {
+  // 회원가입 페이지 가드 - 비로그인 사용자만 접근 허용
+  const { isAllowed, LoadingComponent } = useRouteGuard("auth-only");
+
+  // 모든 useState 호출을 조기 반환 이전에 배치 (Hook 규칙 준수)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,6 +34,7 @@ function SignupPage() {
     company: "",
     phone: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreements, setAgreements] = useState({
@@ -36,6 +42,16 @@ function SignupPage() {
     privacy: false,
     marketing: false,
   });
+
+  // 인증 상태 확인 중이면 스켈레톤 UI 표시
+  if (!isAllowed && LoadingComponent) {
+    return <LoadingComponent />;
+  }
+
+  // 인증 상태 확인 완료 후 접근 권한 없으면 null 반환 (리다이렉션됨)
+  if (!isAllowed) {
+    return null;
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

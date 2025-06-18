@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useRouteGuard } from "@/hooks/common/useRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -28,8 +29,21 @@ export const Route = createFileRoute("/notifications/")({
 }) as any;
 
 function NotificationsPage() {
+  // 알림 페이지 가드 - 로그인 사용자만 접근 허용
+  const { isAllowed, LoadingComponent } = useRouteGuard("protected");
+
   const [filter, setFilter] = useState<"all" | "unread" | "high">("all");
   const [notifications, setNotifications] = useState(mockNotifications);
+
+  // 인증 상태 확인 중이면 스켈레톤 UI 표시
+  if (!isAllowed && LoadingComponent) {
+    return <LoadingComponent />;
+  }
+
+  // 인증 상태 확인 완료 후 접근 권한 없으면 null 반환 (리다이렉션됨)
+  if (!isAllowed) {
+    return null;
+  }
 
   // 필터링된 알림
   const filteredNotifications = notifications.filter((notif) => {
@@ -97,6 +111,7 @@ function NotificationsPage() {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
                 className="rounded border border-neutral-200 px-2 py-1 text-xs"
+                title="알림 필터 선택"
               >
                 <option value="all">전체</option>
                 <option value="unread">읽지 않음</option>

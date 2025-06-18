@@ -69,38 +69,38 @@ import { useAuthStore } from "../../stores/authStore";
  * 성능 최적화:
  * - isInitialized 플래그로 중복 실행 방지
  * - 토큰이 없는 경우 서버 요청 생략
- * - 메모이제이션된 checkAuthStatus 함수 사용
+ * - 메모이제이션된 initializeAuth 함수 사용
  */
 export const useAuthInit = () => {
-  const { checkAuthStatus, isInitialized, isLoading } = useAuthStore();
+  const { initializeAuth, isInitialized, isLoading } = useAuthStore();
 
   useEffect(() => {
     /**
-     * 앱 시작 시 인증 상태 확인 로직
+     * 인증 상태 초기화 로직
      *
      * isInitialized 플래그를 확인하여 중복 실행을 방지하고,
-     * 한 번만 인증 상태 검증을 수행함
+     * 저장된 토큰의 유효성을 검증하여 사용자 세션을 복원함
      */
     if (!isInitialized) {
-      checkAuthStatus();
+      initializeAuth();
     }
-  }, [checkAuthStatus, isInitialized]);
+  }, [initializeAuth, isInitialized]);
 
   return {
+    /**
+     * 현재 인증 상태 확인 중 여부
+     *
+     * true: 토큰 검증 및 사용자 정보 복원 진행 중
+     * false: 인증 상태 확인 완료 또는 미시작
+     */
+    isLoading,
+
     /**
      * 인증 상태 확인 완료 여부
      *
      * true: 토큰 검증 및 인증 상태 확인 완료
-     * false: 아직 인증 상태 확인 중이거나 미완료
+     * false: 아직 인증 상태 확인 중
      */
     isInitialized,
-
-    /**
-     * 인증 상태 확인 진행 중 여부
-     *
-     * true: 서버에 토큰 검증 요청 중
-     * false: 검증 완료 또는 검증 전 상태
-     */
-    isLoading,
   };
 };

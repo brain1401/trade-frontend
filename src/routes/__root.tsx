@@ -8,7 +8,7 @@ import TopNavBar from "@/components/common/TopNavBar.tsx";
 import QuickLinksBar from "@/components/common/QuickLinksBar.tsx";
 import SearchBarHeader from "@/components/search/SearchBarHeader.tsx";
 import Footer from "@/components/common/Footer.tsx";
-import { useAuthInit } from "@/hooks/common/useAuthInit.ts";
+import { useAuthBackgroundInit } from "@/hooks/common/useAuthBackgroundInit.ts";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -19,21 +19,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootLayout() {
-  const { isInitialized, isLoading } = useAuthInit();
-
-  // 인증 상태 초기화가 완료되지 않았거나 로딩 중인 경우 로딩 화면 표시
-  if (!isInitialized || isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-600 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-          <div className="mt-4 text-lg font-medium text-brand-700">
-            로딩 중...
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 백그라운드에서 조용히 인증 상태 초기화
+  useAuthBackgroundInit();
 
   return (
     <div className="-mr-scrollbar flex min-h-[100dvh] flex-col bg-neutral-50 font-nanum_square_neo_variable font-[500]">

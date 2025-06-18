@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useRouteGuard } from "@/hooks/common/useRouteGuard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   mockUpdatesFeed,
@@ -19,10 +20,23 @@ export const Route = createFileRoute("/dashboard" as any)({
 });
 
 function DashboardPage() {
+  // 라우트 가드 적용 - 로그인 사용자만 접근 허용
+  const { isAllowed, LoadingComponent } = useRouteGuard("protected");
+
   // 필터 상태 관리
   const [feedFilter, setFeedFilter] = useState<FeedFilterType>("all");
   const [bookmarkFilter, setBookmarkFilter] =
     useState<BookmarkFilterType>("all");
+
+  // 인증 상태 확인 중이면 스켈레톤 UI 표시
+  if (!isAllowed && LoadingComponent) {
+    return <LoadingComponent />;
+  }
+
+  // 인증 상태 확인 완료 후 접근 권한 없으면 null 반환 (리다이렉션됨)
+  if (!isAllowed) {
+    return null;
+  }
 
   // 페이지네이션 상태 관리
   const [feedCurrentPage, setFeedCurrentPage] = useState(1);

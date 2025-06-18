@@ -11,10 +11,6 @@ function ScrollArea({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
   scrollBarStyles?: string;
 }) {
-  React.useEffect(() => {
-    console.log("scrollBarStyles :", scrollBarStyles);
-  }, [scrollBarStyles]);
-
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -41,12 +37,6 @@ function ScrollBar({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar> & {
   scrollBarStyles?: string;
 }) {
-  const test = cn("relative flex-1 rounded-full bg-border", scrollBarStyles);
-
-  React.useEffect(() => {
-    console.log(test);
-  }, [test]);
-
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
       data-slot="scroll-area-scrollbar"

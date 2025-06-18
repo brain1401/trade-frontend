@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { isTokenExpired } from "../lib/utils/tokenUtils";
+import {
+  isTokenExpired,
+  secureTokenStorage,
+  getTokenStorageStrategy,
+} from "../lib/utils/tokenUtils";
 import { mockRefreshToken, mockValidateToken } from "../data/mock/auth";
 
 export type NotificationStats = {
@@ -24,7 +28,8 @@ export type AuthState = {
   refreshToken: string | null;
   isLoading: boolean;
   isInitialized: boolean;
-  rememberMe: boolean; // 로그인 정보 유지 옵션
+  rememberMe: boolean;
+  sessionStartTime: number | null;
 };
 
 export type AuthActions = {
@@ -32,49 +37,123 @@ export type AuthActions = {
     user: User,
     tokens: { accessToken: string; refreshToken: string },
     rememberMe?: boolean,
-  ) => void;
-  logout: () => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  ) => Promise<void>;
+  logout: () => Promise<void>;
   refreshAccessToken: () => Promise<boolean>;
-  checkAuthStatus: () => Promise<void>;
-  setInitialized: () => void;
-  setRememberMe: (rememberMe: boolean) => void;
+  validateSession: () => Promise<boolean>;
+  initializeAuth: () => Promise<void>;
+  updateUser: (user: Partial<User>) => void;
+  clearAuth: () => void;
 };
 
-export type AuthStore = AuthState & AuthActions;
+// 현업 베스트 프랙티스 적용: 환경별 스토리지 전략
+const createAuthStorage = () => {
+  const storageStrategy = getTokenStorageStrategy();
 
-// 동적 스토리지 생성 함수
-const createDynamicStorage = () => {
   return {
-    getItem: (name: string) => {
-      // localStorage 먼저 확인, 없으면 sessionStorage 확인
-      const localItem = localStorage.getItem(name);
-      if (localItem) return localItem;
-      return sessionStorage.getItem(name);
-    },
-    setItem: (name: string, value: string) => {
-      const parsed = JSON.parse(value);
-      const shouldPersist = parsed.state?.rememberMe ?? false;
+    getItem: async (name: string) => {
+      if (storageStrategy === "httponly-cookie") {
+        // 프로덕션: HttpOnly 쿠키에서 토큰 조회
+        try {
+          const response = await fetch("/api/auth/session", {
+            credentials: "include",
+          });
 
-      if (shouldPersist) {
-        localStorage.setItem(name, value);
-        sessionStorage.removeItem(name); // 중복 방지
+          if (response.ok) {
+            const sessionData = await response.json();
+            return JSON.stringify({ state: sessionData });
+          }
+        } catch (error) {
+          console.error("세션 조회 실패:", error);
+        }
+        return null;
       } else {
-        sessionStorage.setItem(name, value);
-        localStorage.removeItem(name); // 중복 방지
+        // 개발: localStorage 사용 (보안 취약하지만 편의성)
+        const item = localStorage.getItem(name);
+        if (!item) return null;
+
+        try {
+          const parsed = JSON.parse(item);
+          const { state } = parsed;
+
+          // 세션 만료 확인
+          if (state?.sessionStartTime && state?.rememberMe !== undefined) {
+            const now = Date.now();
+            const sessionAge = now - state.sessionStartTime;
+            const maxAge = state.rememberMe
+              ? 30 * 24 * 60 * 60 * 1000 // 30일
+              : 2 * 60 * 60 * 1000; // 2시간
+
+            if (sessionAge > maxAge) {
+              localStorage.removeItem(name);
+              console.log(
+                `⏰ 세션 만료 (${state.rememberMe ? "30일" : "2시간"} 초과)`,
+              );
+              return null;
+            }
+          }
+
+          return item;
+        } catch {
+          return item;
+        }
       }
     },
-    removeItem: (name: string) => {
-      localStorage.removeItem(name);
-      sessionStorage.removeItem(name);
+
+    setItem: async (name: string, value: string) => {
+      if (storageStrategy === "httponly-cookie") {
+        // 프로덕션: 서버에 보안 쿠키 설정 요청
+        try {
+          const parsed = JSON.parse(value);
+          const { accessToken, refreshToken, rememberMe } = parsed.state || {};
+
+          if (accessToken && refreshToken) {
+            await secureTokenStorage.setSecureCookie(
+              "access",
+              accessToken,
+              rememberMe,
+            );
+            await secureTokenStorage.setSecureCookie(
+              "refresh",
+              refreshToken,
+              rememberMe,
+            );
+          }
+        } catch (error) {
+          console.error("보안 쿠키 설정 실패:", error);
+        }
+      } else {
+        // 개발: localStorage 사용
+        localStorage.setItem(name, value);
+
+        // 보안 경고 표시 (개발 환경에서만)
+        if (
+          typeof window !== "undefined" &&
+          !window.location.href.includes("localhost")
+        ) {
+          console.warn(
+            "⚠️ 보안 경고: localStorage 사용 중. 프로덕션에서는 HttpOnly 쿠키 사용 권장",
+          );
+        }
+      }
+    },
+
+    removeItem: async (name: string) => {
+      if (storageStrategy === "httponly-cookie") {
+        // 프로덕션: 서버에 쿠키 삭제 요청
+        await secureTokenStorage.clearTokens();
+      } else {
+        // 개발: localStorage 삭제
+        localStorage.removeItem(name);
+      }
     },
   };
 };
 
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
     (set, get) => ({
-      // 초기 상태
+      // 상태
       isAuthenticated: false,
       user: null,
       accessToken: null,
@@ -82,158 +161,251 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       isInitialized: false,
       rememberMe: false,
+      sessionStartTime: null,
 
-      // 로그인 함수 - rememberMe 옵션 추가
-      login: (user, tokens, rememberMe = false) => {
+      // 액션
+      login: async (user, tokens, rememberMe = false) => {
+        const currentTime = Date.now();
+
         set({
           isAuthenticated: true,
           user,
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
-          isLoading: false,
           rememberMe,
+          sessionStartTime: currentTime,
+          isLoading: false,
         });
+
+        // 현업 베스트 프랙티스: 환경별 토큰 저장
+        const strategy = getTokenStorageStrategy();
+
+        if (strategy === "httponly-cookie") {
+          // 프로덕션: HttpOnly 쿠키로 보안 저장
+          try {
+            await secureTokenStorage.setSecureCookie(
+              "access",
+              tokens.accessToken,
+              rememberMe,
+            );
+            await secureTokenStorage.setSecureCookie(
+              "refresh",
+              tokens.refreshToken,
+              rememberMe,
+            );
+            console.log(
+              `🔒 보안 쿠키 저장 완료 - ${rememberMe ? "로그인 유지 (30일)" : "세션 쿠키"}`,
+            );
+          } catch (error) {
+            console.error("보안 쿠키 저장 실패:", error);
+          }
+        } else {
+          // 개발: localStorage 저장 (보안 취약)
+          secureTokenStorage.setLocalStorage(
+            "access",
+            tokens.accessToken,
+            rememberMe,
+          );
+          secureTokenStorage.setLocalStorage(
+            "refresh",
+            tokens.refreshToken,
+            rememberMe,
+          );
+          console.log(
+            `📝 로컬 저장 완료 - ${rememberMe ? "로그인 유지 (30일)" : "기본 세션 (2시간)"}`,
+          );
+          console.warn(
+            "⚠️ 개발 환경: localStorage 사용 중 (프로덕션에서는 HttpOnly 쿠키 사용)",
+          );
+        }
       },
 
-      // 로그아웃 함수
-      logout: () => {
+      logout: async () => {
+        // 현업 베스트 프랙티스: 환경별 토큰 삭제
+        await secureTokenStorage.clearTokens();
+
         set({
           isAuthenticated: false,
           user: null,
           accessToken: null,
           refreshToken: null,
-          isLoading: false,
           rememberMe: false,
+          sessionStartTime: null,
+          isLoading: false,
         });
+
+        console.log("🚪 로그아웃 완료 (모든 토큰 삭제)");
       },
 
-      // 토큰 설정 함수
-      setTokens: (accessToken, refreshToken) => {
-        set({ accessToken, refreshToken });
-      },
-
-      // 로그인 정보 유지 옵션 설정
-      setRememberMe: (rememberMe) => {
-        set({ rememberMe });
-      },
-
-      // 액세스 토큰 갱신 함수
       refreshAccessToken: async () => {
-        const { refreshToken } = get();
-        if (!refreshToken) return false;
-
         try {
-          set({ isLoading: true });
-          const result = await mockRefreshToken(refreshToken);
+          const { sessionStartTime, rememberMe } = get();
 
-          if (result) {
-            set({
-              accessToken: result.accessToken,
-              refreshToken: result.refreshToken,
-              isLoading: false,
-            });
-            return true;
-          } else {
-            // 리프레시 토큰도 만료된 경우 로그아웃 처리
-            get().logout();
-            return false;
+          // 환경별 리프레시 토큰 조회
+          const refreshToken = await secureTokenStorage.getToken("refresh");
+
+          if (!refreshToken) {
+            throw new Error("리프레시 토큰이 없습니다");
           }
+
+          // 세션 만료 확인
+          if (sessionStartTime) {
+            const now = Date.now();
+            const sessionAge = now - sessionStartTime;
+            const maxAge = rememberMe
+              ? 30 * 24 * 60 * 60 * 1000 // 30일
+              : 2 * 60 * 60 * 1000; // 2시간
+
+            if (sessionAge > maxAge) {
+              throw new Error("세션이 만료되었습니다");
+            }
+          }
+
+          // 토큰 갱신 요청
+          const newTokens = await mockRefreshToken(refreshToken);
+
+          if (!newTokens) {
+            throw new Error("토큰 갱신에 실패했습니다");
+          }
+
+          // 새 토큰 저장
+          const strategy = getTokenStorageStrategy();
+
+          if (strategy === "httponly-cookie") {
+            await secureTokenStorage.setSecureCookie(
+              "access",
+              newTokens.accessToken,
+              rememberMe,
+            );
+            await secureTokenStorage.setSecureCookie(
+              "refresh",
+              newTokens.refreshToken,
+              rememberMe,
+            );
+          } else {
+            secureTokenStorage.setLocalStorage(
+              "access",
+              newTokens.accessToken,
+              rememberMe,
+            );
+            secureTokenStorage.setLocalStorage(
+              "refresh",
+              newTokens.refreshToken,
+              rememberMe,
+            );
+          }
+
+          set({
+            accessToken: newTokens.accessToken,
+            refreshToken: newTokens.refreshToken,
+          });
+
+          console.log("🔄 토큰 갱신 성공");
+          return true;
         } catch (error) {
-          console.error("토큰 갱신 실패:", error);
+          console.error("❌ 토큰 갱신 실패:", error);
           get().logout();
           return false;
         }
       },
 
-      // 인증 상태 확인 함수 (앱 시작 시 호출)
-      checkAuthStatus: async () => {
-        const { accessToken, refreshToken, isAuthenticated } = get();
-
-        // 이미 persist된 상태에서 인증됨이 확인되고 토큰이 있으면 빠른 복원
-        if (isAuthenticated && accessToken && refreshToken) {
-          // 토큰 유효성만 빠르게 확인
-          if (!isTokenExpired(accessToken)) {
-            set({ isInitialized: true });
-            return;
-          }
-        }
-
-        if (!accessToken || !refreshToken) {
-          set({ isInitialized: true });
-          return;
-        }
-
+      validateSession: async () => {
         try {
-          set({ isLoading: true });
+          // 환경별 액세스 토큰 조회
+          const accessToken = await secureTokenStorage.getToken("access");
+          const { sessionStartTime, rememberMe } = get();
 
-          // 액세스 토큰이 유효한지 확인
-          if (!isTokenExpired(accessToken)) {
-            const user = await mockValidateToken(accessToken);
-            if (user) {
-              set({
-                isAuthenticated: true,
-                user,
-                isLoading: false,
-                isInitialized: true,
-              });
-              return;
+          if (!accessToken) {
+            return false;
+          }
+
+          // 세션 만료 확인
+          if (sessionStartTime) {
+            const now = Date.now();
+            const sessionAge = now - sessionStartTime;
+            const maxAge = rememberMe
+              ? 30 * 24 * 60 * 60 * 1000 // 30일
+              : 2 * 60 * 60 * 1000; // 2시간
+
+            if (sessionAge > maxAge) {
+              console.log("⏰ 세션 만료로 인한 자동 로그아웃");
+              await get().logout();
+              return false;
             }
           }
 
-          // 액세스 토큰이 만료되었다면 리프레시 토큰으로 갱신 시도
-          const refreshSuccess = await get().refreshAccessToken();
-          if (refreshSuccess) {
-            const { accessToken: newToken } = get();
-            const user = await mockValidateToken(newToken!);
-            if (user) {
-              set({
-                isAuthenticated: true,
-                user,
-                isLoading: false,
-                isInitialized: true,
-              });
-              return;
-            }
+          // 토큰 유효성 검증
+          if (isTokenExpired(accessToken)) {
+            return await get().refreshAccessToken();
           }
 
-          // 모든 시도가 실패하면 로그아웃 처리
-          get().logout();
+          const isValid = await mockValidateToken(accessToken);
+          if (!isValid) {
+            throw new Error("토큰이 유효하지 않습니다");
+          }
+
+          return true;
         } catch (error) {
-          console.error("인증 상태 확인 실패:", error);
-          get().logout();
-        } finally {
-          set({ isInitialized: true });
+          console.error("❌ 세션 검증 실패:", error);
+          await get().logout();
+          return false;
         }
       },
 
-      // 초기화 완료 설정
-      setInitialized: () => set({ isInitialized: true }),
+      initializeAuth: async () => {
+        set({ isLoading: true });
+
+        try {
+          const isValid = await get().validateSession();
+
+          if (isValid) {
+            console.log("✅ 기존 세션 복원 성공");
+          } else {
+            console.log("ℹ️ 유효한 세션이 없습니다");
+          }
+
+          // 보안 전략 로그
+          const strategy = getTokenStorageStrategy();
+          console.log(
+            `🔐 토큰 저장 전략: ${strategy === "httponly-cookie" ? "HttpOnly 쿠키 (보안)" : "localStorage (개발)"}`,
+          );
+        } catch (error) {
+          console.error("❌ 인증 초기화 실패:", error);
+          get().clearAuth();
+        } finally {
+          set({ isLoading: false, isInitialized: true });
+        }
+      },
+
+      updateUser: (userData) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, ...userData } : null,
+        }));
+      },
+
+      clearAuth: () => {
+        set({
+          isAuthenticated: false,
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          rememberMe: false,
+          sessionStartTime: null,
+          isLoading: false,
+        });
+      },
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => createDynamicStorage()),
-      // 중요한 상태들을 모두 persist하되, 민감한 정보는 암호화 권장
-      partialize: ({
-        accessToken,
-        refreshToken,
-        user,
-        isAuthenticated,
-        rememberMe,
-      }) => ({
-        accessToken,
-        refreshToken,
-        user,
-        isAuthenticated,
-        rememberMe,
+      storage: createJSONStorage(() => createAuthStorage()),
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        rememberMe: state.rememberMe,
+        sessionStartTime: state.sessionStartTime,
       }),
-      // 데이터 복원 시 초기화 상태 확인
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // 복원된 상태가 있으면 아직 초기화되지 않은 것으로 표시
-          state.isInitialized = false;
-          state.isLoading = false;
-        }
-      },
     },
   ),
 );
