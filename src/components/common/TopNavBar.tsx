@@ -26,6 +26,10 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useAuthStore } from "@/stores/authStore";
+
+const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
+const AVATAR_BORDER_CLASSES = "border-2 border-white";
 
 // 링크가 있는 아이콘 버튼 생성 함수
 const iconButton = (
@@ -76,11 +80,41 @@ const TopNavBar = () => {
   const [hasBookmarkUpdate, _setHasBookmarkUpdate] = useState(true);
   const [hasChangeDetection, _setHasChangeDetection] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
 
-  const handleLogout = () => {
-    // 로그아웃 로직 처리 (여기서는 로그인 페이지로 이동)
+  const handleLogout = async () => {
+    // authStore의 로그아웃 함수 호출
+    logout();
+    // 로그인 페이지로 리다이렉트
     navigate({ to: "/auth/login" });
   };
+
+  // 로그인하지 않은 경우 로그인 버튼 표시
+  if (!isAuthenticated) {
+    return (
+      <TooltipProvider>
+        <nav className="bg-brand-700 py-3 text-white shadow-md">
+          <div className="container mx-auto flex items-center justify-between">
+            {/* 로고 */}
+            <Link to="/" className="ml-[3rem] text-4xl font-bold">
+              AI HS Code 레이더
+            </Link>
+
+            {/* 로그인 버튼 */}
+            <div className="flex items-center space-x-5">
+              <Button
+                variant="outline"
+                className="border-white text-black hover:bg-white hover:text-brand-700"
+                onClick={() => navigate({ to: "/auth/login" })}
+              >
+                로그인
+              </Button>
+            </div>
+          </div>
+        </nav>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <>
@@ -116,18 +150,26 @@ const TopNavBar = () => {
               {/* 사용자 프로필 드롭다운 */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="h-8 w-8 cursor-pointer">
+                  <Avatar className="h-10 w-10 cursor-pointer">
                     <AvatarImage
-                      src="https://placehold.co/32x32/FFFFFF/004E98?text=사"
-                      alt="사용자 프로필"
-                      className="border-2 border-blue-200 hover:opacity-90"
+                      src={
+                        user?.avatar ||
+                        "https://placehold.co/48x48/FFFFFF/004E98?text=" +
+                          user?.name.charAt(0)
+                      }
+                      alt={`${user?.name || "사용자"} 프로필`}
+                      className="hover:opacity-90"
                     />
-                    <AvatarFallback className="border-2 border-blue-200 bg-white text-brand-700">
-                      사
+                    <AvatarFallback className="bg-white text-brand-700">
+                      {user?.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm text-gray-600">
+                    {user?.name || "사용자"}
+                  </div>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard" className="flex items-center">
                       <User className="mr-2 h-4 w-4" />

@@ -6,30 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { mockUserQuickLinks } from "@/data/mock/user";
+import { useAuthStore } from "@/stores/authStore";
 
 const LINK_BUTTON_BASE_CLASSES = "h-auto p-0 text-sm hover:underline";
-const AVATAR_BORDER_CLASSES = "border-2 border-white";
-
-// 하드코딩된 사용자 데이터
-const mockUser = {
-  id: "user_12345",
-  name: "김상현",
-  email: "kim.sanghyun@example.com",
-  company: "한국무역주식회사",
-  avatar: undefined,
-};
-
-const mockUserStats = {
-  messageCount: 3,
-  bookmarkCount: 12,
-  analysisCount: 8,
-};
+const AVATAR_BORDER_CLASSES = "border-white";
 
 const UserInfoCard = () => {
-  const user = mockUser;
-  const userStats = mockUserStats;
-  // TODO: 인증 여부 확인
-  const isAuthenticated = true;
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const notificationStats = user?.notificationStats;
 
   // 인증되지 않은 경우 로그인 유도 카드 표시
   if (!isAuthenticated || !user) {
@@ -75,6 +59,7 @@ const UserInfoCard = () => {
             variant="secondary"
             size="sm"
             className="flex h-auto items-center rounded-md bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-neutral-100"
+            onClick={() => logout()}
           >
             <LogOut size={14} className="mr-1" /> 로그아웃
           </Button>
@@ -108,13 +93,13 @@ const UserInfoCard = () => {
             let count: number | undefined;
             switch (name) {
               case "메시지":
-                count = userStats.messageCount;
+                count = notificationStats?.messageCount;
                 break;
               case "북마크":
-                count = userStats.bookmarkCount;
+                count = notificationStats?.bookmarkCount;
                 break;
               case "분석이력":
-                count = userStats.analysisCount;
+                count = notificationStats?.analysisCount;
                 break;
               default:
                 count = undefined;

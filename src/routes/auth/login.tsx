@@ -1,211 +1,220 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import ContentCard from "@/components/common/ContentCard";
-import { Eye, EyeOff, LogIn, Mail, Lock, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  publicApiClient,
+  API_ENDPOINTS,
+  type ApiResponse,
+} from "@/lib/apiClient";
+import { mockLogin } from "@/data/mock/auth";
+
+// 로그인 요청 타입
+type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+// 로그인 응답 타입
+type LoginResponse = {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string | null;
+    notificationStats: {
+      messageCount: number;
+      bookmarkCount: number;
+      analysisCount: number;
+    };
+  };
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const { login, isLoading } = useAuthStore();
+
+  const [formData, setFormData] = useState<LoginRequest>({
+    email: "",
+    password: "",
+  });
+
+  const [rememberMe, setRememberMe] = useState(false); // 로그인 정보 유지 옵션
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 폼 입력 핸들러
+  const handleInputChange =
+    (field: keyof LoginRequest) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+      // 입력 시 에러 메시지 초기화
+      if (error) setError(null);
+    };
+
+  // 로그인 처리 함수
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("이메일과 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // 목업 로그인 - 실제로는 publicApiClient.post<ApiResponse<LoginResponse>>(API_ENDPOINTS.AUTH.LOGIN, formData)
+      const loginResult = await mockLogin(
+        formData.email,
+        formData.password,
+        rememberMe,
+      );
+
+      if (loginResult) {
+        // 로그인 성공 시 스토어에 사용자 정보, 토큰, 로그인 정보 유지 옵션 저장
+        login(loginResult.user, loginResult.tokens, rememberMe);
+
+        // 메인페이지로 리다이렉트
+        navigate({ to: "/" });
+      } else {
+        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      }
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // 소셜 로그인 핸들러 (목업)
+  const handleSocialLogin = (provider: string) => {
+    console.log(`${provider} 로그인 시도`);
+    // 실제로는 OAuth 프로바이더로 리다이렉트
+  };
+
+  return (
+    <div className="flex flex-1 items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">
+            무역정보 서비스 로그인
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">이메일</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange("email")}
+                placeholder="이메일을 입력하세요"
+                disabled={isSubmitting || isLoading}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">비밀번호</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange("password")}
+                placeholder="비밀번호를 입력하세요"
+                disabled={isSubmitting || isLoading}
+                required
+              />
+            </div>
+
+            {/* 로그인 정보 유지 체크박스 */}
+            <div className="flex items-center justify-end space-x-2">
+              <Checkbox
+                id="rememberMe"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                disabled={isSubmitting || isLoading}
+              />
+              <Label
+                htmlFor="rememberMe"
+                className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                로그인 정보 유지
+              </Label>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting || isLoading}
+            >
+              {isSubmitting ? "로그인 중..." : "로그인"}
+            </Button>
+          </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">또는</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={() => handleSocialLogin("google")}
+                disabled={isSubmitting || isLoading}
+              >
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleSocialLogin("kakao")}
+                disabled={isSubmitting || isLoading}
+              >
+                Kakao
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <Button
+              variant="link"
+              onClick={() => navigate({ to: "/auth/signup" })}
+              disabled={isSubmitting || isLoading}
+            >
+              계정이 없으신가요? 회원가입
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/auth/login")({
   component: LoginPage,
 });
-
-function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  const handleLogin = () => {
-    // 목업 로그인 처리
-    console.log("Login attempt:", { email, password, rememberMe });
-    // 실제로는 로그인 API 호출 후 메인 페이지로 리다이렉트
-    window.location.href = "/";
-  };
-
-  const handleSnsLogin = (provider: string) => {
-    // 목업 SNS 로그인 처리
-    console.log(`${provider} login attempt`);
-    // 실제로는 SNS 인증 플로우 시작
-    window.location.href = "/";
-  };
-
-  return (
-    <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-bold text-neutral-800">로그인</h1>
-          <p className="text-neutral-600">
-            AI HS Code 레이더 시스템에 오신 것을 환영합니다
-          </p>
-        </div>
-
-        <ContentCard title="계정 로그인">
-          <div className="space-y-4">
-            {/* 이메일 입력 */}
-            <div>
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-neutral-700"
-              >
-                이메일
-              </Label>
-              <div className="relative mt-1">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                />
-                <Mail
-                  size={16}
-                  className="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-400"
-                />
-              </div>
-            </div>
-
-            {/* 비밀번호 입력 */}
-            <div>
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-neutral-700"
-              >
-                비밀번호
-              </Label>
-              <div className="relative mt-1">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="비밀번호를 입력하세요"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-                  className="pr-10 pl-10"
-                />
-                <Lock
-                  size={16}
-                  className="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-400"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {/* 옵션 */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(!!checked)}
-                  className="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-                />
-                <Label htmlFor="remember" className="text-sm text-neutral-600">
-                  로그인 상태 유지
-                </Label>
-              </div>
-              <Button
-                variant="link"
-                className="h-auto p-0 text-sm text-primary-600 hover:underline"
-              >
-                비밀번호 찾기
-              </Button>
-            </div>
-
-            {/* 로그인 버튼 */}
-            <Button
-              onClick={handleLogin}
-              className="w-full bg-primary-600 hover:bg-primary-700"
-              disabled={!email || !password}
-            >
-              <LogIn size={16} className="mr-2" />
-              로그인
-            </Button>
-
-            {/* 회원가입 링크 */}
-            <div className="text-center">
-              <span className="text-sm text-neutral-600">
-                계정이 없으신가요?{" "}
-              </span>
-              <Button
-                variant="link"
-                className="h-auto p-0 text-sm text-primary-600 hover:underline"
-                onClick={() => (window.location.href = "/auth/signup")}
-              >
-                회원가입
-              </Button>
-            </div>
-          </div>
-        </ContentCard>
-
-        {/* SNS 로그인 */}
-        <ContentCard title="간편 로그인" className="mt-6">
-          <div className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full justify-center border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-              onClick={() => handleSnsLogin("google")}
-            >
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              Google로 시작하기
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full justify-center border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-              onClick={() => handleSnsLogin("naver")}
-            >
-              <div className="mr-2 flex h-4 w-4 items-center justify-center rounded bg-green-500 text-xs font-bold text-white">
-                N
-              </div>
-              네이버로 시작하기
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full justify-center border-yellow-200 bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
-              onClick={() => handleSnsLogin("kakao")}
-            >
-              <div className="mr-2 flex h-4 w-4 items-center justify-center rounded bg-yellow-400 text-xs font-bold text-black">
-                K
-              </div>
-              카카오로 시작하기
-            </Button>
-          </div>
-        </ContentCard>
-
-        {/* 하단 안내 */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-neutral-500">
-            로그인하시면 이용약관 및 개인정보처리방침에 동의하게 됩니다.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}

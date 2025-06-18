@@ -1,10 +1,6 @@
-import ContentCard from "@/components/common/ContentCard";
-import ExchangeRateCard from "@/components/exchange-rate/ExchangeRateCard";
-import UserInfoCard from "@/components/dashboard/UserInfoCard";
-import HSCodeNewsSection from "@/components/news/TradeNewsSection";
-import NewsItem from "@/components/news/TradeNewsItem";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   mockPopularKeywords,
@@ -12,8 +8,12 @@ import {
   mockTradeNews,
 } from "@/data/mockData";
 import { cn } from "@/lib/utils";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+
+import ContentCard from "@/components/common/ContentCard";
+import ExchangeRateCard from "@/components/exchange-rate/ExchangeRateCard";
+import UserInfoCard from "@/components/dashboard/UserInfoCard";
+import TradeNewsSection from "@/components/news/TradeNewsSection";
+import NewsItem from "@/components/news/TradeNewsItem";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -56,7 +56,7 @@ function App() {
           </ContentCard>
 
           <div className={CARD_SPACING_CLASSES}>
-            <HSCodeNewsSection />
+            <TradeNewsSection />
           </div>
         </div>
 
