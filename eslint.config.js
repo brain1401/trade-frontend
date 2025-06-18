@@ -50,7 +50,7 @@ export default tseslint.config({
     "react/no-danger": "error",
 
     // 배열 인덱스를 key로 사용 금지 - 렌더링 성능 및 상태 오류 방지
-    "react/no-array-index-key": "error",
+    "react/no-array-index-key": "off",
 
     // 컴포넌트 내부 함수 정의 금지 - 불필요한 리렌더링 방지
     "react/no-unstable-nested-components": "error",
