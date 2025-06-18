@@ -1,43 +1,38 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { useRouteGuard } from "@/hooks/common/useRouteGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuthStore } from "@/stores/authStore";
 import {
-  publicApiClient,
-  API_ENDPOINTS,
-  type ApiResponse,
-} from "@/lib/apiClient";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useAuthStore } from "@/stores/authStore";
 import { mockLogin } from "@/data/mock/auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-// 로그인 요청 타입
-type LoginRequest = {
-  email: string;
-  password: string;
-};
+// 로그인 폼 Zod 스키마 정의
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "이메일을 입력해주세요.")
+    .email("올바른 이메일 형식을 입력해주세요."),
+  password: z
+    .string()
+    .min(1, "비밀번호를 입력해주세요.")
+    .min(6, "비밀번호는 최소 6자 이상이어야 합니다."),
+  rememberMe: z.boolean(),
+});
 
-// 로그인 응답 타입
-type LoginResponse = {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    avatar: string | null;
-    notificationStats: {
-      messageCount: number;
-      bookmarkCount: number;
-      analysisCount: number;
-    };
-  };
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
-  };
-};
+// 로그인 폼 타입 추론
+type LoginFormData = z.infer<typeof loginSchema>;
 
 function LoginPage() {
   // 로그인 페이지 가드 - 비로그인 사용자만 접근 허용
@@ -46,15 +41,15 @@ function LoginPage() {
   const navigate = useNavigate();
   const { login, isLoading } = useAuthStore();
 
-  // 모든 useState 호출을 조기 반환 이전에 배치 (Hook 규칙 준수)
-  const [formData, setFormData] = useState<LoginRequest>({
-    email: "",
-    password: "",
+  // React Hook Form 초기화
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
   });
-
-  const [rememberMe, setRememberMe] = useState(false); // 로그인 정보 유지 옵션
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // 인증 상태 확인 중이면 스켈레톤 UI 표시
   if (!isAllowed && LoadingComponent) {
@@ -66,51 +61,33 @@ function LoginPage() {
     return null;
   }
 
-  // 폼 입력 핸들러
-  const handleInputChange =
-    (field: keyof LoginRequest) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
-      // 입력 시 에러 메시지 초기화
-      if (error) setError(null);
-    };
-
   // 로그인 처리 함수
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      setError("이메일과 비밀번호를 모두 입력해주세요.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      // 목업 로그인 - 실제로는 publicApiClient.post<ApiResponse<LoginResponse>>(API_ENDPOINTS.AUTH.LOGIN, formData)
+      // 목업 로그인 - 실제로는 publicApiClient.post<ApiResponse<LoginResponse>>(API_ENDPOINTS.AUTH.LOGIN, data)
       const loginResult = await mockLogin(
-        formData.email,
-        formData.password,
-        rememberMe,
+        data.email,
+        data.password,
+        data.rememberMe,
       );
 
       if (loginResult) {
         // 로그인 성공 시 스토어에 사용자 정보, 토큰, 로그인 정보 유지 옵션 저장
-        login(loginResult.user, loginResult.tokens, rememberMe);
+        login(loginResult.user, loginResult.tokens, data.rememberMe);
 
         // 메인페이지로 리다이렉트
         navigate({ to: "/" });
       } else {
-        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+        // 로그인 실패 시 폼 에러 설정
+        form.setError("root", {
+          message: "이메일 또는 비밀번호가 올바르지 않습니다.",
+        });
       }
     } catch (loginError) {
       console.error("로그인 오류:", loginError);
-      setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
-    } finally {
-      setIsSubmitting(false);
+      form.setError("root", {
+        message: "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",
+      });
     }
   };
 
@@ -119,6 +96,8 @@ function LoginPage() {
     console.log(`${provider} 로그인 시도`);
     // 실제로는 OAuth 프로바이더로 리다이렉트
   };
+
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <div className="flex flex-1 items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -129,63 +108,88 @@ function LoginPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange("email")}
-                placeholder="이메일을 입력하세요"
-                disabled={isSubmitting || isLoading}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange("password")}
-                placeholder="비밀번호를 입력하세요"
-                disabled={isSubmitting || isLoading}
-                required
-              />
-            </div>
-
-            {/* 로그인 정보 유지 체크박스 */}
-            <div className="flex items-center justify-end space-x-2">
-              <Checkbox
-                id="rememberMe"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                disabled={isSubmitting || isLoading}
-              />
-              <Label
-                htmlFor="rememberMe"
-                className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                로그인 정보 유지
-              </Label>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting || isLoading}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
             >
-              {isSubmitting ? "로그인 중..." : "로그인"}
-            </Button>
-          </form>
+              {/* 전역 에러 메시지 표시 */}
+              {form.formState.errors.root && (
+                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                  {form.formState.errors.root.message}
+                </div>
+              )}
+
+              {/* 이메일 필드 */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>이메일</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="이메일을 입력하세요"
+                        disabled={isSubmitting || isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 비밀번호 필드 */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>비밀번호</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="비밀번호를 입력하세요"
+                        disabled={isSubmitting || isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* 로그인 정보 유지 체크박스 */}
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-end space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isSubmitting || isLoading}
+                      />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer text-sm leading-none font-medium">
+                      로그인 정보 유지
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isLoading}
+              >
+                {isSubmitting ? "로그인 중..." : "로그인"}
+              </Button>
+            </form>
+          </Form>
 
           <div className="mt-6">
             <div className="relative">
