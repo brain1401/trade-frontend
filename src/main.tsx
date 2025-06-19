@@ -28,6 +28,7 @@ const router = createRouter({
 
 // 타입 안전성을 위한 라우터 인스턴스 등록
 declare module "@tanstack/react-router" {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Register {
     router: typeof router;
   }
