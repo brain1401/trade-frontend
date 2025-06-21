@@ -16,16 +16,16 @@
 
 ```typescript
 type UseFilteredPaginationParams<TItem, TFilterKey extends string> = {
-  data: TItem[];                                    // 원본 데이터 배열
-  filterConfigs: FilterConfig<TFilterKey>[];        // 필터 설정 배열
+  data: TItem[]; // 원본 데이터 배열
+  filterConfigs: FilterConfig<TFilterKey>[]; // 필터 설정 배열
   filterFunction: FilterFunction<TItem, TFilterKey>; // 필터링 함수
-  defaultFilter: TFilterKey;                        // 기본 필터
-  initialItemsPerPage?: number;                     // 초기 표시 개수 (기본값: 3)
-  incrementSize?: number;                           // 증가 단위 (기본값: 3)
+  defaultFilter: TFilterKey; // 기본 필터
+  initialItemsPerPage?: number; // 초기 표시 개수 (기본값: 3)
+  incrementSize?: number; // 증가 단위 (기본값: 3)
 };
 
 type FilterConfig<T extends string> = {
-  key: T;      // 필터 키
+  key: T; // 필터 키
   label: string; // 필터 라벨
 };
 
@@ -40,21 +40,21 @@ type FilterFunction<TItem, TFilterKey extends string> = (
 ```typescript
 type UseFilteredPaginationReturn<TItem, TFilterKey extends string> = {
   // 상태
-  currentFilter: TFilterKey;    // 현재 활성 필터
-  displayCount: number;         // 현재 표시 개수
-  
+  currentFilter: TFilterKey; // 현재 활성 필터
+  displayCount: number; // 현재 표시 개수
+
   // 계산된 값
-  filteredItems: TItem[];       // 필터링된 전체 데이터
-  displayedItems: TItem[];      // 실제 표시되는 데이터
-  allItemsLoaded: boolean;      // 모든 항목 로드 완료 여부
-  
+  filteredItems: TItem[]; // 필터링된 전체 데이터
+  displayedItems: TItem[]; // 실제 표시되는 데이터
+  allItemsLoaded: boolean; // 모든 항목 로드 완료 여부
+
   // 설정
   filterConfigs: FilterConfig<TFilterKey>[]; // 필터 설정 배열
-  
+
   // 액션
-  setFilter: (filter: TFilterKey) => void;  // 필터 변경
-  loadMore: () => void;                     // 더 많은 항목 로드
-  reset: () => void;                        // 상태 초기화
+  setFilter: (filter: TFilterKey) => void; // 필터 변경
+  loadMore: () => void; // 더 많은 항목 로드
+  reset: () => void; // 상태 초기화
 };
 ```
 
@@ -73,7 +73,7 @@ const NewsComponent = () => {
   const filterNewsFunction = (news: TradeNews[], filterKey: NewsFilterType) => {
     switch (filterKey) {
       case "latest":
-        return [...news].sort((a, b) => 
+        return [...news].sort((a, b) =>
           new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
         );
       case "bookmarked":
@@ -108,7 +108,7 @@ const NewsComponent = () => {
       {/* 필터 버튼 - filterConfigs 활용 */}
       <div className="filter-buttons">
         {filterConfigs.map((config) => (
-          <button 
+          <button
             key={config.key}
             onClick={() => setFilter(config.key)}
             className={currentFilter === config.key ? "active" : ""}
@@ -141,16 +141,16 @@ type AnalysisFilterType = "completed" | "pending" | "high_confidence";
 
 const AnalysisComponent = () => {
   const filterAnalysisFunction = (
-    analyses: HSCodeAnalysis[], 
-    filterKey: AnalysisFilterType
+    analyses: HSCodeAnalysis[],
+    filterKey: AnalysisFilterType,
   ) => {
     switch (filterKey) {
       case "completed":
-        return analyses.filter(item => item.status === "completed");
+        return analyses.filter((item) => item.status === "completed");
       case "pending":
-        return analyses.filter(item => item.status === "pending");
+        return analyses.filter((item) => item.status === "pending");
       case "high_confidence":
-        return analyses.filter(item => item.confidence >= 0.8);
+        return analyses.filter((item) => item.confidence >= 0.8);
       default:
         return analyses;
     }
@@ -178,24 +178,23 @@ const AnalysisComponent = () => {
 type StringFilterType = "all" | "short" | "long";
 
 const StringListComponent = () => {
-  const filterStringFunction = (strings: string[], filterKey: StringFilterType) => {
+  const filterStringFunction = (
+    strings: string[],
+    filterKey: StringFilterType,
+  ) => {
     switch (filterKey) {
       case "all":
         return strings;
       case "short":
-        return strings.filter(str => str.length <= 10);
+        return strings.filter((str) => str.length <= 10);
       case "long":
-        return strings.filter(str => str.length > 10);
+        return strings.filter((str) => str.length > 10);
       default:
         return strings;
     }
   };
 
-  const {
-    displayedItems,
-    allItemsLoaded,
-    loadMore,
-  } = useFilteredPagination({
+  const { displayedItems, allItemsLoaded, loadMore } = useFilteredPagination({
     data: stringData,
     filterConfigs: [
       { key: "all" as const, label: "전체" },
@@ -215,17 +214,20 @@ const StringListComponent = () => {
 ### 1. 복합 필터링 로직
 
 ```typescript
-const complexFilterFunction = (items: MyDataType[], filterKey: MyFilterType) => {
+const complexFilterFunction = (
+  items: MyDataType[],
+  filterKey: MyFilterType,
+) => {
   let result = items;
 
   // 1단계: 기본 필터링
   switch (filterKey) {
     case "active":
-      result = result.filter(item => item.isActive);
+      result = result.filter((item) => item.isActive);
       break;
     case "recent":
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      result = result.filter(item => new Date(item.createdAt) >= weekAgo);
+      result = result.filter((item) => new Date(item.createdAt) >= weekAgo);
       break;
   }
 
@@ -271,9 +273,12 @@ const MyComponent = () => {
 1. **필터링 함수 메모이제이션**: 복잡한 필터링 로직의 경우 `useCallback`으로 최적화 권장
 
 ```typescript
-const filterFunction = useCallback((items: MyType[], filterKey: MyFilterType) => {
-  // 복잡한 필터링 로직...
-}, [dependencies]);
+const filterFunction = useCallback(
+  (items: MyType[], filterKey: MyFilterType) => {
+    // 복잡한 필터링 로직...
+  },
+  [dependencies],
+);
 ```
 
 2. **데이터 불변성**: 원본 데이터를 변경하지 않도록 주의
@@ -308,6 +313,7 @@ src/hooks/common/
 ## 관련 컴포넌트
 
 이 훅을 사용하는 주요 컴포넌트:
+
 - `src/components/news/NewsSection.tsx` - 뉴스 필터링
 - `src/components/dashboard/BookmarkManagementTab.tsx` - 북마크 관리 (예정)
-- `src/components/hscode/ResultDashboard.tsx` - 분석 결과 관리 (예정) 
+- `src/components/hscode/ResultDashboard.tsx` - 분석 결과 관리 (예정)

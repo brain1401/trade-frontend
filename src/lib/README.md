@@ -41,23 +41,23 @@ src/lib/
 
 ```typescript
 // 개별 함수 import
-import { 
-  loginUser, 
-  analyzeHSCode, 
+import {
+  loginUser,
+  analyzeHSCode,
   getCargoProgress,
-  createBookmark 
+  createBookmark,
 } from "@/lib/api";
 
 // 사용 예시
 const loginResult = await loginUser({
   email: "user@example.com",
   password: "password123",
-  rememberMe: true
+  rememberMe: true,
 });
 
 const analysisResult = await analyzeHSCode({
   productDescription: "삼성 갤럭시 스마트폰",
-  additionalInfo: "5G 지원, 128GB"
+  additionalInfo: "5G 지원, 128GB",
 });
 
 const cargoInfo = await getCargoProgress("24012345678901");
@@ -66,7 +66,7 @@ const bookmark = await createBookmark({
   type: "HSCODE",
   title: "스마트폰 분석 결과",
   hsCode: "8517.12.00",
-  monitoringEnabled: true
+  monitoringEnabled: true,
 });
 ```
 
@@ -79,14 +79,14 @@ import { cn } from "@/lib/utils";
 const className = cn(
   "base-class",
   { "active-class": isActive },
-  "additional-class"
+  "additional-class",
 );
 
 // 토큰 관리
-import { 
-  isTokenExpired, 
+import {
+  isTokenExpired,
   getUserFromToken,
-  secureTokenStorage 
+  secureTokenStorage,
 } from "@/lib/utils/tokenUtils";
 
 // 토큰 유효성 체크
@@ -104,11 +104,13 @@ await secureTokenStorage.setLocalStorage("access", token, true);
 ## 🔧 환경별 설정
 
 ### 개발 환경
+
 - **API Base URL**: `http://localhost:3001/mock` (목업 서버)
 - **토큰 저장**: localStorage (편의성 우선)
 - **디버깅**: 콘솔 로그 활성화
 
 ### 프로덕션 환경
+
 - **API Base URL**: `http://localhost:8080/api/v1` (스프링부트 서버)
 - **토큰 저장**: HttpOnly 쿠키 (보안 우선)
 - **디버깅**: 최소화된 로그
@@ -116,12 +118,14 @@ await secureTokenStorage.setLocalStorage("access", token, true);
 ## 🛡️ 보안 고려사항
 
 ### JWT 토큰 관리
+
 - **개발 환경**: localStorage 사용으로 개발 편의성 제공
 - **프로덕션**: HttpOnly, Secure, SameSite 쿠키로 XSS/CSRF 방지
 - **자동 갱신**: 401 오류 시 refresh token으로 자동 토큰 갱신
 - **세션 관리**: 토큰 만료 시간 체크 및 자동 로그아웃
 
 ### API 요청 보안
+
 - **HTTPS 강제**: 프로덕션 환경에서 HTTPS 연결 필수
 - **요청 타임아웃**: 10초 제한으로 무한 대기 방지
 - **오류 처리**: 민감한 정보 노출 방지를 위한 안전한 오류 메시지
@@ -131,10 +135,11 @@ await secureTokenStorage.setLocalStorage("access", token, true);
 현재는 목업 데이터로 동작하지만, 실제 스프링부트 서버 연동 시 다음과 같이 전환됩니다:
 
 1. **환경 변수 변경**:
+
    ```env
    # 개발
    VITE_API_BASE_URL=http://localhost:3001/mock
-   
+
    # 프로덕션
    VITE_API_BASE_URL=http://localhost:8080/api/v1
    ```
@@ -175,4 +180,4 @@ type ApiResponse<T> = {
 2. **토큰 만료 시나리오** 고려한 UI 설계
 3. **네트워크 오류** 상황에 대한 적절한 사용자 피드백
 4. **환경별 설정** 확인 후 배포
-5. **보안 토큰** 취급 시 브라우저 개발자 도구 노출 주의 
+5. **보안 토큰** 취급 시 브라우저 개발자 도구 노출 주의
