@@ -1,58 +1,55 @@
-// 공통 타입 정의
-export type ContentCardProps = {
-  title: string;
-  titleRightElement?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
+// 공통 기본 타입
+export type ImportanceLevel = "high" | "medium" | "low";
+export type NewsCategory = "무역" | "규제" | "관세" | "인증";
+
+// 국가 정보 타입
+export type CountryInfo = {
+  code: string;
+  name: string;
+  flag: string;
 };
 
-export type QuickLinkItem = {
-  id: string;
-  label: string;
-  href: string;
-  icon?: React.ReactNode;
-  description?: string;
-  isExternal?: boolean;
+// 환율 관련 타입
+export type ExchangeRate = {
+  currency: string;
+  currencyName: string;
+  rate: number;
+  change: number;
+  symbol: string;
+  lastUpdated: string;
 };
 
-export type FilterOption = {
-  value: string;
-  label: string;
-  count?: number;
-};
-
-export type NewsCategory = "규제" | "관세" | "무역" | "기타";
-
-// 무역 뉴스 관련 타입
-export type TradeNews = {
+// 뉴스 관련 타입
+export type BaseNews = {
   uuid: string;
   title: string;
   summary: string;
   content: string;
   source: string;
-  published_at: string;
-  date: string;
   category: NewsCategory;
   tags: string[];
-  importance: "high" | "medium" | "low";
-  hscode?: string;
-  type: string;
+  importance: ImportanceLevel;
+  date: string;
   url: string;
 };
 
-export type HSCodeNews = {
-  uuid: string;
+export type TradeNews = BaseNews & {
+  published_at: string;
+  type: "규제" | "뉴스" | "관세";
+};
+
+export type HSCodeNews = BaseNews & {
   hscode: string;
-  title: string;
-  summary: string;
-  source: string;
-  date: string;
-  bookmarked: boolean;
-  content: string;
-  category: NewsCategory;
   publishedAt: string;
-  impact?: "high" | "medium" | "low";
-  url: string;
+  bookmarked: boolean;
+};
+
+export type HSCodeInfo = BaseNews & {
+  hsCode: string;
+  type: "tariff" | "certification" | "regulation";
+  published_at: string;
+  effectiveDate: string;
+  relatedRegulations: string[];
 };
 
 // 검색 관련 타입
@@ -63,9 +60,8 @@ export type PopularKeyword = {
 };
 
 export type RecentSearchItem = {
-  hscode: string;
   text: string;
-  timestamp?: string;
+  hscode: string;
   searchedAt: Date;
 };
 
@@ -76,68 +72,71 @@ export type SearchResult = {
   type: "hscode" | "regulation" | "news";
   relevanceScore: number;
   highlightedText: string;
-  metadata: {
-    hsCode?: string;
-    category?: string;
-    regions?: string[];
-    industry?: string[];
+  metadata: Record<string, any>;
+};
+
+// HS Code 분석 관련 타입
+export type AnalysisMessage = {
+  id: string;
+  type: "user" | "assistant" | "smart_question";
+  content: string;
+  timestamp: string;
+  options?: string[];
+  analysisResult?: {
+    hscode: string;
+    confidence: number;
+    category: string;
+    description: string;
   };
 };
 
-// 무역 관련 타입
-export type ExchangeRate = {
-  currency: string;
-  currencyName?: string;
-  symbol?: string;
-  rate: number;
-  change: number;
-  changePercent?: number;
-  lastUpdated: string;
+// 화물 추적 관련 타입
+export type TrackingStatus = "completed" | "current" | "pending";
+
+export type TimelineStep = {
+  step: number;
+  title: string;
+  description: string;
+  status: TrackingStatus;
+  timestamp?: string;
+  estimatedTime?: string;
+  location: string;
 };
 
+// 무역 통계 타입
 export type TradeStatistics = {
-  hsCode?: string;
-  country?: string;
+  hsCode: string;
+  period: string;
   exportValue: number;
   importValue: number;
-  tradeBalance?: number;
   exportGrowthRate: number;
   importGrowthRate: number;
-  growthRate?: number;
-  period: string;
-  mainExportCountries?: CountryInfo[];
-  mainImportCountries?: CountryInfo[];
-};
-
-export type CountryInfo = {
-  code: string;
-  name: string;
-  flag?: string;
+  mainExportCountries: CountryInfo[];
+  mainImportCountries: CountryInfo[];
 };
 
 // 사용자 관련 타입
 export type User = {
   id: string;
-  email: string;
   name: string;
-  company?: string;
-  role: "trader" | "analyst" | "admin";
-  avatar?: string;
-  preferences: UserPreferences;
-  stats: UserStats;
+  email: string;
+  avatar: string;
+  role: string;
   createdAt: string;
   lastLoginAt: string;
+  preferences: UserPreferences;
+  stats: UserStats;
 };
 
 export type UserPreferences = {
+  language: string;
+  timezone: string;
   notifications: {
-    browser: boolean;
     email: boolean;
+    browser: boolean;
     sms: boolean;
   };
-  language: "ko" | "en";
-  timezone: string;
-  defaultView: "dashboard" | "analysis" | "news" | "regulation";
+  defaultView: string;
 };
 
 export type UserStats = {
@@ -146,106 +145,5 @@ export type UserStats = {
   searchCount: number;
   accuracyRate: number;
   lastActiveDate: string;
-  analysisHistory: AnalysisHistory[];
-};
-
-export type AnalysisHistory = {
-  id: string;
-  hsCode: string;
-  timestamp: string;
-  result: string;
-};
-
-// 추적 관련 타입
-export type TrackingStatus =
-  | "pending"
-  | "current"
-  | "in_transit"
-  | "customs"
-  | "completed"
-  | "delayed"
-  | "error";
-
-export type TimelineStep = {
-  step: number;
-  title: string;
-  description: string;
-  status: TrackingStatus;
-  timestamp?: string;
-  location: string;
-  estimatedTime?: string;
-};
-
-// HS Code 관련 타입
-export type HSCodeAnalysis = {
-  id: string;
-  title: string;
-  description: string;
-  hsCode: string;
-  confidence: number;
-  timestamp: string;
-  status: "completed" | "pending" | "failed";
-};
-
-// 대시보드 관련 타입
-export type FeedItem = {
-  id: string;
-  title: string;
-  summary: string;
-  importance: "high" | "medium" | "low";
-  timestamp: string;
-  changes: string[];
-  source: string;
-  category: string;
-};
-
-export type Bookmark = {
-  id: string;
-  title: string;
-  type: "hscode" | "tracking" | "regulation";
-  description: string;
-  hsCode?: string;
-  trackingNumber?: string;
-  url?: string;
-  isMonitoring: boolean;
-  createdAt: string;
-  lastChecked?: string;
-  changes: number;
-};
-
-// HS Code 최신 정보 타입
-export type HSCodeInfo = {
-  uuid: string;
-  hsCode: string;
-  title: string;
-  summary: string;
-  content: string;
-  category: string;
-  type: "regulation" | "tariff" | "certification" | "news";
-  source: string;
-  published_at: string;
-  tags: string[];
-  importance: "high" | "medium" | "low";
-  effectiveDate?: string;
-  relatedRegulations?: string[];
-  url: string;
-};
-
-// 알림 관련 타입
-export type NotificationItem = {
-  id: string;
-  title: string;
-  message: string;
-  type: "hscode" | "tracking" | "system" | "regulation";
-  importance: "high" | "medium" | "low";
-  timestamp: string;
-  isRead: boolean;
-  data?: unknown;
-  actions?: NotificationAction[];
-};
-
-export type NotificationAction = {
-  label: string;
-  action: string;
-  style?: "primary" | "secondary" | "danger";
+  analysisHistory: any[];
 };

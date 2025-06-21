@@ -9,7 +9,6 @@ import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
 import reportWebVitals from "./reportWebVitals.ts";
-import NotFound from "@/components/not-found/NotFound";
 
 // 새로운 라우터 인스턴스 생성
 const router = createRouter({
@@ -22,7 +21,7 @@ const router = createRouter({
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
   // 404 페이지 설정
-  defaultNotFoundComponent: () => <NotFound />,
+  defaultNotFoundComponent: () => <div>Not Found</div>,
   notFoundMode: "root",
 });
 
