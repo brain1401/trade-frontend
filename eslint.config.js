@@ -216,7 +216,7 @@ export default tseslint.config({
     // 변수 shadowing 방지
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": [
-      "warn",
+      "off",
       {
         ignoreTypeValueShadow: true, // 타입과 값 shadowing 허용
         ignoreFunctionTypeParameterNameValueShadow: true,
