@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+I am using Bun. don't use npm.
+
+I am using PowerShell. use PowerShell syntax instead of bash or linux syntax,
