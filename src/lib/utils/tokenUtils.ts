@@ -50,37 +50,52 @@ export const isTokenExpired = (token: string): boolean => {
 };
 
 /**
- * JWT 토큰에서 사용자 정보 추출 함수
+ * JWT 토큰에서 추출된 사용자 정보 타입
+ */
+export type UserTokenData = {
+  id: string;
+  email: string;
+  name: string;
+  roles: string[];
+} | null;
+
+/**
+ * JWT 토큰에서 사용자 정보를 추출하는 함수
  *
- * @param token - 사용자 정보를 추출할 JWT 토큰 문자열
+ * @param token - JWT 토큰 문자열
  * @returns 추출된 사용자 정보 객체 또는 null
  *
  * @remarks
- * JWT 페이로드에서 표준 클레임들을 추출하여 정규화된 사용자 객체를 반환합니다.
- * 다양한 JWT 발급자의 클레임 이름 차이를 자동으로 처리합니다.
- * 토큰이 유효하지 않으면 null을 반환하므로 항상 null 체크가 필요합니다.
+ * JWT의 페이로드 부분을 Base64 디코딩하여 사용자 정보를 추출합니다.
+ * 토큰이 유효하지 않거나 필수 필드가 누락된 경우 null을 반환합니다.
+ * 클라이언트 사이드에서만 사용하며, 서버 검증을 대체하지 않습니다.
  *
  * @example
  * ```typescript
  * const userInfo = getUserFromToken(accessToken);
  * if (userInfo) {
  *   console.log(`사용자: ${userInfo.name} (${userInfo.email})`);
- *   console.log(`권한: ${userInfo.roles.join(", ")}`);
+ *   console.log(`권한: ${userInfo.roles.join(', ')}`);
  * }
  * ```
  *
  * @public
  */
-export const getUserFromToken = (token: string): any => {
+export const getUserFromToken = (token: string): UserTokenData => {
   if (!token) return null;
 
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
+
+    // 필수 필드 검증
+    if (!payload.sub && !payload.userId) return null;
+    if (!payload.email) return null;
+
     return {
       id: payload.sub || payload.userId,
       email: payload.email,
-      name: payload.name || payload.username,
-      roles: payload.roles || [],
+      name: payload.name || payload.username || payload.email.split("@")[0],
+      roles: Array.isArray(payload.roles) ? payload.roles : [],
     };
   } catch (error) {
     console.error("토큰에서 사용자 정보 추출 실패:", error);
@@ -461,6 +476,36 @@ export const validateTokenSecurity = (
 };
 
 /**
+ * JWT 페이로드 표준 클레임 타입
+ */
+export type JwtPayload = {
+  /** Subject (사용자 ID) */
+  sub?: string;
+  /** 사용자 ID (비표준) */
+  userId?: string;
+  /** 이메일 주소 */
+  email?: string;
+  /** 사용자 이름 */
+  name?: string;
+  /** 사용자명 (비표준) */
+  username?: string;
+  /** 사용자 역할 */
+  roles?: string[];
+  /** 발급 시간 (Unix timestamp) */
+  iat?: number;
+  /** 만료 시간 (Unix timestamp) */
+  exp?: number;
+  /** 발급자 */
+  iss?: string;
+  /** 대상 */
+  aud?: string | string[];
+  /** 토큰 타입 */
+  type?: "access" | "refresh";
+  /** 기타 클레임들 */
+  [key: string]: unknown;
+};
+
+/**
  * JWT 토큰에서 페이로드 부분만 추출하는 함수
  *
  * @param token - 페이로드를 추출할 JWT 토큰 문자열
@@ -476,15 +521,16 @@ export const validateTokenSecurity = (
  * const payload = getTokenPayload(jwtToken);
  * if (payload) {
  *   console.log("사용자 ID:", payload.sub);
- *   console.log("발급 시간:", new Date(payload.iat * 1000));
+ *   console.log("발급 시간:", new Date((payload.iat || 0) * 1000));
+ *   console.log("만료 시간:", new Date((payload.exp || 0) * 1000));
  * }
  * ```
  *
  * @public
  */
-export const getTokenPayload = (token: string): Record<string, any> | null => {
+export const getTokenPayload = (token: string): JwtPayload | null => {
   try {
-    return JSON.parse(atob(token.split(".")[1]));
+    return JSON.parse(atob(token.split(".")[1])) as JwtPayload;
   } catch {
     return null;
   }
@@ -519,7 +565,7 @@ export const getTokenExpirationDate = (token: string): Date | null => {
   const payload = getTokenPayload(token);
   if (!payload || !payload.exp) return null;
 
-  return new Date(payload.exp * 1000);
+  return new Date(Number(payload.exp) * 1000);
 };
 
 /**
