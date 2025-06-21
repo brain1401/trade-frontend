@@ -50,7 +50,7 @@ const getGrowthStyle = (rate: number): string => {
 };
 
 // 개별 통계 아이템 컴포넌트
-const StatItem = ({
+function StatItem({
   icon: Icon,
   value,
   label,
@@ -62,8 +62,8 @@ const StatItem = ({
   label: string;
   growth?: number;
   showGrowth?: boolean;
-}) => (
-  <div className={STAT_ITEM_CLASSES}>
+}) {
+  return <div className={STAT_ITEM_CLASSES}>
     <div className="mb-2 flex items-center justify-center">
       <Icon size={24} className="text-primary-600" />
     </div>
@@ -82,12 +82,12 @@ const StatItem = ({
       </div>
     )}
   </div>
-);
+}
 
-const StatisticsSummaryCard = ({
+function StatisticsSummaryCard({
   data,
   className = "",
-}: StatisticsSummaryCardProps) => {
+}: StatisticsSummaryCardProps) {
   return (
     <ContentCard
       title="무역 통계 요약"
@@ -107,14 +107,14 @@ const StatisticsSummaryCard = ({
           value={data.exportValue}
           label="수출액"
           growth={data.exportGrowth}
-          showGrowth={true}
+          showGrowth
         />
         <StatItem
           icon={TrendingDown}
           value={data.importValue}
           label="수입액"
           growth={data.importGrowth}
-          showGrowth={true}
+          showGrowth
         />
         <StatItem
           icon={BarChart3}
@@ -124,7 +124,7 @@ const StatisticsSummaryCard = ({
       </div>
     </ContentCard>
   );
-};
+}
 
 export default StatisticsSummaryCard;
 export type { StatisticsSummaryData };

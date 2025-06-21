@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/hscode/result/$resultId")({
   component: HSCodeResultPage,
-}) as any;
+}) as unknown;
 
 function HSCodeResultPage() {
   // 현재는 목업이므로 resultId를 하드코딩으로 설정

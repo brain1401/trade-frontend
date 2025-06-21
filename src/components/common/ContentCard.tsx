@@ -9,13 +9,13 @@ const HEADER_CLASSES =
 const TITLE_CLASSES = "!mt-0 text-lg font-semibold text-neutral-800";
 const CONTENT_BASE_CLASSES = "p-4 md:p-5";
 
-const ContentCard = ({
+function ContentCard({
   title,
   children,
   className = "",
   titleRightElement = null,
-}: ContentCardProps) => (
-  <Card className={cn(CARD_BASE_CLASSES, className)}>
+}: ContentCardProps) {
+  return <Card className={cn(CARD_BASE_CLASSES, className)}>
     {title && (
       <CardHeader className={HEADER_CLASSES}>
         <CardTitle className={TITLE_CLASSES}>{title}</CardTitle>
@@ -26,6 +26,6 @@ const ContentCard = ({
       {children}
     </CardContent>
   </Card>
-);
+}
 
 export default ContentCard;

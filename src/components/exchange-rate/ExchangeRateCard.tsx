@@ -46,8 +46,8 @@ const calculateRateFor1000Won = (rate: number, currency: string): string => {
   }
 };
 
-const ExchangeRateCard = () => (
-  <ContentCard title="실시간 환율 정보">
+function ExchangeRateCard() {
+  return <ContentCard title="실시간 환율 정보">
     <table className="w-full space-y-2">
       <tbody>
         {mockExchangeRates.map((item) => (
@@ -65,7 +65,7 @@ const ExchangeRateCard = () => (
                 </span>
               </div>
             </td>
-            <td className="w-full"></td>
+            <td className="w-full" />
             <td className="py-[.8rem]">
               <div className="flex flex-col justify-center">
                 <div className="flex items-center justify-between">
@@ -103,6 +103,6 @@ const ExchangeRateCard = () => (
       </Button>
     </div>
   </ContentCard>
-);
+}
 
 export default ExchangeRateCard;

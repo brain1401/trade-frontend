@@ -30,7 +30,7 @@ import {
 
 export const Route = createFileRoute("/tracking/result/$number")({
   component: TrackingResultPage,
-}) as any;
+}) as unknown;
 
 // 목업 화물 추적 데이터 - 실제 시나리오 기반
 const mockCargoTracking = {

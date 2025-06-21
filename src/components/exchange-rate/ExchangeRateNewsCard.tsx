@@ -4,8 +4,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { mockExchangeRateNews } from "@/data/mockData";
 
 // 환율 뉴스 컴포넌트
-const ExchangeRateNewsCard = () => (
-  <ContentCard title="환율 관련 뉴스">
+function ExchangeRateNewsCard() {
+  return <ContentCard title="환율 관련 뉴스">
     <ScrollArea className="h-64">
       <div className="space-y-3">
         {mockExchangeRateNews.map((news) => (
@@ -46,6 +46,6 @@ const ExchangeRateNewsCard = () => (
       </div>
     </ScrollArea>
   </ContentCard>
-);
+}
 
 export default ExchangeRateNewsCard;

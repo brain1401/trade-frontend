@@ -175,9 +175,9 @@ export const refreshAccessToken = async (
  */
 export const validateToken = async (
   token: string,
-): Promise<ApiResponse<{ valid: boolean; user?: any }>> => {
+): Promise<ApiResponse<{ valid: boolean; user?: unknown }>> => {
   const response = await publicApiClient.post<
-    ApiResponse<{ valid: boolean; user?: any }>
+    ApiResponse<{ valid: boolean; user?: unknown }>
   >(API_ENDPOINTS.AUTH.VALIDATE, { token });
   return response.data;
 };

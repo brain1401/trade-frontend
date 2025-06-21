@@ -18,7 +18,7 @@ type QuickLinkItem = {
   isExternal?: boolean;
 };
 
-const QuickLinksBar = () => {
+function QuickLinksBar() {
   const quickLinkItems: QuickLinkItem[] = [
     {
       id: "cargo_tracking",
@@ -76,6 +76,6 @@ const QuickLinksBar = () => {
       </div>
     </div>
   );
-};
+}
 
 export default QuickLinksBar;

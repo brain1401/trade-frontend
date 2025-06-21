@@ -21,11 +21,11 @@ type HSCodeInfoSectionProps = {
   showHSCodeFilter?: boolean; // HS Code 필터 표시 여부
 };
 
-const HSCodeInfoSection = ({
+function HSCodeInfoSection({
   hsCode,
   title = "HS Code별 최신 정보",
   showHSCodeFilter = false,
-}: HSCodeInfoSectionProps) => {
+}: HSCodeInfoSectionProps) {
   // 필터 설정 배열
   const filterConfigs: FilterConfig<FilterOptionType>[] = [
     { key: "latest", label: "최신순" },
@@ -116,6 +116,6 @@ const HSCodeInfoSection = ({
       )}
     </ContentCard>
   );
-};
+}
 
 export default HSCodeInfoSection;

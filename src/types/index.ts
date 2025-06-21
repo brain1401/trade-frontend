@@ -240,7 +240,7 @@ export type NotificationItem = {
   importance: "high" | "medium" | "low";
   timestamp: string;
   isRead: boolean;
-  data?: any;
+  data?: unknown;
   actions?: NotificationAction[];
 };
 

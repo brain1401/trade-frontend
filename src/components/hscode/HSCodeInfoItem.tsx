@@ -11,7 +11,7 @@ import type { HSCodeInfo } from "@/types";
 
 type HSCodeInfoItemProps = HSCodeInfo;
 
-const HSCodeInfoItem = ({
+function HSCodeInfoItem({
   hsCode,
   title,
   summary,
@@ -23,7 +23,7 @@ const HSCodeInfoItem = ({
   effectiveDate,
   relatedRegulations,
   url,
-}: HSCodeInfoItemProps) => {
+}: HSCodeInfoItemProps) {
   // 날짜 포맷팅
   const publishedDate = new Date(published_at).toLocaleDateString("ko-KR");
   const effectiveDisplayDate = effectiveDate
@@ -176,6 +176,6 @@ const HSCodeInfoItem = ({
       </div>
     </div>
   );
-};
+}
 
 export default HSCodeInfoItem;

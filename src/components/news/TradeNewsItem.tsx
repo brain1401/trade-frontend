@@ -34,14 +34,12 @@ export default function TradeNewsItem({
           <h4 className="cursor-pointer pr-2 font-semibold text-neutral-800">
             {title}
           </h4>
-          {
-            <Badge
+          <Badge
               variant={badgeVariant}
               className="rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap"
-            >
+          >
               {type}
             </Badge>
-          }
         </div>
         {hscode && (
           <p className="mb-1 text-xs text-neutral-500">HS Code : {hscode}</p>

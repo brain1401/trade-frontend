@@ -28,7 +28,7 @@ type RouteParams = {
 
 export const Route = createFileRoute("/hscode/analyze/$sessionId")({
   component: HSCodeAnalyzeChat,
-}) as any;
+}) as unknown;
 
 function HSCodeAnalyzeChat() {
   // 현재는 목업이므로 sessionId를 하드코딩으로 설정
@@ -215,9 +215,9 @@ function HSCodeAnalyzeChat() {
                         </span>
                       </div>
                       <div className="mt-2 flex space-x-1">
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400"></div>
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 delay-100"></div>
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 delay-200"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400" />
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 delay-100" />
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 delay-200" />
                       </div>
                     </div>
                   </div>
@@ -225,7 +225,7 @@ function HSCodeAnalyzeChat() {
               </div>
             </ScrollArea>
 
-            <div className="my-4 border-t border-neutral-100"></div>
+            <div className="my-4 border-t border-neutral-100" />
 
             {/* 입력 영역 */}
             <div className="flex space-x-2">

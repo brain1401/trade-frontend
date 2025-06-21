@@ -75,7 +75,7 @@ const getCategoryBadgeVariant = (
 };
 
 // 순위 뱃지 컴포넌트
-const RankBadge = ({ rank }: { rank: number }) => {
+function RankBadge({ rank }: { rank: number }) {
   const getRankStyle = (rank: number): string => {
     if (rank <= 3) return "bg-brand-500 text-white";
     if (rank <= 10) return "bg-info-100 text-info-700";
@@ -92,10 +92,10 @@ const RankBadge = ({ rank }: { rank: number }) => {
       {rank}
     </div>
   );
-};
+}
 
 // 통계 아이템 컴포넌트
-const StatItem = ({
+function StatItem({
   icon: Icon,
   label,
   value,
@@ -107,8 +107,8 @@ const StatItem = ({
   value: number;
   growth?: number;
   showGrowth?: boolean;
-}) => (
-  <div className="flex items-center justify-between">
+}) {
+  return <div className="flex items-center justify-between">
     <div className="flex items-center">
       <Icon size={14} className="mr-1.5 text-neutral-500" />
       <span className="text-xs text-neutral-600">{label}</span>
@@ -124,11 +124,11 @@ const StatItem = ({
       )}
     </div>
   </div>
-);
+}
 
 // 개별 제품 카드 컴포넌트
-const ProductCard = ({ product }: { product: ProductStatsData }) => (
-  <div className={GRID_ITEM_CLASSES}>
+function ProductCard({ product }: { product: ProductStatsData }) {
+  return <div className={GRID_ITEM_CLASSES}>
     {/* 헤더 */}
     <div className={GRID_HEADER_CLASSES}>
       <div className="flex items-center">
@@ -164,14 +164,14 @@ const ProductCard = ({ product }: { product: ProductStatsData }) => (
         label="수출"
         value={product.exportValue}
         growth={product.exportGrowth}
-        showGrowth={true}
+        showGrowth
       />
       <StatItem
         icon={TrendingDown}
         label="수입"
         value={product.importValue}
         growth={product.importGrowth}
-        showGrowth={true}
+        showGrowth
       />
       <StatItem
         icon={BarChart3}
@@ -196,13 +196,13 @@ const ProductCard = ({ product }: { product: ProductStatsData }) => (
       </div>
     </div>
   </div>
-);
+}
 
-const ProductStatsGrid = ({
+function ProductStatsGrid({
   data,
   title,
   className = "",
-}: ProductStatsGridProps) => {
+}: ProductStatsGridProps) {
   return (
     <ContentCard
       title={title}
@@ -224,7 +224,7 @@ const ProductStatsGrid = ({
       </div>
     </ContentCard>
   );
-};
+}
 
 export default ProductStatsGrid;
 export type { ProductStatsData };

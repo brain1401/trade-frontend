@@ -13,7 +13,7 @@ import {
 import { mockExchangeRates } from "@/data/mockData";
 
 // 환율 계산기 컴포넌트
-const ExchangeCalculator = () => {
+function ExchangeCalculator() {
   const [amount, setAmount] = useState<string>("1000");
   const [fromCurrency, setFromCurrency] = useState<string>("KRW");
   const [toCurrency, setToCurrency] = useState<string>("USD");
@@ -105,6 +105,6 @@ const ExchangeCalculator = () => {
       </div>
     </ContentCard>
   );
-};
+}
 
 export default ExchangeCalculator;

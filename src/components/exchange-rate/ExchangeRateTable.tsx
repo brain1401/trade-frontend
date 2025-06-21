@@ -22,7 +22,7 @@ import { formatChange, formatRate } from "./utils";
 import type { SortOption, SortDirection } from "./types";
 
 // 환율 테이블 컴포넌트
-const ExchangeRateTable = () => {
+function ExchangeRateTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContinent, setSelectedContinent] = useState("전체");
   const [showOnlyPopular, setShowOnlyPopular] = useState(false);
@@ -292,6 +292,6 @@ const ExchangeRateTable = () => {
       </div>
     </ContentCard>
   );
-};
+}
 
 export default ExchangeRateTable;

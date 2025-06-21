@@ -10,25 +10,25 @@ export function AuthInitializingSkeleton() {
       {/* 상단 헤더 영역 스켈레톤 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+          <div className="h-10 w-10 rounded-full bg-gray-200" />
           <div className="space-y-2">
-            <div className="h-4 w-24 rounded bg-gray-200"></div>
-            <div className="h-3 w-16 rounded bg-gray-200"></div>
+            <div className="h-4 w-24 rounded bg-gray-200" />
+            <div className="h-3 w-16 rounded bg-gray-200" />
           </div>
         </div>
         <div className="flex space-x-2">
-          <div className="h-8 w-16 rounded bg-gray-200"></div>
-          <div className="h-8 w-16 rounded bg-gray-200"></div>
+          <div className="h-8 w-16 rounded bg-gray-200" />
+          <div className="h-8 w-16 rounded bg-gray-200" />
         </div>
       </div>
 
       {/* 메인 콘텐츠 영역 스켈레톤 */}
       <div className="space-y-4">
-        <div className="h-6 w-1/3 rounded bg-gray-200"></div>
+        <div className="h-6 w-1/3 rounded bg-gray-200" />
         <div className="space-y-3">
-          <div className="h-4 rounded bg-gray-200"></div>
-          <div className="h-4 w-5/6 rounded bg-gray-200"></div>
-          <div className="h-4 w-4/6 rounded bg-gray-200"></div>
+          <div className="h-4 rounded bg-gray-200" />
+          <div className="h-4 w-5/6 rounded bg-gray-200" />
+          <div className="h-4 w-4/6 rounded bg-gray-200" />
         </div>
       </div>
 
@@ -36,16 +36,16 @@ export function AuthInitializingSkeleton() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((item) => (
           <div key={item} className="space-y-3 rounded-lg border p-4">
-            <div className="h-4 w-3/4 rounded bg-gray-200"></div>
-            <div className="h-3 w-1/2 rounded bg-gray-200"></div>
-            <div className="h-20 rounded bg-gray-200"></div>
+            <div className="h-4 w-3/4 rounded bg-gray-200" />
+            <div className="h-3 w-1/2 rounded bg-gray-200" />
+            <div className="h-20 rounded bg-gray-200" />
           </div>
         ))}
       </div>
 
       {/* 로딩 상태 표시 */}
       <div className="flex items-center justify-center space-x-2 text-gray-500">
-        <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-gray-400 border-r-transparent"></div>
+        <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-gray-400 border-r-transparent" />
         <span className="text-sm">인증 상태 확인 중...</span>
       </div>
     </div>
