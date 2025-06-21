@@ -1,169 +1,124 @@
-import { isTokenExpired } from "../../lib/utils/tokenUtils";
-import type { User } from "../../stores/authStore";
-
-// 목업 토큰 갱신 응답 타입
-export type RefreshTokenResponse = {
-  accessToken: string;
-  refreshToken: string;
-} | null;
+// 인증 관련 목업 데이터
 
 /**
- * 목업 JWT 토큰 생성 함수
- * @param payload 토큰에 포함할 데이터
- * @param expiresInMinutes 토큰 만료 시간 (분)
- * @returns 목업 JWT 토큰
+ * 사용자 로그인 인증을 처리하는 Mock 함수
+ *
+ * 이메일과 비밀번호를 검증하여 로그인 성공 시 JWT 토큰과 사용자 정보를 반환합니다.
+ * 테스트용 계정: admin@test.com/admin123, user@test.com/user123
+ *
+ * @param email - 사용자 이메일 주소
+ * @param password - 사용자 비밀번호
+ * @returns Promise<로그인 결과 객체> - 성공/실패 여부, 토큰, 사용자 정보 포함
+ *
+ * @example
+ * ```typescript
+ * const result = await mockLogin("admin@test.com", "admin123");
+ * if (result.success) {
+ *   console.log(`로그인 성공: ${result.user.name}`);
+ *   localStorage.setItem('token', result.token);
+ * }
+ * ```
  */
-const createMockJWT = (payload: any, expiresInMinutes: number): string => {
-  const header = { alg: "HS256", typ: "JWT" };
-  const now = Math.floor(Date.now() / 1000);
-  const expiry = now + expiresInMinutes * 60;
+export const mockLogin = async (email: string, password: string) => {
+  // 모의 로그인 로직
+  if (email === "admin@test.com" && password === "admin123") {
+    return {
+      success: true,
+      token: "mock-jwt-token-12345",
+      user: {
+        id: "user-1",
+        email: email,
+        name: "관리자",
+        role: "admin",
+      },
+    };
+  }
 
-  const jwtPayload = {
-    ...payload,
-    iat: now,
-    exp: expiry,
+  if (email === "user@test.com" && password === "user123") {
+    return {
+      success: true,
+      token: "mock-jwt-token-67890",
+      user: {
+        id: "user-2",
+        email: email,
+        name: "일반사용자",
+        role: "user",
+      },
+    };
+  }
+
+  return {
+    success: false,
+    message: "이메일 또는 비밀번호가 올바르지 않습니다.",
   };
-
-  // Base64 인코딩 (실제 JWT는 서명이 필요하지만 목업에서는 생략)
-  const encodedHeader = btoa(JSON.stringify(header));
-  const encodedPayload = btoa(JSON.stringify(jwtPayload));
-  const mockSignature = btoa("mock-signature-" + Date.now());
-
-  return `${encodedHeader}.${encodedPayload}.${mockSignature}`;
 };
 
 /**
- * 리프레시 토큰으로 액세스 토큰 갱신 목업 함수
- * 실제로는 스프링부트 서버의 /api/v1/auth/refresh 호출
- * @param refreshToken 리프레시 토큰
- * @returns 새로운 토큰 정보 또는 null
+ * JWT 토큰을 갱신하는 Mock 함수
+ *
+ * 기존 토큰의 유효성을 검증하고 새로운 토큰을 발급합니다.
+ * 토큰 만료 시점이 다가왔을 때 자동으로 갱신하는 용도로 사용됩니다.
+ *
+ * @param token - 갱신할 기존 JWT 토큰
+ * @returns Promise<갱신 결과 객체> - 성공/실패 여부와 새로운 토큰 포함
+ *
+ * @example
+ * ```typescript
+ * const result = await mockRefreshToken(currentToken);
+ * if (result.success) {
+ *   localStorage.setItem('token', result.token);
+ * } else {
+ *   // 로그인 페이지로 리다이렉트
+ *   window.location.href = '/login';
+ * }
+ * ```
  */
-export const mockRefreshToken = async (
-  refreshToken: string,
-): Promise<RefreshTokenResponse> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (refreshToken && !isTokenExpired(refreshToken)) {
-        // 새로운 액세스 토큰 생성 (15분 만료)
-        const newAccessToken = createMockJWT(
-          { sub: "user-123", email: "hong@example.com" },
-          15,
-        );
+export const mockRefreshToken = async (token: string) => {
+  // 모의 토큰 갱신
+  if (token && token.startsWith("mock-jwt-token")) {
+    return {
+      success: true,
+      token: "mock-jwt-token-refreshed-" + Date.now(),
+    };
+  }
 
-        resolve({
-          accessToken: newAccessToken,
-          refreshToken: refreshToken, // 리프레시 토큰은 그대로 유지
-        });
-      } else {
-        resolve(null);
-      }
-    }, 1000); // 네트워크 지연 시뮬레이션
-  });
-};
-
-/**
- * 액세스 토큰 검증 및 사용자 정보 조회 목업 함수
- * 실제로는 스프링부트 서버의 /api/v1/auth/validate 호출
- * @param accessToken 액세스 토큰
- * @returns 사용자 정보 또는 null
- */
-export const mockValidateToken = async (
-  accessToken: string,
-): Promise<User | null> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (accessToken && !isTokenExpired(accessToken)) {
-        resolve({
-          id: "user-123",
-          name: "홍길동",
-          email: "hong@example.com",
-          avatar: null,
-          notificationStats: {
-            messageCount: 3,
-            bookmarkCount: 5,
-            analysisCount: 2,
-          },
-        });
-      } else {
-        resolve(null);
-      }
-    }, 500); // 네트워크 지연 시뮬레이션
-  });
-};
-
-/**
- * 로그인 목업 함수
- * 실제로는 스프링부트 서버의 /api/v1/auth/login 호출
- * @param email 이메일
- * @param password 비밀번호
- * @param rememberMe 로그인 정보 유지 여부
- * @returns 로그인 응답 또는 null
- */
-export const mockLogin = async (
-  email: string,
-  password: string,
-  rememberMe: boolean = false,
-): Promise<{
-  user: User;
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
+  return {
+    success: false,
+    message: "유효하지 않은 토큰입니다.",
   };
-} | null> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // 간단한 목업 검증 로직
-      if (email && password) {
-        // 로그인 정보 유지 여부에 따라 토큰 만료 시간 설정
-        const accessTokenExpiry = 15; // 액세스 토큰은 항상 15분
-        const refreshTokenExpiry = rememberMe ? 30 * 24 * 60 : 24 * 60; // 로그인 정보 유지 시 30일, 아니면 1일
-
-        const accessToken = createMockJWT(
-          { sub: "user-123", email: email },
-          accessTokenExpiry,
-        );
-
-        const refreshToken = createMockJWT(
-          { sub: "user-123", email: email, type: "refresh" },
-          refreshTokenExpiry,
-        );
-
-        resolve({
-          user: {
-            id: "user-123",
-            name: "홍길동",
-            email: email,
-            avatar: null,
-            notificationStats: {
-              messageCount: 3,
-              bookmarkCount: 5,
-              analysisCount: 2,
-            },
-          },
-          tokens: {
-            accessToken,
-            refreshToken,
-          },
-        });
-      } else {
-        resolve(null);
-      }
-    }, 1500); // 로그인 처리 시뮬레이션
-  });
 };
 
 /**
- * 로그아웃 목업 함수
- * 실제로는 스프링부트 서버의 /api/v1/auth/logout 호출
- * @param refreshToken 로그아웃할 리프레시 토큰
- * @returns 성공 여부
+ * JWT 토큰의 유효성을 검증하는 Mock 함수
+ *
+ * 제공된 토큰이 유효한지 확인합니다.
+ * 보호된 라우트 접근 시 토큰 유효성을 검사하는 용도로 사용됩니다.
+ *
+ * @param token - 검증할 JWT 토큰
+ * @returns Promise<검증 결과 객체> - 토큰 유효성 여부와 메시지 포함
+ *
+ * @example
+ * ```typescript
+ * const validation = await mockValidateToken(userToken);
+ * if (!validation.valid) {
+ *   console.error(validation.message);
+ *   // 로그아웃 처리
+ *   handleLogout();
+ * }
+ * ```
  */
-export const mockLogout = async (refreshToken: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // 서버에서 리프레시 토큰 무효화 처리
-      console.log("로그아웃 처리 - 리프레시 토큰 무효화:", refreshToken);
-      resolve(true);
-    }, 500);
-  });
+export const mockValidateToken = async (token: string) => {
+  // 모의 토큰 검증
+  if (token && token.startsWith("mock-jwt-token")) {
+    return {
+      success: true,
+      valid: true,
+    };
+  }
+
+  return {
+    success: false,
+    valid: false,
+    message: "토큰이 유효하지 않습니다.",
+  };
 };
