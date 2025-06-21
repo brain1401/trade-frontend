@@ -1,812 +1,689 @@
-# AI HS Code 레이더 시스템 - Frontend Cursorrules
 
-## AI Persona
-당신은 Claude AI 기반 무역정보 서비스 전문 Senior Frontend Developer입니다. React와 TypeScript에 대한 깊은 이해를 바탕으로, Claude AI의 멀티스텝 웹검색, 자연어 의도 분석, 스마트 질문 시스템과 같은 고급 기능을 완벽히 활용할 수 있습니다. DRY, KISS, YAGNI 원칙과 함수형 프로그래밍을 우선시하며, 현대적인 React 패턴과 TypeScript 베스트 프랙티스를 준수합니다. 모든 작업을 최소 단위로 분해하여 단계별로 접근합니다.
+# Frontend Design Guideline
 
-**중요한 개발 제약사항:**
-- 모든 API 요청(Claude AI 포함)은 별도의 스프링부트 서버를 통해 처리
-- 현재 백엔드 미완성 상태로 임시 목업 데이터로 동작 구현
-- 복잡한 로직에는 반드시 한국어 명사형 어미로 끝나는 주석 작성
-- 모든 컴포넌트 수정/생성 시 프로젝트 루트의 `THEME_GUIDE.md` 파일을 필수 참고하여 디자인 일관성 유지
-- 백엔드 연동 시 최소한의 코드 변경으로 전환 가능하도록 API 레이어 추상화
+This document summarizes key frontend design principles and rules, showcasing
+recommended patterns. Follow these guidelines when writing frontend code.
 
-## Build Configuration
-**IDE Setup:**
-- Cursor (VS Code) with React, TypeScript, TanStack extensions 사용
-- 명령줄을 통한 빌드 금지 - IDE를 통한 수동 빌드만 허용
+# Readability
 
-**Command Line Environment:**
-- Operating System: Windows 10/11
-- Shell: PowerShell (PowerShell 구문만 사용)
+Improving the clarity and ease of understanding code.
 
-## Technology Stack
+## Naming Magic Numbers
 
-### Frontend Core
-- **Framework**: React 18 with TypeScript (CSR Only - No SSR)
-- **Router**: TanStack Router (file-based routing)
-- **State Management**: Zustand (도메인별 분리된 스토어)
-- **Server State**: TanStack Query (공격적 캐싱)
-- **HTTP Client**: Axios
-- **UI Framework**: Shadcn UI
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide Icons
-- **Charts**: @tremor/react
-- **Forms**: React Hook Form + Zod validation
-- **Real-time**: WebSocket + Server-Sent Events
-- **Language**: Korean (ko) - HTML lang="ko"
+**Rule:** Replace magic numbers with named constants for clarity.
 
-### AI Integration (Claude AI)
-- **Multi-step Web Search**: 종합적인 무역정보를 위한 Claude의 고급 웹검색
-- **Intent Analysis**: 자연어 쿼리 해석하여 'HS Code 분석', '화물 추적', '일반 정보 검색'으로 자동 분류
-- **Smart Question System**: 정보 부족 시 AI 생성 추가 질문
-- **Multimodal Analysis**: 텍스트 + 이미지 분석으로 정확한 HS Code 분류
-- **Function Calling**: 체계적 데이터 처리를 위한 구조화된 JSON 출력
-- **Trusted Source Verification**: 신뢰할 수 있는 출처 자동 인용 (관세청, 법적 문서)
+**Reasoning:**
 
-### Mock Data and Simulation Strategies
+- Improves clarity by giving semantic meaning to unexplained values.
+- Enhances maintainability.
 
-**백엔드 미구현 대응 전략:**
-- 모든 API 호출은 목업 데이터로 시뮬레이션
-- 실제 Claude AI 응답 패턴을 모방한 지연 시간 및 단계별 응답 구현
-- 관세청 API 응답 형태를 정확히 모사한 목업 데이터
-- WebSocket 연결은 setTimeout을 활용한 가상 실시간 업데이트
+#### Recommended Pattern:
 
-**목업 데이터 설계 원칙:**
-- 실제 HS Code, 화물관리번호, 규제 정보 기반 리얼한 데이터
-- 다양한 시나리오 대응 (성공, 실패, 부분 성공)
-- 한국 무역 실정에 맞는 상품명 및 규제 정보
-- Claude AI 분석 과정의 단계별 시뮬레이션
+```typescript
+const ANIMATION_DELAY_MS = 300;
 
-### Design System Integration
+async function onLikeClick() {
+  await postLike(url);
+  await delay(ANIMATION_DELAY_MS); // Clearly indicates waiting for animation
+  await refetchPostLike();
+}
+```
 
-**THEME_GUIDE.md 필수 준수사항:**
-- 모든 컴포넌트 개발 전 `THEME_GUIDE.md` 파일 확인 필수
-- 색상, 폰트, 스페이싱, 그림자 등 디자인 토큰 엄격 적용
-- 일관된 사용자 경험을 위한 컴포넌트 패턴 준수
-- 반응형 디자인 가이드라인 및 브레이크포인트 활용
+## Abstracting Implementation Details
 
-**디자인 검증 프로세스:**
-- 컴포넌트 생성 → THEME_GUIDE.md 검토 → 디자인 토큰 적용 → 구현
-- 기존 컴포넌트 수정 시 디자인 일관성 영향도 검토
-- 새로운 패턴 도입 시 THEME_GUIDE.md 업데이트 고려
+**Rule:** Abstract complex logic/interactions into dedicated components/HOCs.
 
-## Project Structure
+**Reasoning:**
 
-### 요구사항 기반 폴더 구조 (검증 완료)
+- Reduces cognitive load by separating concerns.
+- Improves readability, testability, and maintainability of components.
+
+#### Recommended Pattern 1: Auth Guard
+
+(Login check abstracted to a wrapper/guard component)
+
+```tsx
+// App structure
+function App() {
+  return (
+    <AuthGuard>
+      {" "}
+      {/* Wrapper handles auth check */}
+      <LoginStartPage />
+    </AuthGuard>
+  );
+}
+
+// AuthGuard component encapsulates the check/redirect logic
+function AuthGuard({ children }) {
+  const status = useCheckLoginStatus();
+  useEffect(() => {
+    if (status === "LOGGED_IN") {
+      location.href = "/home";
+    }
+  }, [status]);
+
+  // Render children only if not logged in, otherwise render null (or loading)
+  return status !== "LOGGED_IN" ? children : null;
+}
+
+// LoginStartPage is now simpler, focused only on login UI/logic
+function LoginStartPage() {
+  // ... login related logic ONLY ...
+  return <>{/* ... login related components ... */}</>;
+}
+```
+
+#### Recommended Pattern 2: Dedicated Interaction Component
+
+(Dialog logic abstracted into a dedicated `InviteButton` component)
+
+```tsx
+export function FriendInvitation() {
+  const { data } = useQuery(/* ... */);
+
+  return (
+    <>
+      {/* Use the dedicated button component */}
+      <InviteButton name={data.name} />
+      {/* ... other UI ... */}
+    </>
+  );
+}
+
+// InviteButton handles the confirmation flow internally
+function InviteButton({ name }) {
+  const handleClick = async () => {
+    const canInvite = await overlay.openAsync(({ isOpen, close }) => (
+      <ConfirmDialog
+        title={`Share with ${name}`}
+        // ... dialog setup ...
+      />
+    ));
+
+    if (canInvite) {
+      await sendPush();
+    }
+  };
+
+  return <Button onClick={handleClick}>Invite</Button>;
+}
+```
+
+## Separating Code Paths for Conditional Rendering
+
+**Rule:** Separate significantly different conditional UI/logic into distinct
+components.
+
+**Reasoning:**
+
+- Improves readability by avoiding complex conditionals within one component.
+- Ensures each specialized component has a clear, single responsibility.
+
+#### Recommended Pattern:
+
+(Separate components for each role)
+
+```tsx
+function SubmitButton() {
+  const isViewer = useRole() === "viewer";
+
+  // Delegate rendering to specialized components
+  return isViewer ? <ViewerSubmitButton /> : <AdminSubmitButton />;
+}
+
+// Component specifically for the 'viewer' role
+function ViewerSubmitButton() {
+  return <TextButton disabled>Submit</TextButton>;
+}
+
+// Component specifically for the 'admin' (or non-viewer) role
+function AdminSubmitButton() {
+  useEffect(() => {
+    showAnimation(); // Animation logic isolated here
+  }, []);
+
+  return <Button type="submit">Submit</Button>;
+}
+```
+
+## Simplifying Complex Ternary Operators
+
+**Rule:** Replace complex/nested ternaries with `if`/`else` or IIFEs for
+readability.
+
+**Reasoning:**
+
+- Makes conditional logic easier to follow quickly.
+- Improves overall code maintainability.
+
+#### Recommended Pattern:
+
+(Using an IIFE with `if` statements)
+
+```typescript
+const status = (() => {
+  if (ACondition && BCondition) return "BOTH";
+  if (ACondition) return "A";
+  if (BCondition) return "B";
+  return "NONE";
+})();
+```
+
+## Reducing Eye Movement (Colocating Simple Logic)
+
+**Rule:** Colocate simple, localized logic or use inline definitions to reduce
+context switching.
+
+**Reasoning:**
+
+- Allows top-to-bottom reading and faster comprehension.
+- Reduces cognitive load from context switching (eye movement).
+
+#### Recommended Pattern A: Inline `switch`
+
+```tsx
+function Page() {
+  const user = useUser();
+
+  // Logic is directly visible here
+  switch (user.role) {
+    case "admin":
+      return (
+        <div>
+          <Button disabled={false}>Invite</Button>
+          <Button disabled={false}>View</Button>
+        </div>
+      );
+    case "viewer":
+      return (
+        <div>
+          <Button disabled={true}>Invite</Button> {/* Example for viewer */}
+          <Button disabled={false}>View</Button>
+        </div>
+      );
+    default:
+      return null;
+  }
+}
+```
+
+#### Recommended Pattern B: Colocated simple policy object
+
+```tsx
+function Page() {
+  const user = useUser();
+  // Simple policy defined right here, easy to see
+  const policy = {
+    admin: { canInvite: true, canView: true },
+    viewer: { canInvite: false, canView: true },
+  }[user.role];
+
+  // Ensure policy exists before accessing properties if role might not match
+  if (!policy) return null;
+
+  return (
+    <div>
+      <Button disabled={!policy.canInvite}>Invite</Button>
+      <Button disabled={!policy.canView}>View</Button>
+    </div>
+  );
+}
+```
+
+## Naming Complex Conditions
+
+**Rule:** Assign complex boolean conditions to named variables.
+
+**Reasoning:**
+
+- Makes the _meaning_ of the condition explicit.
+- Improves readability and self-documentation by reducing cognitive load.
+
+#### Recommended Pattern:
+
+(Conditions assigned to named variables)
+
+```typescript
+const matchedProducts = products.filter((product) => {
+  // Check if product belongs to the target category
+  const isSameCategory = product.categories.some(
+    (category) => category.id === targetCategory.id
+  );
+
+  // Check if any product price falls within the desired range
+  const isPriceInRange = product.prices.some(
+    (price) => price >= minPrice && price <= maxPrice
+  );
+
+  // The overall condition is now much clearer
+  return isSameCategory && isPriceInRange;
+});
+```
+
+**Guidance:** Name conditions when the logic is complex, reused, or needs unit
+testing. Avoid naming very simple, single-use conditions.
+
+# Predictability
+
+Ensuring code behaves as expected based on its name, parameters, and context.
+
+## Standardizing Return Types
+
+**Rule:** Use consistent return types for similar functions/hooks.
+
+**Reasoning:**
+
+- Improves code predictability; developers can anticipate return value shapes.
+- Reduces confusion and potential errors from inconsistent types.
+
+#### Recommended Pattern 1: API Hooks (React Query)
+
+```typescript
+// Always return the Query object
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+
+// Assuming fetchUser returns Promise<UserType>
+function useUser(): UseQueryResult<UserType, Error> {
+  const query = useQuery({ queryKey: ["user"], queryFn: fetchUser });
+  return query;
+}
+
+// Assuming fetchServerTime returns Promise<Date>
+function useServerTime(): UseQueryResult<Date, Error> {
+  const query = useQuery({
+    queryKey: ["serverTime"],
+    queryFn: fetchServerTime,
+  });
+  return query;
+}
+```
+
+#### Recommended Pattern 2: Validation Functions
+
+(Using a consistent type, ideally a Discriminated Union)
+
+```typescript
+type ValidationResult = { ok: true } | { ok: false; reason: string };
+
+function checkIsNameValid(name: string): ValidationResult {
+  if (name.length === 0) return { ok: false, reason: "Name cannot be empty." };
+  if (name.length >= 20)
+    return { ok: false, reason: "Name cannot be longer than 20 characters." };
+  return { ok: true };
+}
+
+function checkIsAgeValid(age: number): ValidationResult {
+  if (!Number.isInteger(age))
+    return { ok: false, reason: "Age must be an integer." };
+  if (age < 18) return { ok: false, reason: "Age must be 18 or older." };
+  if (age > 99) return { ok: false, reason: "Age must be 99 or younger." };
+  return { ok: true };
+}
+
+// Usage allows safe access to 'reason' only when ok is false
+const nameValidation = checkIsNameValid(name);
+if (!nameValidation.ok) {
+  console.error(nameValidation.reason);
+}
+```
+
+## Revealing Hidden Logic (Single Responsibility)
+
+**Rule:** Avoid hidden side effects; functions should only perform actions
+implied by their signature (SRP).
+
+**Reasoning:**
+
+- Leads to predictable behavior without unintended side effects.
+- Creates more robust, testable code through separation of concerns (SRP).
+
+#### Recommended Pattern:
+
+```typescript
+// Function *only* fetches balance
+async function fetchBalance(): Promise<number> {
+  const balance = await http.get<number>("...");
+  return balance;
+}
+
+// Caller explicitly performs logging where needed
+async function handleUpdateClick() {
+  const balance = await fetchBalance(); // Fetch
+  logging.log("balance_fetched"); // Log (explicit action)
+  await syncBalance(balance); // Another action
+}
+```
+
+## Using Unique and Descriptive Names (Avoiding Ambiguity)
+
+**Rule:** Use unique, descriptive names for custom wrappers/functions to avoid
+ambiguity.
+
+**Reasoning:**
+
+- Avoids ambiguity and enhances predictability.
+- Allows developers to understand specific actions (e.g., adding auth) directly
+  from the name.
+
+#### Recommended Pattern:
+
+```typescript
+// In httpService.ts - Clearer module name
+import { http as httpLibrary } from "@some-library/http";
+
+export const httpService = {
+  // Unique module name
+  async getWithAuth(url: string) {
+    // Descriptive function name
+    const token = await fetchToken();
+    return httpLibrary.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+};
+
+// In fetchUser.ts - Usage clearly indicates auth
+import { httpService } from "./httpService";
+export async function fetchUser() {
+  // Name 'getWithAuth' makes the behavior explicit
+  return await httpService.getWithAuth("...");
+}
+```
+
+# Cohesion
+
+Keeping related code together and ensuring modules have a well-defined, single
+purpose.
+
+## Considering Form Cohesion
+
+**Rule:** Choose field-level or form-level cohesion based on form requirements.
+
+**Reasoning:**
+
+- Balances field independence (field-level) vs. form unity (form-level).
+- Ensures related form logic is appropriately grouped based on requirements.
+
+#### Recommended Pattern (Field-Level Example):
+
+```tsx
+// Each field uses its own `validate` function
+import { useForm } from "react-hook-form";
+
+export function Form() {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    /* defaultValues etc. */
+  });
+
+  const onSubmit = handleSubmit((formData) => {
+    console.log("Form submitted:", formData);
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        <input
+          {...register("name", {
+            validate: (value) =>
+              value.trim() === "" ? "Please enter your name." : true, // Example validation
+          })}
+          placeholder="Name"
+        />
+        {errors.name && <p>{errors.name.message}</p>}
+      </div>
+      <div>
+        <input
+          {...register("email", {
+            validate: (value) =>
+              /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)
+                ? true
+                : "Invalid email address.", // Example validation
+          })}
+          placeholder="Email"
+        />
+        {errors.email && <p>{errors.email.message}</p>}
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+#### Recommended Pattern (Form-Level Example):
+
+```tsx
+// A single schema defines validation for the whole form
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  name: z.string().min(1, "Please enter your name."),
+  email: z.string().min(1, "Please enter your email.").email("Invalid email."),
+});
+
+export function Form() {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", email: "" },
+  });
+
+  const onSubmit = handleSubmit((formData) => {
+    console.log("Form submitted:", formData);
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
+      <div>
+        <input {...register("name")} placeholder="Name" />
+        {errors.name && <p>{errors.name.message}</p>}
+      </div>
+      <div>
+        <input {...register("email")} placeholder="Email" />
+        {errors.email && <p>{errors.email.message}</p>}
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+**Guidance:** Choose **field-level** for independent validation, async checks,
+or reusable fields. Choose **form-level** for related fields, wizard forms, or
+interdependent validation.
+
+## Organizing Code by Feature/Domain
+
+**Rule:** Organize directories by feature/domain, not just by code type.
+
+**Reasoning:**
+
+- Increases cohesion by keeping related files together.
+- Simplifies feature understanding, development, maintenance, and deletion.
+
+#### Recommended Pattern:
+
+(Organized by feature/domain)
+
 ```
 src/
-├── components/           # 도메인별 컴포넌트 구성
-│   ├── auth/            # 인증 컴포넌트 (FR-AD-001, FR-AD-002)
-│   │   ├── LoginForm.tsx
-│   │   ├── SignupForm.tsx
-│   │   └── SnsLoginButtons.tsx
-│   ├── search/          # 지능형 통합 검색 + 일반 정보 검색 (FR-AD-003, FR-AD-008)
-│   │   ├── IntelligentSearchBar.tsx    # 중앙 검색창
-│   │   ├── IntentAnalysisDisplay.tsx   # 의도 분석 결과
-│   │   ├── SearchSuggestions.tsx       # 검색 제안
-│   │   ├── VoiceInput.tsx              # 음성 입력
-│   │   ├── GeneralSearchResults.tsx    # 일반 정보 검색 결과 (FR-AD-008)
-│   │   └── SearchResultFilters.tsx     # 검색 결과 필터링
-│   ├── hscode/          # HS Code 분석 (FR-AD-004, FR-AD-005, FR-AD-006)
-│   │   ├── AnalysisChatInterface.tsx   # 대화형 분석 인터페이스 (FR-UU-003)
-│   │   ├── SmartQuestionPanel.tsx      # 스마트 질문 시스템
-│   │   ├── SourceCitationList.tsx      # 신뢰할 수 있는 근거 표시
-│   │   ├── ResultDashboard.tsx         # 종합 분석 결과 (FR-UU-004)
-│   │   ├── ComplianceRequirements.tsx  # 수출입 요건 표시
-│   │   └── TradeStatisticsChart.tsx    # 무역 통계 시각화
-│   ├── tracking/        # 화물 추적 (FR-AD-007)
-│   │   ├── TrackingSearchForm.tsx      # 화물번호 입력
-│   │   ├── ClearanceStatusTimeline.tsx # 통관 단계 시각화 (FR-UU-005)
-│   │   └── CargoDetailsCard.tsx        # 화물 상세 정보
-│   ├── dashboard/       # 마이 대시보드 (FR-UU-002) - 정확히 2개 탭
-│   │   ├── UpdatesFeedTab.tsx          # 최신 업데이트 피드 (기본 탭)
-│   │   ├── BookmarkManagementTab.tsx   # 북마크 관리 (두 번째 탭)
-│   │   └── DashboardTabNavigation.tsx  # 2개 탭 네비게이션
-│   ├── monitoring/      # 모니터링 시스템 (FR-AD-009, FR-AD-010, FR-AD-011)
-│   │   ├── BookmarkControls.tsx        # 북마크 CRUD
-│   │   ├── MonitoringToggle.tsx        # 모니터링 활성/비활성
-│   │   ├── ChangeDetectionLog.tsx      # 변동사항 로그
-│   │   └── DualNotificationSettings.tsx # 푸시 + 이메일 알림 설정
-│   ├── notifications/   # 알림 시스템 (FR-UU-006)
-│   │   ├── NotificationHistoryList.tsx # 알림 히스토리
-│   │   ├── NotificationToast.tsx       # 즉시 알림
-│   │   └── NotificationFilters.tsx     # 유형별 필터링
-│   ├── common/          # 공통 컴포넌트
-│   │   ├── Layout.tsx
-│   │   ├── Header.tsx
-│   │   ├── QuickAccessMenu.tsx         # 바로가기 메뉴 (FR-UU-001)
-│   │   ├── LoadingSpinner.tsx
-│   │   └── ErrorBoundary.tsx
-│   └── ui/              # Shadcn UI 컴포넌트
-├── hooks/               # 도메인별 커스텀 훅
-│   ├── auth/            # 인증 관련 훅
-│   │   ├── useAuth.ts
-│   │   ├── useLogin.ts
-│   │   └── useSnsLogin.ts
-│   ├── search/          # 검색 관련 훅 (FR-AD-003, FR-AD-008)
-│   │   ├── useIntentAnalysis.ts        # Claude AI 의도 분석
-│   │   ├── useIntelligentSearch.ts     # 통합 검색
-│   │   ├── useGeneralSearch.ts         # 일반 정보 검색 (FR-AD-008)
-│   │   └── useVoiceInput.ts            # 음성 입력
-│   ├── hscode/          # HS Code 분석 훅
-│   │   ├── useHsCodeAnalysis.ts        # Claude AI 종합 분석
-│   │   ├── useSmartQuestions.ts        # 스마트 질문 시스템
-│   │   ├── useAnalysisSession.ts       # 세션 관리
-│   │   └── useSourceCitation.ts        # 출처 표시
-│   ├── tracking/        # 화물 추적 훅
-│   │   ├── useCargoTracking.ts         # 관세청 API 연동
-│   │   └── useTrackingHistory.ts       # 추적 이력
-│   ├── monitoring/      # 모니터링 훅
-│   │   ├── useBookmarks.ts             # 북마크 관리
-│   │   ├── useMonitoring.ts            # 자동 모니터링
-│   │   └── useChangeDetection.ts       # 변동사항 감지
-│   ├── api/             # API 연동 훅
-│   │   ├── useKoreaCustormsApi.ts      # 관세청 API (FR-AD-012)
-│   │   ├── useComtradeApi.ts           # UN COMTRADE API (FR-AD-012)
-│   │   └── useClaudeApi.ts             # Claude AI API
-│   └── notifications/   # 알림 관련 훅
-│       ├── usePushNotifications.ts     # 브라우저 푸시
-│       ├── useEmailNotifications.ts    # 이메일 알림
-│       └── useNotificationHistory.ts   # 알림 이력
-├── stores/              # Zustand 스토어 (도메인별 분리)
-│   ├── authStore.ts     # 인증 상태 (FR-AD-001, FR-AD-002)
-│   ├── searchStore.ts   # 검색 상태 및 의도 분석 (FR-AD-003, FR-AD-008)
-│   ├── analysisStore.ts # HS Code 분석 세션 (FR-AD-004, FR-AD-005)
-│   ├── trackingStore.ts # 화물 추적 상태 (FR-AD-007)
-│   ├── bookmarkStore.ts # 북마크 및 모니터링 (FR-AD-009, FR-AD-010)
-│   ├── notificationStore.ts # 실시간 알림 (FR-AD-011)
-│   └── uiStore.ts       # UI 상태 관리
-├── types/               # TypeScript 타입 정의
-│   ├── api/             # API 응답/요청 타입
-│   │   ├── claude.ts
-│   │   ├── koreacustoms.ts
-│   │   └── comtrade.ts
-│   ├── domain/          # 비즈니스 도메인 타입
-│   │   ├── hscode.ts
-│   │   ├── tracking.ts
-│   │   ├── monitoring.ts
-│   │   └── notification.ts
-│   └── common/          # 공통 타입
-├── lib/                 # 유틸리티 라이브러리
-│   ├── api/             # API 클라이언트 (스프링부트 서버 연동)
-│   │   ├── apiClient.ts         # Axios 설정 및 인터셉터
-│   │   ├── auth.api.ts          # 인증 관련 API (/api/v1/auth/*)
-│   │   ├── claude.api.ts        # Claude AI 분석 API (/api/v1/claude/*)
-│   │   ├── customs.api.ts       # 관세청 연동 API (/api/v1/customs/*)
-│   │   ├── comtrade.api.ts      # UN COMTRADE API (/api/v1/comtrade/*)
-│   │   ├── search.api.ts        # 검색 관련 API (/api/v1/search/*)
-│   │   ├── bookmarks.api.ts     # 북마크 관리 API (/api/v1/bookmarks/*)
-│   │   ├── monitoring.api.ts    # 모니터링 API (/api/v1/monitoring/*)
-│   │   └── notifications.api.ts # 알림 API (/api/v1/notifications/*)
-│   ├── mocks/           # 목업 데이터 (개발 환경용)
-│   │   ├── claudeResponses.ts   # Claude AI 응답 목업
-│   │   ├── customsData.ts       # 관세청 데이터 목업
-│   │   ├── tradeData.ts         # 무역 통계 목업
-│   │   └── mockUtils.ts         # 목업 유틸리티 (지연, 오류 시뮬레이션)
-│   ├── websocket/       # WebSocket 연결 관리 (스프링부트 서버)
-│   ├── validation/      # Zod 스키마
-│   └── utils/           # 일반 유틸리티
-├── routes/              # TanStack Router 파일 기반 라우팅
-│   ├── __root.tsx       # 루트 레이아웃
-│   ├── index.tsx        # 메인 페이지 (FR-UU-001)
-│   ├── hscode/          # HS Code 분석 도메인
-│   │   ├── analyze/
-│   │   │   └── $sessionId.tsx  # 분석 채팅 인터페이스 (FR-UU-003)
-│   │   └── result/
-│   │       └── $resultId.tsx   # 상세 정보 페이지 (FR-UU-004)
-│   ├── tracking/        # 화물 추적 도메인
-│   │   ├── search.tsx   # 화물번호 입력
-│   │   └── result/
-│   │       └── $number.tsx     # 추적 결과 (FR-UU-005)
-│   ├── search/          # 일반 정보 검색 (FR-AD-008)
-│   │   └── results.tsx  # 규제/뉴스 검색 결과 페이지
-│   ├── dashboard/       # 마이 대시보드 (FR-UU-002)
-│   │   └── index.tsx    # 정확히 2개 탭: 업데이트 피드 + 북마크 관리
-│   ├── notifications/   # 알림 시스템
-│   │   └── index.tsx    # 알림 히스토리 (FR-UU-006)
-│   └── auth/            # 인증 도메인
-│       ├── login.tsx
-│       ├── signup.tsx
-│       └── callback.tsx # SNS 연동 콜백
-└── config/              # 설정 파일
+├── components/ # Shared/common components
+├── hooks/      # Shared/common hooks
+├── utils/      # Shared/common utils
+├── domains/
+│   ├── user/
+│   │   ├── components/
+│   │   │   └── UserProfileCard.tsx
+│   │   ├── hooks/
+│   │   │   └── useUser.ts
+│   │   └── index.ts # Optional barrel file
+│   ├── product/
+│   │   ├── components/
+│   │   │   └── ProductList.tsx
+│   │   ├── hooks/
+│   │   │   └── useProducts.ts
+│   │   └── ...
+│   └── order/
+│       ├── components/
+│       │   └── OrderSummary.tsx
+│       ├── hooks/
+│       │   └── useOrder.ts
+│       └── ...
+└── App.tsx
 ```
 
-## State Management Architecture
+## Relating Magic Numbers to Logic
 
-### 1. Zustand Store 설계 패턴 (요구사항 기반)
+**Rule:** Define constants near related logic or ensure names link them clearly.
 
-각 도메인 스토어는 다음 일관된 패턴을 따릅니다:
+**Reasoning:**
 
-**핵심 스토어별 책임:**
-- `searchStore`: 지능형 통합 검색 및 Claude AI 의도 분석 (FR-AD-003)
-- `analysisStore`: HS Code 분석 세션 및 스마트 질문 시스템 (FR-AD-004, FR-AD-005)
-- `trackingStore`: 화물 추적 상태 관리 (FR-AD-007)
-- `bookmarkStore`: 북마크 및 모니터링 대상 관리 (FR-AD-009, FR-AD-010)
-- `notificationStore`: 듀얼 알림 시스템 관리 (FR-AD-011)
+- Improves cohesion by linking constants to the logic they represent.
+- Prevents silent failures caused by updating logic without updating related
+  constants.
 
-**스토어 설계 원칙:**
-- 단일 도메인 책임: 각 스토어는 정확히 하나의 비즈니스 도메인 관리
-- 비동기 액션 패턴: 로딩 상태 설정 → 작업 수행 → 결과 또는 오류로 상태 업데이트
-- 크로스 스토어 통신: 필요시 다른 스토어의 액션 호출
-- 타입 안정성: 모든 스토어 상태와 액션에 TypeScript 타입 정의
+#### Recommended Pattern:
 
-### 2. 핵심 AI 통합 패턴
+```typescript
+// Constant clearly named and potentially defined near animation logic
+const ANIMATION_DELAY_MS = 300;
 
-**지능형 검색 플로우:**
-```
-사용자 입력 → searchStore → Claude AI 의도 분석 → 적절한 도메인으로 라우팅
-```
-
-**스마트 질문 시스템:**
-```
-HS Code 분석 → 정보 부족 감지 → Claude AI 질문 생성 → 사용자 응답 → 분석 계속
-```
-
-**신뢰할 수 있는 근거 제시:**
-```
-모든 AI 분석 결과 → 원문 스니펫 + URL → SourceCitationList 컴포넌트로 표시
-```
-
-## Page Structure and Navigation (요구사항 기반)
-
-### 메인 네비게이션 구조
-```
-Header Navigation:
-├── 로고/홈 (메인 페이지로 이동)
-├── HS Code 분석 (핵심 AI 분석 기능)
-├── 화물 추적 (관세청 API 연동)
-├── 일반 정보 검색 (규제/뉴스 검색)
-├── 마이 대시보드 (로그인 사용자만 표시)
-└── 로그인/회원가입 (로그인 시 사용자 메뉴로 변경)
-```
-
-### 세부 페이지 사양 (요구사항 완전 반영)
-
-#### 1. 메인 페이지 (/) - FR-UU-001
-**핵심 구성 요소:**
-- 중앙 배치 지능형 통합 검색창 (Claude AI 의도 분석)
-- 바로가기 메뉴 (관세 환율 조회 등 핵심 기능)
-- 음성 입력 지원 (한국어 인식)
-- 의도 분석 결과 시각적 피드백
-
-**필수 컴포넌트:**
-- `IntelligentSearchBar`: 자연어 입력 및 의도 분석
-- `QuickAccessMenu`: 핵심 기능 바로가기
-- `VoiceInput`: 한국어 음성 인식
-- `IntentAnalysisDisplay`: 분석 결과 표시
-
-#### 2. HS Code 분석 영역 (/hscode/*)
-
-**2.1 분석 채팅 인터페이스 (/hscode/analyze/$sessionId) - FR-UU-003**
-**핵심 기능 구현:**
-- Claude AI와의 실시간 대화형 분석 (FR-AD-004)
-- 스마트 질문 시스템 동적 생성 (FR-AD-005)
-- 멀티모달 입력 (텍스트 + 제품 이미지)
-- 분석 진행 상태 실시간 표시
-- 신뢰할 수 있는 출처 즉시 표시 (FR-AD-006)
-
-**UI/UX 가이드라인:**
-- 채팅 형태의 자연스러운 대화 흐름
-- 스마트 질문은 선택지 기반 구조화
-- 진행률 표시로 사용자 대기 시간 관리
-- 출처 정보는 별도 패널에서 실시간 누적
-
-**2.2 상세 정보 페이지 (/hscode/result/$resultId) - FR-UU-004**
-**탭 기반 대시보드 구성:**
-- 기본 정보: HS Code 분류 결과 및 신뢰도
-- 수출입 요건: 인증 및 규제 요약
-- 관련 규제/뉴스: 최신 정보 및 변동사항
-- 무역 통계: 차트 기반 시각화 (FR-AD-012)
-- 액션 버튼: 북마크 추가, 공유, 재분석
-
-#### 3. 화물 추적 영역 (/tracking/*)
-
-**3.1 화물번호 입력 (/tracking/search)**
-**입력 최적화:**
-- 화물관리번호/B/L번호 통합 입력 폼
-- 실시간 형식 검증 및 안내
-- 최근 검색 이력 표시 (로그인 사용자)
-- 샘플 번호 예시 제공
-
-**3.2 추적 결과 (/tracking/result/$number) - FR-UU-005**
-**실시간 통관 정보 표시 (FR-AD-007):**
-- 현재 통관 단계 및 진행률
-- 타임라인 기반 진행 상황 시각화
-- 예상 완료 시간 및 필요 조치사항
-- 화물 상세 정보 (출발지, 도착지, 물품 정보)
-- 모니터링 설정 (북마크 추가 및 알림 설정)
-
-#### 4. 일반 정보 검색 (/search/results) - FR-AD-008
-
-**Claude 웹검색 결과 표시:**
-- 신뢰할 수 있는 출처 기반 검색 결과
-- 규제/뉴스 정보 관련도순 정렬
-- 검색 결과 필터링 (날짜, 카테고리)
-- 각 결과별 출처 신뢰도 표시
-
-#### 5. 마이 대시보드 (/dashboard/) - FR-UU-002
-
-**정확히 2개 탭 구조 (요구사항 명시):**
-
-**첫 번째 탭: 최신 업데이트 피드 (기본 탭)**
-- 북마크한 모든 항목의 변동사항 타임라인
-- 규제 변경, 뉴스, 통관 단계 변경 통합 표시
-- 무한 스크롤 방식 피드
-- 중요도별 하이라이트 및 필터링
-
-**두 번째 탭: 북마크 관리**
-- HS Code 북마크와 화물 추적 북마크 구분 표시
-- 개별 모니터링 활성/비활성 토글
-- 북마크 검색 및 카테고리 필터링
-- 벌크 액션 (일괄 삭제, 모니터링 설정 변경)
-
-#### 6. 알림 히스토리 (/notifications/) - FR-UU-006
-
-**종합 알림 관리:**
-- 시간순 정렬된 모든 알림 목록
-- 읽음/안읽음 상태 관리 및 표시
-- 유형별 필터링 (HS Code, 화물 추적, 시스템)
-- 알림별 상세 내용 및 원본 출처 링크
-- 알림 설정 바로가기 (듀얼 알림 시스템 설정)
-
-### Navigation UX 원칙
-
-**지능형 검색 우선:**
-- 메인 검색창이 항상 최우선 위치
-- 의도 분석 기반 자동 라우팅
-- 검색 기록 및 제안 기능
-
-**한국 사용자 최적화:**
-- 한국어 네비게이션 레이블
-- 한국 웹 사용 패턴 고려한 구조
-- 모바일 반응형 햄버거 메뉴
-
-**접근성 및 사용성:**
-- 적절한 ARIA 라벨링
-- 키보드 네비게이션 지원
-- 로딩 상태 및 오류 복구 옵션
-
-## Component Development Guidelines
-
-### 1. TypeScript 스타일 가이드 (2025 베스트 프랙티스)
-
-**타입 정의 원칙:**
-- `interface` 대신 `type` 키워드 사용 (TypeScript 설정)
-- 제네릭 활용으로 재사용 가능한 타입 작성
-- API 응답 타입에는 항상 sources 필드 포함 (신뢰할 수 있는 근거)
-
-**함수형 프로그래밍 우선:**
-- 명령형 루프 (`for`, `while`) 대신 함수형 메서드 활용
-- `map`, `filter`, `reduce` 등 선언적 접근 선호
-- 불변성 패턴 적용
-
-**한국어 코멘트 스타일:**
-- 명사형 종결 사용 (예: "사용자 정보 조회 함수")
-- 정중어나 존댓말 사용 금지
-- 콜론 사용 시 반드시 앞뒤 공백 (`상태 : 완료`)
-
-### 2. Claude AI 통합 패턴
-
-**지능형 검색 의도 분석 (FR-AD-003):**
-- 사용자 입력 → Claude AI 의도 분석 → 자동 라우팅
-- 'HS Code 분석', '화물 추적', '일반 정보 검색' 분류
-- 의도 불명확 시 일반 검색으로 fallback
-
-**스마트 질문 시스템 (FR-AD-005):**
-- HS Code 분석 시 정보 부족 감지
-- Claude AI 기반 동적 질문 생성
-- 선택지 기반 구조화된 추가 질문
-- 사용자 응답으로 분석 정확도 향상
-
-**신뢰할 수 있는 근거 제시 (FR-AD-006):**
-- 모든 AI 분석 결과에 원문 스니펫 첨부
-- 검증 가능한 전체 출처 URL 제공
-- 출처 신뢰도 표시 (관세청, 법적 문서 등)
-- SourceCitationList 컴포넌트로 일관된 표시
-
-**멀티스텝 웹검색 (FR-AD-004):**
-- Claude의 단계별 정보 수집 과정 시각화
-- 각 단계별 진행 상태 표시
-- 중간 결과 캐싱으로 사용자 경험 개선
-
-### 3. 모니터링 시스템 구현 (FR-AD-009, FR-AD-010, FR-AD-011)
-
-**북마크 관리 (CRUD):**
-- HS Code 정보 및 화물 정보 북마크 지원
-- 생성 시 모니터링 기본 활성화
-- 북마크별 개별 모니터링 설정 가능
-
-**자동 변동 감지:**
-- 스케줄러 기반 주기적 모니터링
-- HS Code: 규제/관세/인증 요건 변동 감지
-- 화물 추적: 통관 단계 변경 감지
-- 변동사항 DB 로깅
-
-**듀얼 알림 시스템:**
-- 브라우저 푸시 알림: 즉시성 중시
-- 이메일 알림: 상세 정보 제공
-- 알림 설정 개별 커스터마이징 지원
-- 알림 히스토리 관리
-
-## State Management Architecture
-
-### 1. Zustand Store 설계 원칙
-
-**도메인별 스토어 분리:**
-- 각 스토어는 단일 비즈니스 도메인만 담당
-- 크로스 도메인 통신 시 명시적 액션 호출
-- 상태와 액션에 완전한 TypeScript 타입 적용
-
-**비동기 액션 패턴:**
-- 로딩 상태 설정 → 작업 수행 → 결과/오류 처리
-- 낙관적 업데이트로 즉각적인 UI 반응
-- 오류 시 이전 상태로 롤백
-
-**핵심 스토어별 책임:**
-- `searchStore`: 지능형 검색 및 의도 분석 상태
-- `analysisStore`: HS Code 분석 세션 및 진행 상태
-- `bookmarkStore`: 북마크 목록 및 모니터링 설정
-- `notificationStore`: 실시간 알림 및 히스토리
-
-### 2. 페이지별 상태 관리 전략
-
-**메인 페이지 (FR-UU-001):**
-- 검색어 입력 상태 및 의도 분석 결과
-- 바로가기 메뉴 활성 상태
-- 음성 인식 상태 관리
-
-**HS Code 분석 채팅 (FR-UU-003):**
-- 대화 세션 상태 및 메시지 히스토리
-- 스마트 질문 표시 및 응답 수집
-- 분석 진행률 및 중간 결과
-- 출처 정보 실시간 누적
-
-**마이 대시보드 (FR-UU-002):**
-- 2개 탭 간 상태 전환
-- 업데이트 피드 무한 스크롤
-- 북마크 필터링 및 정렬 상태
-
-## API Integration Guidelines
-
-### 1. API Abstraction Layer (스프링부트 서버 연동)
-
-**환경 변수 기반 API 전환:**
-- 개발 환경: `REACT_APP_API_BASE_URL=http://localhost:3001/mock`
-- 프로덕션 환경: `REACT_APP_API_BASE_URL=http://localhost:8080/api/v1`
-- API 클라이언트는 환경에 따라 자동으로 목업/실제 서버 선택
-
-**API 클라이언트 설계 원칙:**
-- 스프링부트 서버 API 스펙에 정확히 일치하는 인터페이스
-- 모든 응답은 `ApiResponse<T>` 표준 형태
-- 오류 처리는 스프링부트 예외 구조와 동일
-- TypeScript 타입은 백엔드 DTO와 완전 일치
-
-**Claude AI 분석 API (스프링부트 경유):**
-- 검색 의도 분석: POST `/api/v1/claude/analyze-intent`
-- HS Code 종합 분석: POST `/api/v1/claude/analyze-hscode`
-- 스마트 질문 생성: POST `/api/v1/claude/generate-questions`
-- 이미지 분석: POST `/api/v1/claude/upload-image`
-- 분석 세션 조회: GET `/api/v1/claude/analysis-session/{id}`
-
-**관세청 API 연동 (스프링부트 경유):**
-- 화물 진행 조회: GET `/api/v1/customs/cargo-progress/{number}`
-- 무역 통계: GET `/api/v1/customs/trade-statistics`
-- 환율 정보: GET `/api/v1/customs/exchange-rates`
-
-**UN COMTRADE 연동:**
-- 글로벌 통계: GET `/api/v1/comtrade/global-statistics`
-
-### 2. Mock Data Strategy (임시 개발 환경)
-
-**목업 데이터 구조:**
-- 스프링부트 실제 응답과 100% 동일한 JSON 구조
-- `ApiResponse<T>` 표준 래퍼 적용
-- 성공/실패/부분성공 시나리오 모두 포함
-- 실제 네트워크 지연 시뮬레이션 (500ms~2000ms)
-
-**Claude AI 응답 시뮬레이션:**
-- 멀티스텝 분석 과정의 단계별 진행률
-- 스마트 질문 동적 생성 로직
-- 신뢰할 수 있는 출처 정보 포함
-- 이미지 분석 결과 모방
-
-**실시간 기능 시뮬레이션:**
-- WebSocket 연결 대신 polling 방식으로 구현
-- 모니터링 변동사항 주기적 체크 시뮬레이션
-- 알림 발송 로직 목업
-
-### 3. TanStack Query Integration
-
-**API 상태 관리 전략:**
-- 스프링부트 서버와 연동을 고려한 쿼리 키 설계
-- 캐시 무효화 전략 (서버 상태 변경 시)
-- 낙관적 업데이트 패턴 (북마크, 설정 변경)
-
-**도메인별 캐시 설정 (백엔드 연동 고려):**
-- Claude 분석 결과: 24시간 (서버에서 캐시 관리)
-- 무역 통계: 1시간 (서버 데이터 업데이트 주기)
-- 환율: 30분 (관세청 업데이트 주기)
-- 화물 추적: 실시간 (캐시 비활성화)
-- 북마크: 즉시 무효화 (사용자 액션 시)
-
-### 4. Production Ready API Client
-
-**백엔드 연동 시 변경 최소화:**
-1. 환경 변수만 프로덕션 서버 URL로 변경
-2. 목업 데이터 로직 제거
-3. API 클라이언트 코드는 변경 없음
-4. 타입 정의도 그대로 유지
-
-**스프링부트 서버 응답 형태 예시:**
-```
-성공 응답:
-{
-  "success": true,
-  "data": { ... },
-  "message": "요청이 성공적으로 처리되었습니다",
-  "timestamp": "2025-06-15T10:30:00"
-}
-
-오류 응답:
-{
-  "success": false,
-  "error": {
-    "code": "ANALYSIS_FAILED",
-    "message": "HS Code 분석 중 오류가 발생했습니다",
-    "details": "..."
-  },
-  "timestamp": "2025-06-15T10:30:00"
+async function onLikeClick() {
+  await postLike(url);
+  // Delay uses the constant, maintaining the link to the animation
+  await delay(ANIMATION_DELAY_MS);
+  await refetchPostLike();
 }
 ```
 
-## Error Handling and User Feedback
+_Ensure constants are maintained alongside the logic they depend on or clearly
+named to show the relationship._
 
-### 1. 스프링부트 서버 오류 처리
+# Coupling
 
-**백엔드 표준 오류 응답 처리:**
-- `ApiResponse<T>` 표준 오류 형태 파싱
-- HTTP 상태 코드별 적절한 사용자 메시지
-- 서버 오류 코드를 한국어 메시지로 변환
-- 네트워크 오류와 서버 오류 구분 처리
+Minimizing dependencies between different parts of the codebase.
 
-**Claude AI 분석 오류 처리:**
-- 분석 시간 초과 (30초 이상)
-- AI 서비스 일시 중단
-- 이미지 업로드 실패
-- 스마트 질문 생성 실패
+## Balancing Abstraction and Coupling (Avoiding Premature Abstraction)
 
-**관세청 API 오류 처리:**
-- API 일시 중단 상황
-- 잘못된 화물번호 입력
-- 데이터 없음 상황
-- 접근 권한 오류
+**Rule:** Avoid premature abstraction of duplicates if use cases might diverge;
+prefer lower coupling.
 
-### 2. 한국어 오류 메시지 가이드라인
+**Reasoning:**
 
-**도메인별 오류 메시지 (백엔드 연동 고려):**
-- 분석 오류: "HS Code 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
-- 추적 오류: "화물 정보를 찾을 수 없습니다. 화물관리번호를 확인해 주세요."
-- 네트워크 오류: "서버 연결에 실패했습니다. 네트워크 상태를 확인해 주세요."
-- 인증 오류: "로그인이 필요합니다. 다시 로그인해 주세요."
-- 서버 오류: "서버에서 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+- Avoids tight coupling from forcing potentially diverging logic into one
+  abstraction.
+- Allowing some duplication can improve decoupling and maintainability when
+  future needs are uncertain.
 
-**오류 복구 옵션:**
-- 자동 재시도 (지수 백오프 적용)
-- 수동 재시도 버튼과 예상 시간
-- 오프라인 모드 안내 (가능한 경우)
-- 고객 지원 연결 (심각한 오류 시)
+#### Guidance:
 
-### 3. 로딩 상태 및 피드백 (백엔드 연동)
+Before abstracting, consider if the logic is truly identical and likely to
+_stay_ identical across all use cases. If divergence is possible (e.g.,
+different pages needing slightly different behavior from a shared hook like
+`useOpenMaintenanceBottomSheet`), keeping the logic separate initially (allowing
+duplication) can lead to more maintainable, decoupled code. Discuss trade-offs
+with the team. _[No specific 'good' code example here, as the recommendation is
+situational awareness rather than a single pattern]._
 
-**서버 응답 기반 진행 상태:**
-- Claude AI 분석: 백엔드에서 전송하는 실제 진행률 표시
-- 데이터 로딩: 서버 응답 시간 고려한 예상 시간 안내
-- 파일 업로드: 실제 업로드 진행률 및 서버 처리 상태
+## Scoping State Management (Avoiding Overly Broad Hooks)
 
-**성공 피드백:**
-- 서버 응답 성공 시 즉각적 토스트 알림
-- 결과 페이지로 자연스러운 전환
-- 백엔드 처리 완료 시 알림 (북마크, 모니터링 설정 등)
+**Rule:** Break down broad state management into smaller, focused
+hooks/contexts.
 
-**WebSocket 기반 실시간 피드백:**
-- 모니터링 변동사항 즉시 알림
-- 분석 세션 진행 상황 실시간 업데이트
-- 시스템 공지사항 실시간 수신
+**Reasoning:**
 
-## Performance Optimization
+- Reduces coupling by ensuring components only depend on necessary state slices.
+- Improves performance by preventing unnecessary re-renders from unrelated state
+  changes.
 
-### 1. 코드 분할 전략
+#### Recommended Pattern:
 
-**라우트 레벨 분할:**
-- 주요 도메인별 청크 분리 (/hscode/*, /tracking/*, /search/*, /dashboard/*)
-- 초기 로딩 속도 최적화
-- 필요 시점 코드 로딩 (React.lazy 활용)
+(Focused hooks, low coupling)
 
-**컴포넌트 레벨 분할:**
-- 무거운 차트 컴포넌트 지연 로딩 (@tremor/react 차트)
-- 모달 및 오버레이 동적 임포트
-- Claude AI 분석 인터페이스 on-demand 로딩
+```typescript
+// Hook specifically for cardId query param
+import { useQueryParam, NumberParam } from "use-query-params";
+import { useCallback } from "react";
 
-### 2. 서버 상태 기반 데이터 페칭 최적화
+export function useCardIdQueryParam() {
+  // Assuming 'query' provides the raw param value
+  const [cardIdParam, setCardIdParam] = useQueryParam("cardId", NumberParam);
 
-**스프링부트 서버 연동 최적화:**
-- TanStack Query로 서버 응답 공격적 캐싱
-- 백엔드 응답 시간 고려한 timeout 설정
-- 서버 에러 시 자동 재시도 전략
-- 네트워크 상태에 따른 캐시 전략 조정
+  const setCardId = useCallback(
+    (newCardId: number | undefined) => {
+      setCardIdParam(newCardId, "replaceIn"); // Or 'push' depending on desired history behavior
+    },
+    [setCardIdParam]
+  );
 
-**프리페칭 전략 (백엔드 데이터 기반):**
-- HS Code 분석 결과 → 관련 무역 통계 백그라운드 로딩
-- 메인 대시보드 → 북마크 데이터 prefetch
-- 검색 결과 → 첫 번째 상세 결과 prefetch
-- 서버 응답 패턴 학습으로 예측 prefetch
+  // Provide a stable return tuple
+  return [cardIdParam ?? undefined, setCardId] as const;
+}
 
-**캐시 무효화 전략:**
-- 북마크 변경 → 관련 쿼리 즉시 무효화
-- 모니터링 설정 변경 → 피드 데이터 갱신
-- 서버 에러 시 stale 데이터 활용 (SWR 패턴)
+// Separate hook for date range, etc.
+// export function useDateRangeQueryParam() { /* ... */ }
+```
 
-### 3. 백엔드 연동 고려 최적화
+Components now only import and use `useCardIdQueryParam` if they need `cardId`,
+decoupling them from date range state, etc.
 
-**API 요청 최적화:**
-- Request/Response 압축 (gzip)
-- 불필요한 데이터 요청 최소화
-- GraphQL 스타일 필드 선택 (백엔드 지원 시)
-- 배치 요청으로 다중 API 호출 최적화
+## Eliminating Props Drilling with Composition
 
-**모바일 및 네트워크 최적화:**
-- 한국 모바일 환경 고려한 이미지 최적화
-- 저속 네트워크 대비 Progressive Loading
-- 오프라인 상황 대비 캐시 활용
-- 터치 친화적 인터페이스 (44px 최소 탭 영역)
+**Rule:** Use Component Composition instead of Props Drilling.
 
-**PWA 기능 (백엔드 연동 시):**
-- 서비스 워커를 활용한 백그라운드 동기화
-- 중요 알림 Push 시스템 (백엔드 푸시 서버 연동)
-- 설치 가능한 앱 경험
-- 오프라인 중요 기능 캐시
+**Reasoning:**
 
-## Real-time Integration
+- Significantly reduces coupling by eliminating unnecessary intermediate
+  dependencies.
+- Makes refactoring easier and clarifies data flow in flatter component trees.
 
-### 1. WebSocket 연결 관리 (스프링부트 서버)
+#### Recommended Pattern:
 
-**백엔드 실시간 연결:**
-- 스프링부트 서버의 WebSocket 엔드포인트 연결
-- 모니터링 변동사항 실시간 수신
-- 알림 시스템 즉시 업데이트
-- 네트워크 상태에 따른 연결 전략 조정
+```tsx
+import React, { useState } from "react";
 
-**현재 개발 환경 (목업):**
-- WebSocket 대신 polling 방식으로 구현
-- setTimeout을 활용한 변동사항 시뮬레이션
-- 실제 백엔드 연동 시 WebSocket으로 전환
-- 연결 상태 관리 로직은 동일하게 유지
+// Assume Modal, Input, Button, ItemEditList components exist
 
-### 2. 실시간 기능 구현
+function ItemEditModal({ open, items, recommendedItems, onConfirm, onClose }) {
+  const [keyword, setKeyword] = useState("");
 
-**모니터링 시스템 실시간 업데이트:**
-- 백엔드 스케줄러가 변동사항 감지
-- WebSocket으로 프론트엔드에 변동사항 전송
-- 즉시 토스트 알림 및 대시보드 피드 업데이트
-- 이메일 알림은 백엔드에서 별도 처리
+  // Render children directly within Modal, passing props only where needed
+  return (
+    <Modal open={open} onClose={onClose}>
+      {/* Input and Button rendered directly */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "1rem",
+        }}
+      >
+        <Input
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)} // State managed here
+          placeholder="Search items..."
+        />
+        <Button onClick={onClose}>Close</Button>
+      </div>
+      {/* ItemEditList rendered directly, gets props it needs */}
+      <ItemEditList
+        keyword={keyword} // Passed directly
+        items={items} // Passed directly
+        recommendedItems={recommendedItems} // Passed directly
+        onConfirm={onConfirm} // Passed directly
+      />
+    </Modal>
+  );
+}
 
-**분석 세션 실시간 진행률:**
-- 스프링부트에서 Claude AI 분석 진행 상황 관리
-- WebSocket으로 진행률 실시간 전송
-- 스마트 질문 생성 시 즉시 프론트엔드 표시
-- 출처 정보 점진적 누적 표시
-
-**화물 추적 실시간 갱신:**
-- 백엔드에서 관세청 API 주기적 체크
-- 통관 단계 변경 시 WebSocket 이벤트 발송
-- 예상 시간 업데이트 즉시 반영
-- 중요 변경사항 하이라이트 표시
-
-## 📋 요구사항 검증 체크리스트
-
-### ✅ 기능 요구사항 (FR-AD) 완전 반영
-- **FR-AD-001**: 사용자 계정 관리 → `auth/` 컴포넌트
-- **FR-AD-002**: SNS 연동 → `SnsLoginButtons` 컴포넌트  
-- **FR-AD-003**: 지능형 검색 의도 분석 → `search/` 도메인
-- **FR-AD-004**: HS Code 종합 분석 → `hscode/` 도메인
-- **FR-AD-005**: 스마트 질문 시스템 → `SmartQuestionPanel` 
-- **FR-AD-006**: 신뢰성 있는 근거 제시 → `SourceCitationList`
-- **FR-AD-007**: 수입화물 진행정보 조회 → `tracking/` 도메인
-- **FR-AD-008**: 일반 정보 검색 → `search/results` 페이지
-- **FR-AD-009**: 모니터링 대상 관리 → `monitoring/` 컴포넌트
-- **FR-AD-010**: 자동 모니터링 및 변동 감지 → `useChangeDetection` 훅
-- **FR-AD-011**: 듀얼 알림 시스템 → `DualNotificationSettings`
-- **FR-AD-012**: 외부 데이터 연동 → `api/` 훅들
-
-### ✅ UI/UX 요구사항 (FR-UU) 완전 반영  
-- **FR-UU-001**: 공용 메인 화면 → `index.tsx` + `IntelligentSearchBar`
-- **FR-UU-002**: 마이 대시보드 → 정확히 2개 탭 구조
-- **FR-UU-003**: HS Code 분석 채팅 → `AnalysisChatInterface`
-- **FR-UU-004**: HS Code 상세 정보 → `ResultDashboard`
-- **FR-UU-005**: 화물 추적 결과 → `ClearanceStatusTimeline`
-- **FR-UU-006**: 알림 히스토리 → `NotificationHistoryList`
-
-### ✅ 유스케이스 (UC) 완전 대응
-- **UC-004**: 지능형 통합 검색 → 의도별 자동 라우팅
-- **UC-005**: HS Code 종합 분석 → 스마트 질문 시스템 포함  
-- **UC-009**: 마이 대시보드 → 2개 탭: 피드 + 북마크 관리
-- **UC-011**: 종합 모니터링 → 듀얼 알림 시스템
-
-### 4. External API Data Sources (스프링부트 서버가 연동할 외부 API)
-
-**Korea Customs APIs (관세청 API):**
-- Import/Export Statistics API (품목별 국가별 수출입실적)
-- Customs Exchange Rate API (관세환율정보)  
-- Import Cargo Progress API (수입화물 진행정보)
-
-**UN COMTRADE API:**
-- 글로벌 무역 통계 데이터
-- 국가별/품목별 수출입 분석
-
-**Claude AI API:**
-- 핵심 AI 분석 엔진
-- 멀티스텝 웹검색 및 의도 분석
-- 스마트 질문 생성 시스템
-
-## 🎯 개발 시 핵심 주의사항
-
-### 1. 스프링부트 서버 연동 필수사항
-- **모든 API 요청은 스프링부트 서버를 경유하도록 설계**
-- Claude AI 분석도 직접 호출이 아닌 스프링부트 서버 경유
-- 관세청 API, UN COMTRADE API 모두 백엔드에서 처리 후 결과 전달
-- 환경 변수로 목업/실제 서버 자동 전환 (`REACT_APP_API_BASE_URL`)
-
-### 2. API 추상화 레이어 구축 필수
-- **스프링부트 API 스펙에 정확히 일치하는 인터페이스 설계**
-- 백엔드 연동 시 환경 변수 변경만으로 전환 완료
-- `ApiResponse<T>` 표준 응답 형태 일관 적용
-- 현재는 목업 데이터로 동작하지만 실제 서버와 동일한 구조
-
-### 3. 디자인 일관성 필수 준수
-- **모든 컴포넌트 개발 전 `THEME_GUIDE.md` 파일 확인 필수**
-- 색상, 폰트, 스페이싱 등 디자인 토큰 엄격 적용
-- 기존 컴포넌트 수정 시에도 디자인 가이드 재검토
-- 새로운 UI 패턴 도입 시 가이드 문서 업데이트 검토
-
-### 4. 한국어 주석 작성 의무화
-- **복잡한 로직에는 반드시 한국어 명사형 어미 주석 작성**
-- 비즈니스 로직의 배경과 목적 명시
-- API 추상화 레이어 및 목업 로직 상세 설명
-- 스프링부트 연동 관련 설정 및 환경 변수 설명
-
-### 5. Claude AI 통합 (스프링부트 경유)
-- 멀티스텝 웹검색은 스프링부트에서 처리, 프론트엔드는 진행률 표시
-- 스마트 질문 생성은 백엔드 로직으로 위임
-- 이미지 분석은 스프링부트로 업로드 후 Claude 처리
-- 모든 AI 결과에 신뢰할 수 있는 출처 첨부 (백엔드에서 검증)
-
-### 6. 모니터링 시스템 (백엔드 연동)
-- 북마크 생성 시 백엔드에서 모니터링 스케줄러 등록
-- 변동사항 감지는 스프링부트 스케줄링 시스템에서 처리
-- 듀얼 알림은 백엔드에서 브라우저 푸시 + 이메일 발송
-- 프론트엔드는 WebSocket으로 실시간 변동사항 수신
-
-### 7. 개발 환경 설정
-- 환경 변수로 개발/프로덕션 자동 전환
-- 개발: `REACT_APP_API_BASE_URL=http://localhost:3001/mock`
-- 프로덕션: `REACT_APP_API_BASE_URL=http://localhost:8080/api/v1`
-- 목업 환경에서도 실제 서버와 동일한 응답 구조 유지
-
-### 8. 한국어 사용자 최적화
-- 모든 UI 텍스트 및 오류 메시지 한국어
-- 한국어 음성 입력 지원 (스프링부트로 전송하여 처리)
-- 한국 비즈니스 시간 고려한 캐싱 전략
-
-### 9. 성능 및 사용자 경험
-- CSR 환경에서 적극적인 코드 분할
-- TanStack Query로 서버 상태 중심 상태 관리
-- 로딩 상태 및 오류 복구 옵션 항상 제공
-- 백엔드 연동을 고려한 캐시 무효화 전략
-
-### 10. 백엔드 연동 준비
-- **최소한의 코드 변경으로 프로덕션 배포 가능하도록 설계**
-- TypeScript 타입은 백엔드 DTO와 완전 일치
-- API 클라이언트 인터페이스는 스프링부트 스펙 기준
-- 목업 로직만 제거하고 실제 서버 URL로 환경 변수 변경
-
-이 커서룰은 최종 요구사항 문서의 모든 항목을 빠짐없이 반영하여 작성되었습니다. 폴더 구조는 단계별 검증을 통해 요구사항과 100% 일치하도록 확인되었습니다.
+// The intermediate ItemEditBody component is eliminated, reducing coupling.
+```
