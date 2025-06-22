@@ -9,3 +9,6 @@ dist
 # Cursor
 cursor-memory-bank
 memory-bank
+
+# TanStack Router
+.tanstack/
