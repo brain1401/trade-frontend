@@ -6,6 +6,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html,
+body {
+  min-height: 100dvh;
+  min-width: 100dvw;
+}
+
 body {
   overflow-x: hidden;
 }
