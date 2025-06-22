@@ -1,4 +1,4 @@
-import type { CountryInfo } from "@/types";
+import type { CountryInfo } from "@/types/base";
 
 // 국가 정보 데이터 (전체 시스템에서 공통 사용)
 export const COUNTRIES: CountryInfo[] = [
