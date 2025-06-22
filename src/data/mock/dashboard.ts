@@ -1,11 +1,5 @@
 import type { ImportanceLevel } from "@/types/base";
-import type {
-  FeedType,
-  FeedTargetType,
-  UpdateFeed,
-  DashboardSummary,
-  RecentActivity,
-} from "@/types/dashboard";
+import type { UpdateFeed, DashboardSummary } from "@/types/dashboard";
 import type { BookmarkType as BookmarkTypeEnum } from "@/types/bookmark";
 
 /**

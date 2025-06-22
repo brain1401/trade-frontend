@@ -1,7 +1,6 @@
 import type {
   CargoTrackingInfo,
   CargoTrackingStep,
-  CargoAlert,
   CargoDocument,
 } from "@/types/tracking";
 
@@ -86,7 +85,7 @@ export type CargoTracking = {
   /** 화물 기본 정보 */
   cargoInfo: CargoInfo;
   /** 진행 단계별 타임라인 */
-  timeline: TimelineStep[];
+  timeline: CargoTrackingStep[];
   /** 관련 서류 목록 */
   documents: Document[];
   /** 수수료 정보 목록 */

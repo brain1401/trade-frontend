@@ -1,6 +1,5 @@
 import type {
   TradeStatistics,
-  DetailedTradeStatistics,
   TradeStatisticsSummary,
   TimeSeriesTradeStats,
 } from "@/types/trade";

@@ -2,7 +2,6 @@ import type {
   PopularKeyword,
   RecentSearchItem,
   SearchResult,
-  IntentType,
 } from "@/types/search";
 
 /**
