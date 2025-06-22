@@ -36,22 +36,6 @@ export function cn(...inputs: ClassValue[]) {
 // =============================================================================
 // URL 쿼리 파라미터 검증 및 타입 안전성 관련 유틸리티들
 
-export {
-  validateQueryParams,
-  validateStringParam,
-  validateNumberParam,
-  validateBooleanParam,
-  validateSearchParams,
-  validatePaginationParams,
-  validateSortParams,
-  SEARCH_PARAMS_SCHEMA,
-  PAGINATION_PARAMS_SCHEMA,
-  SORT_PARAMS_SCHEMA,
-  type RawQueryParams,
-  type ValidationSchema,
-  type ValidatedParams,
-} from "./queryValidation";
-
 // =============================================================================
 // 🎨 CSS VARIABLES UTILITIES
 // =============================================================================
@@ -81,44 +65,9 @@ export {
 } from "./formatters";
 
 // =============================================================================
-// 🔐 TOKEN MANAGEMENT UTILITIES
-// =============================================================================
-// JWT 토큰 관리, 보안 검증, 저장소 관리 관련 유틸리티들
-
-export {
-  // 토큰 검증 관련
-  isTokenExpired,
-  validateTokenSecurity,
-  getUserFromToken,
-  getTokenPayload,
-  getTokenExpirationDate,
-  getTokenRemainingTime,
-
-  // 토큰 저장 관련
-  getTokenStorageStrategy,
-  secureTokenStorage,
-
-  // 타입 정의
-  type UserTokenData,
-  type JwtPayload,
-} from "./tokenUtils";
-
-// =============================================================================
 // 🎯 CONVENIENCE NAMESPACES
 // =============================================================================
 // 관련 기능들을 네임스페이스로 그룹화하여 사용 편의성 향상
-
-/**
- * 쿼리 파라미터 검증 관련 유틸리티 네임스페이스
- *
- * @example
- * ```typescript
- * import { QueryUtils } from '@/lib/utils';
- *
- * const validatedParams = QueryUtils.validate(rawParams, schema);
- * ```
- */
-export * as QueryUtils from "./queryValidation";
 
 /**
  * CSS 변수 및 테마 관련 유틸리티 네임스페이스
@@ -143,16 +92,3 @@ export * as ThemeUtils from "./cssVariables";
  * ```
  */
 export * as FormatUtils from "./formatters";
-
-/**
- * 토큰 관리 관련 유틸리티 네임스페이스
- *
- * @example
- * ```typescript
- * import { TokenUtils } from '@/lib/utils';
- *
- * const isExpired = TokenUtils.isTokenExpired(token);
- * const userData = TokenUtils.getUserFromToken(token);
- * ```
- */
-export * as TokenUtils from "./tokenUtils";
