@@ -5,22 +5,17 @@
  */
 
 /**
- * API 응답 래퍼 타입
+ * API 공통 응답 래퍼 타입 (API v2.4 표준)
  *
- * 모든 API 요청에 대한 표준화된 응답 형태를 정의합니다.
- * success 필드로 성공/실패를 구분하고, message로 응답 메시지를 전달합니다.
- *
- * @template T - 실제 응답 데이터의 타입
+ * 모든 API 응답은 이 구조로 래핑되어 반환됩니다.
  */
 export type ApiResponse<T> = {
-  /** 응답 성공 여부 */
+  /** 요청 처리 결과 상태 */
   success: "SUCCESS" | "ERROR";
-  /** 응답 메시지 */
+  /** 처리 결과 메시지 */
   message: string;
-  /** 실제 응답 데이터 (실패시 null) */
+  /** 응답 데이터 (성공 시에만 존재) */
   data: T | null;
-  /** 에러 코드 (에러 발생시) */
-  errorCode?: string;
 };
 
 /**
@@ -93,25 +88,62 @@ export type ApiErrorCode =
   | "SYSTEM_003"; // 일시적인 서비스 장애가 발생했습니다
 
 /**
- * HTTP 상태 코드 타입 (API v2.4)
- *
- * 17개 상황별 정확한 응답 코드를 지원합니다.
+ * HTTP 상태 코드 타입 (API v2.4에서 사용되는 코드들)
  */
 export type HttpStatusCode =
-  | 200 // OK - 성공
-  | 201 // Created - 생성 성공
-  | 202 // Accepted - 비동기 작업 시작
-  | 204 // No Content - 성공 (응답 본문 없음)
-  | 400 // Bad Request - 잘못된 요청
-  | 401 // Unauthorized - 인증 필요/실패
-  | 403 // Forbidden - 권한 없음
-  | 404 // Not Found - 리소스 없음
-  | 409 // Conflict - 충돌 (중복 등)
-  | 410 // Gone - 리소스 만료
-  | 422 // Unprocessable Entity - 요청 처리 불가
-  | 423 // Locked - 리소스 잠김
-  | 429 // Too Many Requests - 요청 한도 초과
-  | 500 // Internal Server Error - 서버 오류
-  | 502 // Bad Gateway - 외부 시스템 오류
-  | 503 // Service Unavailable - 서비스 이용 불가
-  | 504; // Gateway Timeout - 외부 시스템 타임아웃
+  | 200 // OK
+  | 201 // Created
+  | 202 // Accepted
+  | 204 // No Content
+  | 302 // Found (OAuth 리디렉션)
+  | 400 // Bad Request
+  | 401 // Unauthorized
+  | 403 // Forbidden
+  | 404 // Not Found
+  | 409 // Conflict
+  | 422 // Unprocessable Entity
+  | 423 // Locked
+  | 429 // Too Many Requests
+  | 500 // Internal Server Error
+  | 502 // Bad Gateway
+  | 504; // Gateway Timeout
+
+/**
+ * 기본 엔티티 속성
+ */
+export type BaseEntity = {
+  /** 고유 식별자 */
+  id: string | number;
+  /** 생성 시간 (ISO 8601) */
+  createdAt: string;
+  /** 수정 시간 (ISO 8601) */
+  updatedAt: string;
+};
+
+/**
+ * 페이지네이션 메타데이터
+ */
+export type PaginationMeta = {
+  /** 현재 페이지 번호 */
+  currentPage: number;
+  /** 페이지당 항목 수 */
+  pageSize: number;
+  /** 전체 항목 수 */
+  totalItems: number;
+  /** 전체 페이지 수 */
+  totalPages: number;
+  /** 이전 페이지 존재 여부 */
+  hasPreviousPage: boolean;
+  /** 다음 페이지 존재 여부 */
+  hasNextPage: boolean;
+};
+
+/**
+ * 페이지네이션 응답 타입
+ */
+export type PaginatedResponse<T> = {
+  /** 데이터 배열 */
+  items: T[];
+  /** 페이지네이션 메타데이터 */
+  meta: PaginationMeta;
+};
