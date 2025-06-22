@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
+import type { RouterAuthContext } from "@/types/auth";
 import { Toaster } from "@/components/ui/sonner";
 import SideBar from "@/components/root/SideBar.tsx";
 import { SidebarProvider } from "@/components/ui/sidebar.tsx";
@@ -15,11 +16,7 @@ import { SidebarProvider } from "@/components/ui/sidebar.tsx";
  */
 type MyRouterContext = {
   queryClient: QueryClient;
-  auth: {
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    user: any;
-  };
+  auth: RouterAuthContext;
 };
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
