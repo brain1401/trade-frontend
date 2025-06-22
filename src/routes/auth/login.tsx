@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  Link,
-  useNavigate,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,20 +26,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/stores/authStore.ts";
-import { useAuthStore } from "@/stores/authStore";
 import { authApi } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
 import type { OAuthProvider } from "@/types/auth";
+import { requireGuest } from "@/lib/utils/authGuard";
 
 export const Route = createFileRoute("/auth/login")({
   beforeLoad: ({ context }) => {
-    // 이미 로그인된 사용자는 홈 페이지로 리디렉션
-    if (context.auth.isAuthenticated) {
-      throw redirect({
-        to: "/",
-        replace: true,
-      });
-    }
+    requireGuest(context);
   },
   component: LoginPage,
 });

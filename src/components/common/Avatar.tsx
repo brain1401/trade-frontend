@@ -6,6 +6,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useAuth } from "@/stores/authStore";
+import { useNavigate } from "@tanstack/react-router";
 import { User, Settings, LogOut } from "lucide-react";
 
 type UserAvatarProps = {
@@ -57,6 +58,7 @@ export default function UserAvatar({
   showHoverCard = true,
 }: UserAvatarProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const sizeClasses = {
     sm: "h-8 w-8",
@@ -69,8 +71,8 @@ export default function UserAvatar({
   };
 
   const handleEditProfile = () => {
-    // TODO: 회원정보 수정 페이지로 이동
-    console.log("회원정보 수정 페이지로 이동");
+    // 프로필 페이지로 이동
+    navigate({ to: "/dashboard/profile" });
   };
 
   const handleLogout = async () => {

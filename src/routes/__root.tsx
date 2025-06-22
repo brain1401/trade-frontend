@@ -1,5 +1,5 @@
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
@@ -33,7 +33,8 @@ function RootLayout() {
           <Outlet />
         </main>
         <TanStackQueryLayout />
-        <TanStackRouterDevtools />
+        {/* 프로필 사진을 가려서 일시 비활성화 */}
+        {/* <TanStackRouterDevtools /> */}
         <Toaster />
       </div>
     </SidebarProvider>
