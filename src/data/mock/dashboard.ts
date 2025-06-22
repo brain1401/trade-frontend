@@ -1,6 +1,9 @@
 import type { ImportanceLevel } from "@/types/base";
 import type { UpdateFeed, DashboardSummary } from "@/types/dashboard";
-import type { BookmarkType as BookmarkTypeEnum } from "@/types/bookmark";
+import type {
+  BookmarkType,
+  Bookmark as OfficialBookmark,
+} from "@/types/bookmark";
 
 /**
  * 피드 아이템의 타입을 정의하는 열거형
@@ -9,10 +12,11 @@ import type { BookmarkType as BookmarkTypeEnum } from "@/types/bookmark";
  * 각 타입별로 다른 UI 스타일과 액션이 적용됩니다.
  */
 export type FeedItemType =
-  | "hscode_regulation" // HS Code 규제 변경
-  | "cargo_status" // 화물 상태 업데이트
-  | "trade_news" // 무역 관련 뉴스
-  | "exchange_rate"; // 환율 변동
+  | "HS_CODE_TARIFF_CHANGE" // HS Code 관세율 변경
+  | "HS_CODE_REGULATION_UPDATE" // HS Code 규제 변경
+  | "CARGO_STATUS_UPDATE" // 화물 상태 업데이트
+  | "TRADE_NEWS" // 무역 관련 뉴스
+  | "POLICY_UPDATE"; // 정책 변경 사항
 
 /**
  * 대시보드 피드에 표시되는 개별 아이템의 데이터 구조
@@ -42,40 +46,10 @@ export type FeedItem = {
 };
 
 /**
- * 북마크 타입을 정의하는 열거형
- *
- * 사용자가 북마크할 수 있는 콘텐츠의 종류를 분류합니다.
+ * API 명세서에 맞는 북마크 타입
+ * 공식 bookmark.ts의 Bookmark 타입을 사용
  */
-export type BookmarkType = "hscode" | "tracking" | "regulation";
-
-/**
- * 사용자 북마크 정보의 데이터 구조
- *
- * 사용자가 지속적으로 모니터링하고 싶어하는 항목들을 관리하며,
- * 해당 항목들의 변경사항을 추적할 수 있습니다.
- */
-export type Bookmark = {
-  /** 북마크의 고유 식별자 */
-  id: string;
-  /** 북마크 타입 */
-  type: BookmarkTypeEnum;
-  /** 북마크 제목 */
-  title: string;
-  /** 북마크 상세 설명 */
-  description: string;
-  /** 북마크 생성 시간 (ISO 문자열) */
-  createdAt: string;
-  /** 마지막 업데이트 시간 (ISO 문자열) */
-  lastUpdated: string;
-  /** 모니터링 활성화 여부 */
-  monitoringEnabled: boolean;
-  /** 카테고리 분류 */
-  category: string;
-  /** 태그 목록 */
-  tags: string[];
-  /** 연관된 페이지 URL */
-  url: string;
-};
+export type Bookmark = OfficialBookmark;
 
 /**
  * 업데이트 피드 Mock 데이터
@@ -93,36 +67,37 @@ export type Bookmark = {
 export const mockUpdatesFeed: UpdateFeed[] = [
   {
     id: 1,
-    feedType: "HS_CODE_REGULATION_UPDATE",
+    feedType: "HS_CODE_TARIFF_CHANGE",
     targetType: "HS_CODE",
-    targetValue: "8517.12",
-    title: "HS Code 8517.12 관련 KC 인증 요건 변경",
-    content: "휴대폰 관련 KC 인증 절차가 간소화되었습니다.",
+    targetValue: "8517.12.00",
+    title: "스마트폰 관세율 변경",
+    content: "미국향 스마트폰 관세율이 5%에서 3%로 인하되었습니다.",
     changeDetails: {
-      previous: "인증 기간: 30일, 서류: 8종",
-      current: "인증 기간: 15일, 서류: 5종",
-      effectiveDate: "2024-02-01T00:00:00Z",
+      previous: "5%",
+      current: "3%",
+      effectiveDate: "2024-01-15T00:00:00Z",
     },
-    sourceUrl: "https://rra.go.kr/notice/8517-12-kc-change",
+    sourceUrl: "https://customs.go.kr/tariff-update",
     importance: "HIGH",
     isRead: false,
-    createdAt: "2024-01-15T14:30:00Z",
+    createdAt: "2024-01-15T10:00:00Z",
   },
   {
     id: 2,
     feedType: "CARGO_STATUS_UPDATE",
     targetType: "CARGO",
-    targetValue: "MSKU1234567",
-    title: "화물 MSKU1234567 통관 단계 진행",
-    content: "부산항 도착 완료, 수입신고 준비 중입니다.",
+    targetValue: "12345678901234567",
+    title: "화물 통관 완료",
+    content: "등록하신 화물의 통관이 완료되었습니다.",
     changeDetails: {
-      current: "부산항 도착",
-      completedAt: "2024-01-15T10:15:00Z",
+      previous: "검사 대기",
+      current: "통관 완료",
+      completedAt: "2024-01-15T14:30:00Z",
     },
-    sourceUrl: "https://customs.go.kr/tracking/MSKU1234567",
+    sourceUrl: null,
     importance: "MEDIUM",
-    isRead: false,
-    createdAt: "2024-01-15T10:15:00Z",
+    isRead: true,
+    createdAt: "2024-01-15T14:35:00Z",
   },
   {
     id: 3,
@@ -159,7 +134,7 @@ export const mockUpdatesFeed: UpdateFeed[] = [
 ];
 
 /**
- * 사용자 북마크 Mock 데이터
+ * 사용자 북마크 Mock 데이터 (API v2.4 명세서 준수)
  *
  * 사용자가 저장한 북마크 목록으로, HS Code, 화물 추적, 규제 정보 등
  * 다양한 타입의 북마크를 포함합니다.
@@ -173,52 +148,40 @@ export const mockUpdatesFeed: UpdateFeed[] = [
  */
 export const mockBookmarks: Bookmark[] = [
   {
-    id: "bookmark-1",
+    bookmarkId: "bm_001",
     type: "HS_CODE",
-    title: "HS Code 8517.12 (스마트폰)",
+    targetValue: "8517.12.00",
+    displayName: "스마트폰 (아이폰 15)",
     description: "5G 지원 스마트폰 분류 및 규제 현황",
+    monitoringEnabled: true,
+    alertCount: 3,
+    lastAlert: "2024-01-15T10:00:00Z",
     createdAt: "2024-01-10T10:00:00Z",
-    lastUpdated: "2024-01-15T14:30:00Z",
-    monitoringEnabled: true,
-    category: "전자제품",
-    tags: ["5G", "휴대폰", "KC인증"],
-    url: "/hscode/result/result-8517.12",
+    updatedAt: "2024-01-15T14:30:00Z",
   },
   {
-    id: "bookmark-2",
+    bookmarkId: "bm_002",
     type: "HS_CODE",
-    title: "HS Code 3304.99 (기타 화장품)",
+    targetValue: "3304.99.00",
+    displayName: "기타 화장품",
     description: "K-뷰티 화장품 수출 가이드",
+    monitoringEnabled: true,
+    alertCount: 1,
+    lastAlert: "2024-01-12T09:15:00Z",
     createdAt: "2024-01-08T15:20:00Z",
-    lastUpdated: "2024-01-12T11:45:00Z",
-    monitoringEnabled: true,
-    category: "화장품",
-    tags: ["K-뷰티", "수출", "FDA"],
-    url: "/hscode/result/result-3304.99",
+    updatedAt: "2024-01-12T11:45:00Z",
   },
   {
-    id: "cargo-1",
+    bookmarkId: "bm_003",
     type: "CARGO",
-    title: "화물 MSKU1234567",
-    description: "전자제품 수입 화물 추적",
-    createdAt: "2024-01-10T08:00:00Z",
-    lastUpdated: "2024-01-15T10:15:00Z",
-    monitoringEnabled: true,
-    category: "수입",
-    tags: ["전자제품", "부산항", "통관중"],
-    url: "/tracking/result/MSKU1234567",
-  },
-  {
-    id: "bookmark-3",
-    type: "HS_CODE",
-    title: "HS Code 8507.60 (리튬배터리)",
-    description: "중국 리튬배터리 관련 최신 규제",
-    createdAt: "2024-01-05T13:30:00Z",
-    lastUpdated: "2024-01-14T16:45:00Z",
+    targetValue: "12345678901234567",
+    displayName: "전자제품 수입 화물",
+    description: "1월 전자제품 수입 화물 추적",
     monitoringEnabled: false,
-    category: "규제",
-    tags: ["리튬배터리", "중국", "안전기준"],
-    url: "/search/results?q=리튬배터리+규제",
+    alertCount: 0,
+    lastAlert: null,
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-15T10:15:00Z",
   },
 ];
 
@@ -400,7 +363,7 @@ export const getRecentFeedItems = (limit: number = 10): UpdateFeed[] => {
  */
 export const getBookmarksByCategory = (category: string): Bookmark[] => {
   if (category === "전체") return mockBookmarks;
-  return mockBookmarks.filter((bookmark) => bookmark.category === category);
+  return mockBookmarks.filter((bookmark) => bookmark.type === category);
 };
 
 /**
