@@ -10,13 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
+import { Route as SearchIndexRouteImport } from './routes/search/index'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
+import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AdvancedIndexRouteImport } from './routes/advanced/index'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
+import { Route as DashboardProfileIndexRouteImport } from './routes/dashboard/profile/index'
+import { Route as DashboardBookmarksIndexRouteImport } from './routes/dashboard/bookmarks/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatisticsIndexRoute = StatisticsIndexRouteImport.update({
+  id: '/statistics/',
+  path: '/statistics/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchIndexRoute = SearchIndexRouteImport.update({
+  id: '/search/',
+  path: '/search/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExchangeRatesIndexRoute = ExchangeRatesIndexRouteImport.update({
+  id: '/exchange-rates/',
+  path: '/exchange-rates/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvancedIndexRoute = AdvancedIndexRouteImport.update({
+  id: '/advanced/',
+  path: '/advanced/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -34,18 +73,51 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
+  id: '/dashboard/settings/',
+  path: '/dashboard/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProfileIndexRoute = DashboardProfileIndexRouteImport.update({
+  id: '/dashboard/profile/',
+  path: '/dashboard/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardBookmarksIndexRoute = DashboardBookmarksIndexRouteImport.update({
+  id: '/dashboard/bookmarks/',
+  path: '/dashboard/bookmarks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/advanced': typeof AdvancedIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/exchange-rates': typeof ExchangeRatesIndexRoute
+  '/news': typeof NewsIndexRoute
+  '/search': typeof SearchIndexRoute
+  '/statistics': typeof StatisticsIndexRoute
+  '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
+  '/dashboard/profile': typeof DashboardProfileIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/advanced': typeof AdvancedIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/exchange-rates': typeof ExchangeRatesIndexRoute
+  '/news': typeof NewsIndexRoute
+  '/search': typeof SearchIndexRoute
+  '/statistics': typeof StatisticsIndexRoute
+  '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
+  '/dashboard/profile': typeof DashboardProfileIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +125,62 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/advanced/': typeof AdvancedIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/exchange-rates/': typeof ExchangeRatesIndexRoute
+  '/news/': typeof NewsIndexRoute
+  '/search/': typeof SearchIndexRoute
+  '/statistics/': typeof StatisticsIndexRoute
+  '/dashboard/bookmarks/': typeof DashboardBookmarksIndexRoute
+  '/dashboard/profile/': typeof DashboardProfileIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/callback' | '/auth/login' | '/auth/signup'
+  fullPaths:
+    | '/'
+    | '/auth/callback'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/advanced'
+    | '/dashboard'
+    | '/exchange-rates'
+    | '/news'
+    | '/search'
+    | '/statistics'
+    | '/dashboard/bookmarks'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/callback' | '/auth/login' | '/auth/signup'
-  id: '__root__' | '/' | '/auth/callback' | '/auth/login' | '/auth/signup'
+  to:
+    | '/'
+    | '/auth/callback'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/advanced'
+    | '/dashboard'
+    | '/exchange-rates'
+    | '/news'
+    | '/search'
+    | '/statistics'
+    | '/dashboard/bookmarks'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth/callback'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/advanced/'
+    | '/dashboard/'
+    | '/exchange-rates/'
+    | '/news/'
+    | '/search/'
+    | '/statistics/'
+    | '/dashboard/bookmarks/'
+    | '/dashboard/profile/'
+    | '/dashboard/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +188,15 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  AdvancedIndexRoute: typeof AdvancedIndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
+  SearchIndexRoute: typeof SearchIndexRoute
+  StatisticsIndexRoute: typeof StatisticsIndexRoute
+  DashboardBookmarksIndexRoute: typeof DashboardBookmarksIndexRoute
+  DashboardProfileIndexRoute: typeof DashboardProfileIndexRoute
+  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +206,48 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/statistics/': {
+      id: '/statistics/'
+      path: '/statistics'
+      fullPath: '/statistics'
+      preLoaderRoute: typeof StatisticsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search/': {
+      id: '/search/'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exchange-rates/': {
+      id: '/exchange-rates/'
+      path: '/exchange-rates'
+      fullPath: '/exchange-rates'
+      preLoaderRoute: typeof ExchangeRatesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advanced/': {
+      id: '/advanced/'
+      path: '/advanced'
+      fullPath: '/advanced'
+      preLoaderRoute: typeof AdvancedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/signup': {
@@ -99,6 +271,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/settings/': {
+      id: '/dashboard/settings/'
+      path: '/dashboard/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/profile/': {
+      id: '/dashboard/profile/'
+      path: '/dashboard/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/bookmarks/': {
+      id: '/dashboard/bookmarks/'
+      path: '/dashboard/bookmarks'
+      fullPath: '/dashboard/bookmarks'
+      preLoaderRoute: typeof DashboardBookmarksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +300,15 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
+  AdvancedIndexRoute: AdvancedIndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
+  SearchIndexRoute: SearchIndexRoute,
+  StatisticsIndexRoute: StatisticsIndexRoute,
+  DashboardBookmarksIndexRoute: DashboardBookmarksIndexRoute,
+  DashboardProfileIndexRoute: DashboardProfileIndexRoute,
+  DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
