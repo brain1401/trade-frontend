@@ -11,78 +11,68 @@ body {
 }
 
 @theme {
-  /* Brand Colors (기존 유지) */
-  --color-brand-50: #f0f7ff;
-  --color-brand-100: #e0efff;
-  --color-brand-200: #c7e1ff;
-  --color-brand-300: #a5cdff;
-  --color-brand-400: #7db0ff;
-  --color-brand-500: #5a94ff;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #004e98;
-  --color-brand-800: #003875;
-  --color-brand-900: #002a5c;
-  --color-brand-950: #001a3d;
-
   /* Primary Colors (메인 테마 색상) */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
+  --color-primary-50: oklch(96.51% 0.015 273.9);
+  --color-primary-100: oklch(92.36% 0.032 272.29);
+  --color-primary-200: oklch(85.47% 0.064 270.27);
+  --color-primary-300: oklch(77.83% 0.099 267.54);
+  --color-primary-400: oklch(70.1% 0.137 264.23);
+  --color-primary-500: oklch(62.49% 0.178 259.11);
+  --color-primary-600: oklch(55.24% 0.164 258.41);
+  --color-primary-700: oklch(45.16% 0.135 258.61);
+  --color-primary-800: oklch(34.72% 0.103 258.31);
+  --color-primary-900: oklch(24.39% 0.073 258.16);
+  --color-primary-950: oklch(18.95% 0.056 257.31);
 
   /* Neutral Colors (회색 계열 통합) */
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
-  --color-neutral-950: #030712;
+  --color-neutral-50: oklch(96.67% 0.002 247.73);
+  --color-neutral-100: oklch(93.11% 0.004 271.53);
+  --color-neutral-200: oklch(85.39% 0.009 264.56);
+  --color-neutral-300: oklch(78.46% 0.014 262.39);
+  --color-neutral-400: oklch(71.37% 0.019 261.33);
+  --color-neutral-500: oklch(62.12% 0.018 259.43);
+  --color-neutral-600: oklch(52.57% 0.016 258.37);
+  --color-neutral-700: oklch(42.28% 0.013 261.76);
+  --color-neutral-800: oklch(32.8% 0.01 260.72);
+  --color-neutral-900: oklch(23.42% 0.006 258.37);
+  --color-neutral-950: oklch(18.7% 0.006 271.09);
 
   /* Semantic Colors */
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-300: #86efac;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-800: #166534;
-  --color-success-900: #14532d;
+  --color-success-50: oklch(96.92% 0.049 150.56);
+  --color-success-100: oklch(92.49% 0.125 150.01);
+  --color-success-200: oklch(85.55% 0.232 149.25);
+  --color-success-300: oklch(79.48% 0.215 149.3);
+  --color-success-400: oklch(74.62% 0.202 149.14);
+  --color-success-500: oklch(68.59% 0.185 149.33);
+  --color-success-600: oklch(62.7% 0.17 149.21);
+  --color-success-700: oklch(50.19% 0.136 149.34);
+  --color-success-800: oklch(37.81% 0.102 149.3);
+  --color-success-900: oklch(26.04% 0.071 148.96);
+  --color-success-950: oklch(19.12% 0.05 149.78);
 
-  --color-warning-50: #fffbeb;
-  --color-warning-100: #fef3c7;
-  --color-warning-200: #fde68a;
-  --color-warning-300: #fcd34d;
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
-  --color-warning-700: #b45309;
-  --color-warning-800: #92400e;
-  --color-warning-900: #78350f;
+  --color-warning-50: oklch(98.26% 0.012 67.7);
+  --color-warning-100: oklch(95.74% 0.032 71.91);
+  --color-warning-200: oklch(91.59% 0.07 77.19);
+  --color-warning-300: oklch(88.13% 0.107 79.23);
+  --color-warning-400: oklch(83.69% 0.164 84.42);
+  --color-warning-500: oklch(71.77% 0.141 84.18);
+  --color-warning-600: oklch(60.61% 0.119 84.52);
+  --color-warning-700: oklch(48.58% 0.096 84.81);
+  --color-warning-800: oklch(37.09% 0.073 84.06);
+  --color-warning-900: oklch(25.01% 0.049 82.55);
+  --color-warning-950: oklch(19.9% 0.039 83.98);
 
-  --color-danger-50: #fef2f2;
-  --color-danger-100: #fee2e2;
-  --color-danger-200: #fecaca;
-  --color-danger-300: #fca5a5;
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-danger-800: #991b1b;
-  --color-danger-900: #7f1d1d;
+  --color-warning-50: oklch(96.83% 0.014 17.52);
+  --color-warning-100: oklch(92.61% 0.034 17.84);
+  --color-warning-200: oklch(85.46% 0.072 18.68);
+  --color-warning-300: oklch(78.13% 0.116 20.02);
+  --color-warning-400: oklch(71.06% 0.166 22.22);
+  --color-warning-500: oklch(62.36% 0.238 27.77);
+  --color-warning-600: oklch(53.37% 0.204 27.76);
+  --color-warning-700: oklch(43.32% 0.166 27.8);
+  --color-warning-800: oklch(33.35% 0.128 27.81);
+  --color-warning-900: oklch(24.35% 0.092 27.62);
+  --color-warning-950: oklch(18.62% 0.07 27.45);
 
   /* Chart Colors (차트 전용 컬러) */
   --color-chart-primary: #0088fe;
@@ -93,16 +83,25 @@ body {
   --color-chart-highlight: #ff7300;
 
   /* Info Colors (정보성 컬러) */
-  --color-info-50: #eff6ff;
-  --color-info-100: #dbeafe;
-  --color-info-200: #bfdbfe;
-  --color-info-300: #93c5fd;
-  --color-info-400: #60a5fa;
-  --color-info-500: #3b82f6;
-  --color-info-600: #2563eb;
-  --color-info-700: #1d4ed8;
-  --color-info-800: #1e40af;
-  --color-info-900: #1e3a8a;
+  --color-info-50: oklch(96.63% 0.014 264.53);
+  --color-info-100: oklch(93.21% 0.031 263.52);
+  --color-info-200: oklch(85.39% 0.067 261.69);
+  --color-info-300: oklch(78.41% 0.103 259.41);
+  --color-info-400: oklch(71.37% 0.143 254.62);
+  --color-info-500: oklch(62.05% 0.163 250.85);
+  --color-info-600: oklch(51.62% 0.135 250.8);
+  --color-info-700: oklch(42.11% 0.111 250.87);
+  --color-info-800: oklch(32.8% 0.086 250.98);
+  --color-info-900: oklch(23.18% 0.062 251.22);
+  --color-info-950: oklch(18.82% 0.048 250.87);
+
+  /* Border Colors */
+  --color-border-primary: var(--color-neutral-200);
+  --color-border-secondary: #c7e1ff;
+  --color-border-tertiary: #a5cdff;
+  --color-border-quaternary: #7db0ff;
+  --color-border-accent: #5a94ff;
+  --color-border-highlight: #2563eb;
 
   --line-height-relaxed: 1.75;
   --line-height-comfortable: 1.6;
