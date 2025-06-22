@@ -1,12 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  DollarSign,
-  Newspaper,
-  LayoutDashboard,
-  LogOut,
-  LogIn,
-} from "lucide-react";
+import { DollarSign, Newspaper, LayoutDashboard, LogIn } from "lucide-react";
 
 import {
   Sidebar,
@@ -19,21 +12,19 @@ import {
   SidebarMenuButton,
 } from "../ui/sidebar";
 import UserAvatar from "../common/Avatar";
+import AppLogo from "../common/AppLogo";
 import { Button } from "../ui/button";
-import { useAuthStore, useUser, useIsAuthenticated } from "@/stores/authStore";
+import { useAuth } from "@/stores/authStore.ts";
 import { toast } from "sonner";
 
 /**
  * 메인 사이드바 컴포넌트
- * 아바타, 주요 네비게이션 메뉴, 로그인/로그아웃 버튼을 포함
+ * 앱 로고, 주요 네비게이션 메뉴, 사용자 프로필/로그인 버튼을 포함
  * 인증 상태에 관계없이 항상 표시됨
  */
 export default function SideBar() {
   const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
-  const user = useUser();
-  const isAuthenticated = useIsAuthenticated();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   const menuItems = [
     {
@@ -76,47 +67,12 @@ export default function SideBar() {
     navigate({ to: "/auth/login" });
   };
 
-  /**
-   * 로그아웃 버튼 클릭 처리
-   */
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await logout();
-
-      toast.success("로그아웃되었습니다", {
-        description: "언제든지 다시 로그인하실 수 있습니다",
-      });
-
-      // 현재 페이지가 로그인 필요한 페이지라면 홈으로 이동
-      const currentPath = window.location.pathname;
-      const protectedPaths = ["/dashboard", "/bookmarks"];
-      const isOnProtectedPath = protectedPaths.some((path) =>
-        currentPath.startsWith(path),
-      );
-
-      if (isOnProtectedPath) {
-        navigate({ to: "/" });
-      }
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      toast.error("로그아웃 중 오류가 발생했습니다", {
-        description: "다시 시도해주세요",
-      });
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
   return (
     <Sidebar className="w-[5rem] border-r border-neutral-200">
+      {/* 앱 로고 */}
       <SidebarHeader className="p-4">
         <div className="flex justify-center">
-          <UserAvatar
-            src={isAuthenticated ? user?.profileImage : undefined}
-            name={isAuthenticated ? user?.name || "사용자" : "게스트"}
-            size="md"
-          />
+          <AppLogo size="md" />
         </div>
       </SidebarHeader>
 
@@ -164,30 +120,27 @@ export default function SideBar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        {isAuthenticated ? (
-          // 로그인된 사용자: 로그아웃 버튼
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-danger-50 hover:text-danger-600 h-12 w-12 text-neutral-600"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            <LogOut className="h-5 w-5" />
-            <span className="sr-only">로그아웃</span>
-          </Button>
-        ) : (
-          // 로그인하지 않은 사용자: 로그인 버튼
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-12 w-12 border-primary-200 hover:border-primary-300 hover:bg-primary-50"
-            onClick={handleLogin}
-          >
-            <LogIn className="h-5 w-5 text-primary-600" />
-            <span className="sr-only">로그인</span>
-          </Button>
-        )}
+        <div className="flex justify-center">
+          {isAuthenticated ? (
+            // 로그인된 사용자: 아바타만 표시 (HoverCard에 로그아웃 포함)
+            <UserAvatar
+              src={user?.profileImage || undefined}
+              name={user?.name || "사용자"}
+              size="md"
+            />
+          ) : (
+            // 로그인하지 않은 사용자: 로그인 버튼
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 border-primary-200 hover:border-primary-300 hover:bg-primary-50"
+              onClick={handleLogin}
+            >
+              <LogIn className="h-5 w-5 text-primary-600" />
+              <span className="sr-only">로그인</span>
+            </Button>
+          )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
