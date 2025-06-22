@@ -54,7 +54,7 @@ export type CargoTrackingInfo = {
   status: CargoTrackingStatus;
   /** 현재 진행 단계 */
   currentStep: string;
-  /** 전체 진행률 (0-100) */
+  /** 전체 진행률 (0-100) - API 명세서 요구사항 */
   progressPercentage: number;
   /** 단계별 진행 상황 */
   steps: CargoTrackingStep[];
