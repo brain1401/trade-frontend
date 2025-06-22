@@ -1,4 +1,4 @@
-import type { ExchangeRate } from "@/types";
+import type { ExchangeRate } from "@/types/base";
 import { CURRENCIES } from "@/data/common";
 
 /**

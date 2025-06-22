@@ -1,4 +1,12 @@
-import type { ImportanceLevel } from "@/types";
+import type { ImportanceLevel } from "@/types/base";
+import type {
+  FeedType,
+  FeedTargetType,
+  UpdateFeed,
+  DashboardSummary,
+  RecentActivity,
+} from "@/types/dashboard";
+import type { BookmarkType as BookmarkTypeEnum } from "@/types/bookmark";
 
 /**
  * 피드 아이템의 타입을 정의하는 열거형
@@ -56,7 +64,7 @@ export type Bookmark = {
   /** 북마크의 고유 식별자 */
   id: string;
   /** 북마크 타입 */
-  type: BookmarkType;
+  type: BookmarkTypeEnum;
   /** 북마크 제목 */
   title: string;
   /** 북마크 상세 설명 */
@@ -84,54 +92,75 @@ export type Bookmark = {
  * @example
  * ```typescript
  * const highImportanceItems = mockUpdatesFeed.filter(
- *   item => item.importance === "high"
+ *   item => item.importance === "HIGH"
  * );
  * ```
  */
-export const mockUpdatesFeed: FeedItem[] = [
+export const mockUpdatesFeed: UpdateFeed[] = [
   {
-    id: "feed-1",
-    type: "hscode_regulation",
+    id: 1,
+    feedType: "HS_CODE_REGULATION_UPDATE",
+    targetType: "HS_CODE",
+    targetValue: "8517.12",
     title: "HS Code 8517.12 관련 KC 인증 요건 변경",
-    summary: "휴대폰 관련 KC 인증 절차가 간소화되었습니다.",
-    timestamp: "2024-01-15T14:30:00Z",
-    source: "방송통신위원회",
-    importance: "high",
-    bookmarkId: "bookmark-1",
-    changes: ["인증 기간 단축: 30일 → 15일", "서류 간소화: 8종 → 5종"],
+    content: "휴대폰 관련 KC 인증 절차가 간소화되었습니다.",
+    changeDetails: {
+      previous: "인증 기간: 30일, 서류: 8종",
+      current: "인증 기간: 15일, 서류: 5종",
+      effectiveDate: "2024-02-01T00:00:00Z",
+    },
+    sourceUrl: "https://rra.go.kr/notice/8517-12-kc-change",
+    importance: "HIGH",
+    isRead: false,
+    createdAt: "2024-01-15T14:30:00Z",
   },
   {
-    id: "feed-2",
-    type: "cargo_status",
+    id: 2,
+    feedType: "CARGO_STATUS_UPDATE",
+    targetType: "CARGO",
+    targetValue: "MSKU1234567",
     title: "화물 MSKU1234567 통관 단계 진행",
-    summary: "부산항 도착 완료, 수입신고 준비 중",
-    timestamp: "2024-01-15T10:15:00Z",
-    source: "관세청",
-    importance: "medium",
-    bookmarkId: "cargo-1",
-    changes: ["현재 단계: 부산항 도착", "예상 완료: 2024-01-20"],
+    content: "부산항 도착 완료, 수입신고 준비 중입니다.",
+    changeDetails: {
+      current: "부산항 도착",
+      completedAt: "2024-01-15T10:15:00Z",
+    },
+    sourceUrl: "https://customs.go.kr/tracking/MSKU1234567",
+    importance: "MEDIUM",
+    isRead: false,
+    createdAt: "2024-01-15T10:15:00Z",
   },
   {
-    id: "feed-3",
-    type: "trade_news",
+    id: 3,
+    feedType: "TRADE_NEWS",
+    targetType: "HS_CODE",
+    targetValue: "8507.60",
     title: "중국 리튬배터리 수입규제 강화",
-    summary: "2024년 3월부터 리튬배터리 관련 안전 기준이 강화됩니다.",
-    timestamp: "2024-01-14T16:45:00Z",
-    source: "무역협회",
-    importance: "high",
-    bookmarkId: "bookmark-3",
-    changes: ["안전 테스트 항목 추가", "인증서 갱신 주기 단축"],
+    content: "2024년 3월부터 리튬배터리 관련 안전 기준이 강화됩니다.",
+    changeDetails: {
+      current: "안전 테스트 항목 추가, 인증서 갱신 주기 단축",
+      effectiveDate: "2024-03-01T00:00:00Z",
+    },
+    sourceUrl: "https://trade.go.kr/news/lithium-battery-regulation",
+    importance: "HIGH",
+    isRead: true,
+    createdAt: "2024-01-14T16:45:00Z",
   },
   {
-    id: "feed-4",
-    type: "exchange_rate",
-    title: "달러-원 환율 급등",
-    summary: "달러-원 환율이 1,350원을 돌파했습니다.",
-    timestamp: "2024-01-14T09:30:00Z",
-    source: "한국은행",
-    importance: "medium",
-    bookmarkId: "rate-1",
-    changes: ["전일대비 +15원", "연초대비 +5.2%"],
+    id: 4,
+    feedType: "POLICY_UPDATE",
+    targetType: "HS_CODE",
+    targetValue: "ALL",
+    title: "관세율 일괄 조정 발표",
+    content: "주요 수입품목의 관세율이 전면 재조정됩니다.",
+    changeDetails: {
+      current: "평균 관세율 2%p 인하",
+      effectiveDate: "2024-04-01T00:00:00Z",
+    },
+    sourceUrl: "https://customs.go.kr/policy/tariff-adjustment-2024",
+    importance: "MEDIUM",
+    isRead: true,
+    createdAt: "2024-01-14T09:30:00Z",
   },
 ];
 
@@ -144,14 +173,14 @@ export const mockUpdatesFeed: FeedItem[] = [
  * @example
  * ```typescript
  * const hsCodeBookmarks = mockBookmarks.filter(
- *   bookmark => bookmark.type === "hscode"
+ *   bookmark => bookmark.type === "HS_CODE"
  * );
  * ```
  */
 export const mockBookmarks: Bookmark[] = [
   {
     id: "bookmark-1",
-    type: "hscode",
+    type: "HS_CODE",
     title: "HS Code 8517.12 (스마트폰)",
     description: "5G 지원 스마트폰 분류 및 규제 현황",
     createdAt: "2024-01-10T10:00:00Z",
@@ -163,7 +192,7 @@ export const mockBookmarks: Bookmark[] = [
   },
   {
     id: "bookmark-2",
-    type: "hscode",
+    type: "HS_CODE",
     title: "HS Code 3304.99 (기타 화장품)",
     description: "K-뷰티 화장품 수출 가이드",
     createdAt: "2024-01-08T15:20:00Z",
@@ -175,7 +204,7 @@ export const mockBookmarks: Bookmark[] = [
   },
   {
     id: "cargo-1",
-    type: "tracking",
+    type: "CARGO",
     title: "화물 MSKU1234567",
     description: "전자제품 수입 화물 추적",
     createdAt: "2024-01-10T08:00:00Z",
@@ -187,8 +216,8 @@ export const mockBookmarks: Bookmark[] = [
   },
   {
     id: "bookmark-3",
-    type: "regulation",
-    title: "리튬배터리 수입규제",
+    type: "HS_CODE",
+    title: "HS Code 8507.60 (리튬배터리)",
     description: "중국 리튬배터리 관련 최신 규제",
     createdAt: "2024-01-05T13:30:00Z",
     lastUpdated: "2024-01-14T16:45:00Z",
@@ -197,19 +226,67 @@ export const mockBookmarks: Bookmark[] = [
     tags: ["리튬배터리", "중국", "안전기준"],
     url: "/search/results?q=리튬배터리+규제",
   },
-  {
-    id: "rate-1",
-    type: "regulation",
-    title: "달러-원 환율 모니터링",
-    description: "USD/KRW 환율 변동 추적",
-    createdAt: "2024-01-01T00:00:00Z",
-    lastUpdated: "2024-01-14T09:30:00Z",
-    monitoringEnabled: true,
-    category: "환율",
-    tags: ["달러", "환율", "1350원"],
-    url: "/search/results?q=달러+원+환율",
-  },
 ];
+
+/**
+ * 대시보드 요약 정보 Mock 데이터
+ *
+ * 북마크, 피드, 활동 등의 요약 통계를 제공합니다.
+ */
+export const mockDashboardSummary: DashboardSummary = {
+  bookmarks: {
+    total: 4,
+    activeMonitoring: 3,
+    byType: {
+      HS_CODE: 3,
+      CARGO: 1,
+    },
+  },
+  feeds: {
+    unreadCount: 2,
+    todayCount: 2,
+    weekCount: 4,
+    byImportance: {
+      HIGH: 2,
+      MEDIUM: 2,
+      LOW: 0,
+    },
+  },
+  recentActivity: [
+    {
+      type: "BOOKMARK_ADDED",
+      message: "HS Code 8517.12를 북마크에 추가했습니다",
+      timestamp: "2024-01-15T14:30:00Z",
+      relatedData: {
+        id: "bookmark-1",
+        type: "HS_CODE",
+      },
+    },
+    {
+      type: "FEED_RECEIVED",
+      message: "화물 MSKU1234567 상태가 업데이트되었습니다",
+      timestamp: "2024-01-15T10:15:00Z",
+      relatedData: {
+        id: "2",
+        type: "CARGO_STATUS_UPDATE",
+      },
+    },
+    {
+      type: "ALERT_TRIGGERED",
+      message: "리튬배터리 수입규제 강화 알림",
+      timestamp: "2024-01-14T16:45:00Z",
+      relatedData: {
+        id: "3",
+        type: "TRADE_NEWS",
+      },
+    },
+  ],
+  quickStats: {
+    searchCount: 47,
+    totalSavedTime: "3시간 25분",
+    accuracyRate: "94.5%",
+  },
+};
 
 /**
  * 카테고리별 통계 데이터
@@ -246,13 +323,6 @@ export const mockCategoryStats = [
     recentUpdates: 8,
     trend: "증가" as const,
   },
-  {
-    category: "환율",
-    totalBookmarks: 3,
-    activeMonitoring: 3,
-    recentUpdates: 3,
-    trend: "변동" as const,
-  },
 ];
 
 /**
@@ -261,9 +331,9 @@ export const mockCategoryStats = [
  * 높음/보통/낮음 중요도별 아이템 수와 비율을 제공합니다.
  */
 export const mockImportanceStats = {
-  high: { count: 9, percentage: 45, color: "red" },
-  medium: { count: 8, percentage: 40, color: "yellow" },
-  low: { count: 3, percentage: 15, color: "green" },
+  HIGH: { count: 2, percentage: 45, color: "red" },
+  MEDIUM: { count: 2, percentage: 40, color: "yellow" },
+  LOW: { count: 0, percentage: 15, color: "green" },
 };
 
 /**
@@ -284,9 +354,8 @@ export const mockFilterOptions = {
   ],
   types: [
     { value: "all", label: "전체" },
-    { value: "hscode", label: "HS Code" },
-    { value: "tracking", label: "화물 추적" },
-    { value: "regulation", label: "규제/뉴스" },
+    { value: "HS_CODE", label: "HS Code" },
+    { value: "CARGO", label: "화물 추적" },
   ],
   sortOptions: [
     { value: "lastUpdated", label: "최근 업데이트순" },
@@ -310,11 +379,11 @@ export const mockFilterOptions = {
  * console.log(`최근 ${recentItems.length}개 업데이트`);
  * ```
  */
-export const getRecentFeedItems = (limit: number = 10): FeedItem[] => {
+export const getRecentFeedItems = (limit: number = 10): UpdateFeed[] => {
   return mockUpdatesFeed
     .sort(
       (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, limit);
 };

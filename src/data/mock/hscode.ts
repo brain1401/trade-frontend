@@ -1,11 +1,13 @@
-import type { AnalysisMessage, HSCodeInfo } from "@/types";
+import type { AnalysisMessage } from "@/types/hscode";
+import type { HSCodeAnalysisResult } from "@/types/search";
+import type { HSCodeInfo } from "@/types/news";
 
 /**
  * AnalysisMessage 타입을 재수출
  *
  * 호환성을 위해 types 모듈에서 가져온 AnalysisMessage 타입을 재수출합니다.
  */
-export type { AnalysisMessage } from "@/types";
+export type { AnalysisMessage } from "@/types/hscode";
 
 /**
  * HS Code 분석 세션의 데이터 구조
@@ -25,113 +27,6 @@ export type HSCodeAnalysisSession = {
 };
 
 /**
- * HS Code 분석 결과의 상세 데이터 구조
- *
- * AI 분석을 통해 도출된 HS Code 분류 결과와 관련된 모든 정보를 포함합니다.
- * 기본 정보, 분류 근거, 요구사항, 규제사항, 무역통계, 참고자료 등이 포함됩니다.
- */
-export type HSCodeResult = {
-  /** 결과의 고유 식별자 */
-  resultId: string;
-  /** 분류된 HS Code */
-  hscode: string;
-  /** HS Code 상세 설명 */
-  description: string;
-  /** 분류 신뢰도 (0-100) */
-  confidence: number;
-  /** 품목 카테고리 */
-  category: string;
-  /** HS Code 기본 정보 */
-  basicInfo: {
-    /** 장(章) 번호 */
-    chapter: string;
-    /** 호(號) 번호 */
-    heading: string;
-    /** 소호(小號) 번호 */
-    subheading: string;
-    /** 완전한 관세 코드 */
-    tariffCode: string;
-    /** 한글 품명 */
-    koranName: string;
-    /** 영문 품명 */
-    englishName: string;
-  };
-  /** 분류 근거 및 논리 */
-  classificationBasis: {
-    /** 주요 분류 근거 */
-    primaryReason: string;
-    /** 분류에 영향을 준 핵심 요소들 */
-    keyFactors: Array<{
-      /** 요소명 */
-      factor: string;
-      /** 요소 설명 */
-      description: string;
-      /** 가중치 (높음/보통/낮음) */
-      weight: string;
-    }>;
-    /** 제외된 카테고리들과 이유 */
-    excludedCategories: Array<{
-      /** 제외된 카테고리 */
-      category: string;
-      /** 제외 이유 */
-      reason: string;
-    }>;
-  };
-  /** 규제 및 인증 요구사항 */
-  requirements: Array<{
-    /** 요구사항 타입 (인증, 규제 등) */
-    type: string;
-    /** 요구사항 제목 */
-    title: string;
-    /** 상세 설명 */
-    description: string;
-    /** 필수 여부 */
-    mandatory: boolean;
-    /** 관련 기관 */
-    agency: string;
-  }>;
-  /** 관련 규제 정보 */
-  regulations: Array<{
-    /** 규제 제목 */
-    title: string;
-    /** 규제 요약 */
-    summary: string;
-    /** 발효 날짜 */
-    date: string;
-    /** 정보 출처 */
-    source: string;
-    /** 영향도 (high/medium/low) */
-    impact: string;
-  }>;
-  /** 무역 통계 정보 */
-  tradeStatistics: {
-    /** 연간 수출량 */
-    exportVolume: number;
-    /** 연간 수입량 */
-    importVolume: number;
-    /** 평균 단가 */
-    averagePrice: number;
-    /** 주요 거래 상대국 */
-    majorPartners: string[];
-  };
-  /** 참고 자료 및 출처 */
-  sources: Array<{
-    /** 자료 제목 */
-    title: string;
-    /** 자료 URL */
-    url: string;
-    /** 관련 내용 발췌 */
-    snippet: string;
-    /** 신뢰도 (high/medium/low) */
-    reliability: string;
-    /** 인용 날짜 */
-    citationDate: string;
-    /** 문서 타입 */
-    documentType: string;
-  }>;
-};
-
-/**
  * HS Code 분석 세션 Mock 데이터
  *
  * 스마트폰 HS Code 분석을 위한 샘플 대화 세션입니다.
@@ -141,7 +36,7 @@ export type HSCodeResult = {
  * ```typescript
  * const session = mockHSCodeAnalysisSession;
  * const finalResult = session.messages.find(msg => msg.analysisResult);
- * console.log(`분석 결과: ${finalResult?.analysisResult?.hscode}`);
+ * console.log(`분석 결과: ${finalResult?.analysisResult?.hsCode}`);
  * ```
  */
 export const mockHSCodeAnalysisSession: HSCodeAnalysisSession = {
@@ -181,10 +76,92 @@ export const mockHSCodeAnalysisSession: HSCodeAnalysisSession = {
       content: "분석이 완료되었습니다. HS Code 8517.12.10으로 분류됩니다.",
       timestamp: "2024-01-15T10:30:25Z",
       analysisResult: {
-        hscode: "8517.12.10",
-        confidence: 95,
-        category: "전화기(휴대폰)",
+        hsCode: "8517.12.10",
         description: "5G 지원 스마트폰",
+        analysis: {
+          summary:
+            "제8517호에 해당하는 5G 지원 휴대용 전화기로 분류됩니다. 5G NR 통신 프로토콜을 지원하며, 듀얼 SIM 기능을 포함한 차세대 스마트폰입니다.",
+          exportRequirements: [
+            {
+              country: "미국",
+              requirements: ["FCC ID 인증", "KC 인증", "CE 마킹"],
+              tariffRate: "기본세율 8%, 한-미 FTA 적용 시 무관세",
+              notes: "5G 통신 기능으로 인한 추가 인증 필요",
+            },
+            {
+              country: "유럽연합",
+              requirements: ["CE 마킹", "RED 인증", "RoHS 적합성"],
+              tariffRate: "기본세율 14%",
+              notes: "EU 사이버보안법 준수 필요",
+            },
+          ],
+          certifications: [
+            {
+              name: "KC 인증",
+              description: "국내 전자파적합성 인증",
+              required: true,
+              issuer: "RRA(방송통신위원회)",
+              validityPeriod: "3년",
+            },
+            {
+              name: "안전인증(KC 안전)",
+              description: "리튬배터리 안전기준 적합성 확인",
+              required: true,
+              issuer: "국가기술표준원",
+              validityPeriod: "제품 수명",
+            },
+          ],
+          relatedNews: [
+            {
+              title: "5G 스마트폰 전자파 안전기준 강화",
+              url: "https://rra.go.kr/5g-smartphone-sar-standards",
+              sourceName: "방송통신위원회",
+              publishedAt: "2024-01-10T09:00:00Z",
+              summary:
+                "5G 스마트폰에 대한 전자파 흡수율(SAR) 기준이 강화되어 인증 절차에 변화가 있습니다.",
+            },
+            {
+              title: "EU 사이버보안법, 스마트폰 제조사에 미치는 영향",
+              url: "https://europa.eu/cybersecurity-act-smartphones",
+              sourceName: "유럽연합",
+              publishedAt: "2024-01-08T14:30:00Z",
+              summary:
+                "EU 사이버보안법이 스마트폰 제조사에게 새로운 보안 요구사항을 부과합니다.",
+            },
+          ],
+          tradeStatistics: {
+            yearlyExport: {
+              "2023": "125억 달러",
+              "2022": "118억 달러",
+              "2021": "102억 달러",
+            },
+            yearlyImport: {
+              "2023": "85억 달러",
+              "2022": "78억 달러",
+              "2021": "71억 달러",
+            },
+            topDestinations: ["미국", "중국", "일본", "베트남"],
+            topOrigins: ["중국", "베트남", "인도"],
+          },
+        },
+        sources: [
+          {
+            title: "관세청 품목분류 사전심사 결정례",
+            url: "https://customs.go.kr/kcs/cm/cntnts/cntntsView.do?mi=2891&cntntsId=1234",
+            type: "OFFICIAL",
+            reliability: "HIGH",
+            snippet:
+              "제8517.12호에 분류되는 휴대전화는 주로 음성통화 목적으로 설계된 무선통신 단말기로서...",
+          },
+          {
+            title: "WCO 품목분류 의견서 - 스마트폰 분류",
+            url: "https://wco.org/en/topics/nomenclature/instruments-and-tools/hs-classification-references",
+            type: "OFFICIAL",
+            reliability: "HIGH",
+            snippet:
+              "Smartphones are classified under heading 8517 as they are primarily designed for voice communication...",
+          },
+        ],
       },
     },
   ],
@@ -196,130 +173,125 @@ export const mockHSCodeAnalysisSession: HSCodeAnalysisSession = {
  * 5G 지원 스마트폰(HS Code 8517.12.10)에 대한 상세 분석 결과입니다.
  * 분류 근거, 인증 요구사항, 관련 규제, 무역 통계 등 실제 활용 가능한
  * 모든 정보를 포함하고 있습니다.
- *
- * @example
- * ```typescript
- * const result = mockHSCodeResult;
- * console.log(`신뢰도: ${result.confidence}%`);
- * console.log(`필수 인증: ${result.requirements.filter(req => req.mandatory).length}개`);
- * ```
  */
-export const mockHSCodeResult: HSCodeResult = {
-  resultId: "result-8517.12.10",
-  hscode: "8517.12.10",
+export const mockHSCodeResult: HSCodeAnalysisResult = {
+  hsCode: "8517.12.10",
   description: "5G 지원 스마트폰",
-  confidence: 95,
-  category: "전화기(휴대폰)",
-  basicInfo: {
-    chapter: "85",
-    heading: "8517",
-    subheading: "8517.12",
-    tariffCode: "8517.12.10",
-    koranName: "5G 지원 휴대폰",
-    englishName: "5G Smartphone",
-  },
-  classificationBasis: {
-    primaryReason:
-      "제8517호에 해당하는 전화기의 특성을 가지며, 5G 이동통신 방식을 지원하는 휴대용 전화기",
-    keyFactors: [
+  analysis: {
+    summary:
+      "제8517호에 해당하는 5G 지원 휴대용 전화기로 분류됩니다. 5G NR 통신 프로토콜을 지원하며, 듀얼 SIM 기능을 포함한 차세대 스마트폰입니다.",
+    exportRequirements: [
       {
-        factor: "기능적 특성",
-        description:
-          "음성통화 및 데이터통신이 주요 기능으로, 전화기로서의 본질적 특성 보유",
-        weight: "높음",
+        country: "미국",
+        requirements: ["FCC ID 인증", "KC 인증", "CE 마킹"],
+        tariffRate: "기본세율 8%, 한-미 FTA 적용 시 무관세",
+        notes: "5G 통신 기능으로 인한 추가 인증 필요",
       },
       {
-        factor: "기술적 규격",
-        description:
-          "5G NR(New Radio) 통신 프로토콜 지원으로 차세대 이동통신 서비스 이용 가능",
-        weight: "높음",
+        country: "유럽연합",
+        requirements: ["CE 마킹", "RED 인증", "RoHS 적합성"],
+        tariffRate: "기본세율 14%",
+        notes: "EU 사이버보안법 준수 필요",
       },
       {
-        factor: "물리적 형태",
-        description:
-          "휴대 가능한 크기와 무게(일반적으로 200g 이하)를 가진 단말기 형태",
-        weight: "보통",
-      },
-      {
-        factor: "관세청 해석례",
-        description: "관세청 품목분류 사전심사 사례 및 WCO 분류의견 참조",
-        weight: "높음",
+        country: "중국",
+        requirements: [
+          "CCC 인증",
+          "네트워크 접속 허가",
+          "무선전송 설비형식 승인",
+        ],
+        tariffRate: "기본세율 25%",
+        notes: "중국 사이버보안법 및 데이터보안법 준수 필요",
       },
     ],
-    excludedCategories: [
+    certifications: [
       {
-        category: "8471호 (컴퓨터)",
-        reason: "주기능이 전화통신이 아닌 데이터처리인 경우에만 해당",
+        name: "KC 인증",
+        description: "국내 전자파적합성 인증",
+        required: true,
+        issuer: "RRA(방송통신위원회)",
+        validityPeriod: "3년",
       },
       {
-        category: "8528호 (모니터)",
-        reason: "디스플레이 기능이 주된 용도가 아님",
+        name: "안전인증(KC 안전)",
+        description: "리튬배터리 안전기준 적합성 확인",
+        required: true,
+        issuer: "국가기술표준원",
+        validityPeriod: "제품 수명",
+      },
+      {
+        name: "FCC ID",
+        description: "미국 연방통신위원회 기기 승인",
+        required: false,
+        issuer: "FCC (Federal Communications Commission)",
+        validityPeriod: "모델별 영구",
       },
     ],
-  },
-  requirements: [
-    {
-      type: "인증",
-      title: "KC 인증",
-      description: "전자파적합성 인증 필요",
-      mandatory: true,
-      agency: "RRA(방송통신위원회)",
+    relatedNews: [
+      {
+        title: "5G 스마트폰 전자파 안전기준 강화",
+        url: "https://rra.go.kr/5g-smartphone-sar-standards",
+        sourceName: "방송통신위원회",
+        publishedAt: "2024-01-10T09:00:00Z",
+        summary:
+          "5G 스마트폰에 대한 전자파 흡수율(SAR) 기준이 강화되어 인증 절차에 변화가 있습니다.",
+      },
+      {
+        title: "EU 사이버보안법, 스마트폰 제조사에 미치는 영향",
+        url: "https://europa.eu/cybersecurity-act-smartphones",
+        sourceName: "유럽연합",
+        publishedAt: "2024-01-08T14:30:00Z",
+        summary:
+          "EU 사이버보안법이 스마트폰 제조사에게 새로운 보안 요구사항을 부과합니다.",
+      },
+      {
+        title: "중국 스마트폰 수입 규제 현황",
+        url: "https://miit.gov.cn/smartphone-regulations-2024",
+        sourceName: "중국 공업정보화부",
+        publishedAt: "2024-01-05T11:20:00Z",
+        summary:
+          "중국 내 스마트폰 판매를 위한 새로운 인증 요구사항이 발표되었습니다.",
+      },
+    ],
+    tradeStatistics: {
+      yearlyExport: {
+        "2023": "125억 달러",
+        "2022": "118억 달러",
+        "2021": "102억 달러",
+      },
+      yearlyImport: {
+        "2023": "85억 달러",
+        "2022": "78억 달러",
+        "2021": "71억 달러",
+      },
+      topDestinations: ["미국", "중국", "일본", "베트남", "독일"],
+      topOrigins: ["중국", "베트남", "인도", "한국"],
     },
-    {
-      type: "규제",
-      title: "개인정보보호법",
-      description: "개인정보 처리 관련 규제 준수",
-      mandatory: true,
-      agency: "개인정보보호위원회",
-    },
-    {
-      type: "인증",
-      title: "안전인증(KC 안전)",
-      description: "리튬배터리 안전기준 적합성 확인",
-      mandatory: true,
-      agency: "국가기술표준원",
-    },
-  ],
-  regulations: [
-    {
-      title: "휴대폰 수입 시 KC인증 의무화",
-      summary: "2024년부터 모든 휴대폰 수입 시 KC인증 필수",
-      date: "2024-01-01",
-      source: "방송통신위원회",
-      impact: "high",
-    },
-    {
-      title: "5G 주파수 이용 기준 강화",
-      summary: "5G 단말기에 대한 전자파 흡수율(SAR) 기준 강화",
-      date: "2024-03-15",
-      source: "과학기술정보통신부",
-      impact: "medium",
-    },
-  ],
-  tradeStatistics: {
-    exportVolume: 1250000,
-    importVolume: 850000,
-    averagePrice: 650,
-    majorPartners: ["중국", "베트남", "미국"],
   },
   sources: [
     {
       title: "관세청 품목분류 사전심사 결정례",
       url: "https://customs.go.kr/kcs/cm/cntnts/cntntsView.do?mi=2891&cntntsId=1234",
+      type: "OFFICIAL",
+      reliability: "HIGH",
       snippet:
         "제8517.12호에 분류되는 휴대전화는 주로 음성통화 목적으로 설계된 무선통신 단말기로서...",
-      reliability: "high",
-      citationDate: "2024-02-28",
-      documentType: "사전심사결정례",
     },
     {
       title: "WCO 품목분류 의견서 - 스마트폰 분류",
       url: "https://wco.org/en/topics/nomenclature/instruments-and-tools/hs-classification-references",
+      type: "OFFICIAL",
+      reliability: "HIGH",
       snippet:
         "Smartphones are classified under heading 8517 as they are primarily designed for voice communication...",
-      reliability: "high",
-      citationDate: "2023-11-15",
-      documentType: "WCO 분류의견",
+    },
+    {
+      title: "5G 기술 표준 및 무역 분류 가이드",
+      url: "https://tta.or.kr/5g-trade-classification-guide",
+      type: "REFERENCE",
+      reliability: "MEDIUM",
+      snippet:
+        "5G 통신 기능을 포함한 스마트폰의 HS Code 분류 시 고려사항과 무역 실무 가이드...",
     },
   ],
 };
@@ -347,11 +319,11 @@ export const mockHSCodeInfoData: HSCodeInfo[] = [
     source: "관세청",
     category: "관세",
     tags: ["1701.11", "관세율", "설탕"],
-    importance: "high",
+    importance: "HIGH",
     date: "2025-01-15",
     type: "tariff",
-    published_at: "2025-01-15T09:00:00Z",
-    effectiveDate: "2025-01-01",
+    publishedAt: "2025-01-15T09:00:00Z",
+    effectiveDate: "2025-01-01T00:00:00Z",
     relatedRegulations: ["관세법 시행령 제15조"],
     url: "https://customs.go.kr/notice/1701-11-tariff-change",
   },
@@ -365,11 +337,11 @@ export const mockHSCodeInfoData: HSCodeInfo[] = [
     source: "국가기술표준원",
     category: "인증",
     tags: ["8471.30", "KC인증", "컴퓨터"],
-    importance: "high",
+    importance: "HIGH",
     date: "2025-01-14",
     type: "certification",
-    published_at: "2025-01-14T14:30:00Z",
-    effectiveDate: "2025-03-01",
+    publishedAt: "2025-01-14T14:30:00Z",
+    effectiveDate: "2025-03-01T00:00:00Z",
     relatedRegulations: ["전기용품 및 생활용품 안전관리법"],
     url: "https://kats.go.kr/notice/8471-30-kc-certification",
   },
@@ -435,13 +407,15 @@ export const getHSCodeAnalysisSession = (
  * ```typescript
  * const result = getHSCodeResult("result-8517.12.10");
  * if (result) {
- *   console.log(`HS Code: ${result.hscode}`);
- *   console.log(`신뢰도: ${result.confidence}%`);
+ *   console.log(`HS Code: ${result.hsCode}`);
+ *   console.log(`분석 요약: ${result.analysis.summary}`);
  * }
  * ```
  */
-export const getHSCodeResult = (resultId: string): HSCodeResult | undefined => {
-  return mockHSCodeResult.resultId === resultId ? mockHSCodeResult : undefined;
+export const getHSCodeResult = (
+  resultId: string,
+): HSCodeAnalysisResult | undefined => {
+  return mockHSCodeResult.hsCode === resultId ? mockHSCodeResult : undefined;
 };
 
 /**

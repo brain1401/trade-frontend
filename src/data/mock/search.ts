@@ -1,4 +1,9 @@
-import type { PopularKeyword, RecentSearchItem, SearchResult } from "@/types";
+import type {
+  PopularKeyword,
+  RecentSearchItem,
+  SearchResult,
+  IntentType,
+} from "@/types/search";
 
 /**
  * 인기 검색어 Mock 데이터
@@ -39,26 +44,41 @@ export const mockRecentSearchItems: RecentSearchItem[] = [
     text: "HS Code 8517.12 (스마트폰)",
     hscode: "8517.12",
     searchedAt: new Date("2025-01-12T14:30:00Z"),
+    resultType: "HS_CODE_ANALYSIS",
   },
   {
     text: "HS Code 3304.99 (기타 화장품)",
     hscode: "3304.99",
     searchedAt: new Date("2025-01-12T13:15:00Z"),
+    resultType: "HS_CODE_ANALYSIS",
   },
   {
     text: "HS Code 8542.31 (반도체)",
     hscode: "8542.31",
     searchedAt: new Date("2025-01-12T11:45:00Z"),
+    resultType: "HS_CODE_ANALYSIS",
   },
   {
     text: "HS Code 9018.90 (기타 의료기기)",
     hscode: "9018.90",
     searchedAt: new Date("2025-01-12T10:20:00Z"),
+    resultType: "HS_CODE_ANALYSIS",
   },
   {
     text: "HS Code 6203.42 (면바지)",
     hscode: "6203.42",
     searchedAt: new Date("2025-01-12T09:00:00Z"),
+    resultType: "HS_CODE_ANALYSIS",
+  },
+  {
+    text: "화물추적 MSKU1234567",
+    searchedAt: new Date("2025-01-12T08:30:00Z"),
+    resultType: "CARGO_TRACKING",
+  },
+  {
+    text: "EU 탄소국경조정제도",
+    searchedAt: new Date("2025-01-11T16:45:00Z"),
+    resultType: "GENERAL_TRADE_INQUIRY",
   },
 ];
 
@@ -83,6 +103,7 @@ export const mockSearchResults: SearchResult[] = [
     relevanceScore: 0.95,
     highlightedText: "스마트폰 HS Code",
     metadata: { hsCode: "8517.12", category: "전자제품" },
+    createdAt: "2025-01-12T09:00:00Z",
   },
   {
     id: "search-2",
@@ -93,6 +114,7 @@ export const mockSearchResults: SearchResult[] = [
     relevanceScore: 0.87,
     highlightedText: "화장품 수출 규제",
     metadata: { category: "규제", regions: ["EU", "US"] },
+    createdAt: "2025-01-11T14:00:00Z",
   },
   {
     id: "search-3",
@@ -103,6 +125,7 @@ export const mockSearchResults: SearchResult[] = [
     relevanceScore: 0.82,
     highlightedText: "의료기기 FDA 인증",
     metadata: { category: "인증", regions: ["US"], industry: ["의료"] },
+    createdAt: "2025-01-10T16:30:00Z",
   },
   {
     id: "search-4",
@@ -113,6 +136,18 @@ export const mockSearchResults: SearchResult[] = [
     relevanceScore: 0.78,
     highlightedText: "자동차 부품 관세율",
     metadata: { category: "관세", industry: ["자동차"] },
+    createdAt: "2025-01-09T11:20:00Z",
+  },
+  {
+    id: "search-5",
+    title: "화물 MSKU1234567 추적 정보",
+    description:
+      "상하이에서 부산으로 운송되는 전자제품 화물의 실시간 추적 정보입니다.",
+    type: "cargo",
+    relevanceScore: 0.88,
+    highlightedText: "화물 추적 MSKU1234567",
+    metadata: { cargoNumber: "MSKU1234567", status: "통관 진행 중" },
+    createdAt: "2025-01-12T10:15:00Z",
   },
 ];
 

@@ -1,4 +1,9 @@
-import type { TimelineStep } from "@/types";
+import type {
+  CargoTrackingInfo,
+  CargoTrackingStep,
+  CargoAlert,
+  CargoDocument,
+} from "@/types/tracking";
 
 /**
  * 화물의 기본 정보를 담는 데이터 구조
@@ -105,145 +110,190 @@ export type CargoTracking = {
  * ```
  */
 // 화물 추적 Mock 데이터
-export const mockCargoTracking: CargoTracking = {
-  number: "MSKU1234567",
-  type: "화물관리번호",
-  status: "통관 진행 중",
-  currentStep: 3,
-  totalSteps: 6,
-  estimatedCompletion: "2024-01-20T14:00:00Z",
-  cargoInfo: {
-    blNumber: "MSKU1234567890",
-    vessel: "EVER GIVEN",
-    voyage: "0001E",
-    origin: "상하이항",
-    destination: "부산항",
-    commodity: "전자제품",
-    weight: "2,500 KG",
-    packages: 50,
-    shipper: "ABC ELECTRONICS CO., LTD",
-    consignee: "한국전자상사",
-  },
-  timeline: [
+export const mockCargoTracking: CargoTrackingInfo = {
+  cargoNumber: "12345670123456789",
+  status: "통관 진행중",
+  currentStep: "부산항 도착",
+  progressPercentage: 50,
+  steps: [
     {
-      step: 1,
-      title: "선적 완료",
-      description: "상하이항에서 선적 완료",
-      status: "completed",
+      step: "선적 완료",
+      status: "완료",
       timestamp: "2024-01-10T08:00:00Z",
-      location: "상하이항",
+      description: "상하이항에서 선적 완료되었습니다",
+      department: "상하이항 운송사",
+      estimatedDuration: "1일",
     },
     {
-      step: 2,
-      title: "운송 중",
-      description: "해상 운송 진행 중",
-      status: "completed",
+      step: "해상 운송",
+      status: "완료",
       timestamp: "2024-01-12T10:00:00Z",
-      location: "해상",
+      description: "해상 운송이 완료되었습니다",
+      department: "해운사",
+      estimatedDuration: "5일",
     },
     {
-      step: 3,
-      title: "부산항 도착",
-      description: "부산항 도착, 하역 진행 중",
-      status: "current",
+      step: "부산항 도착",
+      status: "진행중",
       timestamp: "2024-01-15T14:00:00Z",
-      location: "부산항",
+      description: "부산항에 도착하여 하역 진행 중입니다",
+      department: "부산항 하역사",
+      estimatedDuration: "1일",
     },
     {
-      step: 4,
-      title: "수입신고",
-      description: "수입신고 대기 중",
-      status: "pending",
-      estimatedTime: "2024-01-16T10:00:00Z",
-      location: "부산세관",
+      step: "수입신고",
+      status: "대기",
+      timestamp: null,
+      description: "수입신고 대기 중입니다",
+      department: "부산세관",
+      estimatedDuration: "2일",
     },
     {
-      step: 5,
-      title: "통관 심사",
-      description: "서류 심사 및 검사",
-      status: "pending",
-      estimatedTime: "2024-01-18T15:00:00Z",
-      location: "부산세관",
+      step: "통관 심사",
+      status: "대기",
+      timestamp: null,
+      description: "서류 심사 및 검사 대기 중입니다",
+      department: "부산세관",
+      estimatedDuration: "3일",
     },
     {
-      step: 6,
-      title: "통관 완료",
-      description: "국내 반입 가능",
-      status: "pending",
-      estimatedTime: "2024-01-20T14:00:00Z",
-      location: "부산세관",
+      step: "통관 완료",
+      status: "대기",
+      timestamp: null,
+      description: "국내 반입 가능 상태입니다",
+      department: "부산세관",
+      estimatedDuration: "1일",
     },
   ],
-  documents: [
+  estimatedCompletion: "2024-01-20T14:00:00Z",
+  additionalInfo: {
+    declarationType: "일반수입신고",
+    customs: "부산본부세관",
+    declarer: "한국전자상사",
+    cargoType: "전자제품",
+    origin: "중국",
+    destination: "한국",
+  },
+  alerts: [
     {
-      name: "선적서류(B/L)",
-      status: "확인완료",
-      uploadDate: "2024-01-10T08:00:00Z",
+      id: "alert-1",
+      type: "INFO",
+      title: "하역 진행 중",
+      message:
+        "부산항에서 하역이 진행 중입니다. 예상 완료 시간은 오늘 18시입니다.",
+      timestamp: "2024-01-15T14:00:00Z",
+      actionRequired: false,
+      contact: {
+        department: "부산항 하역팀",
+        phone: "051-999-1234",
+      },
     },
     {
-      name: "상업송장(Invoice)",
-      status: "확인완료",
-      uploadDate: "2024-01-10T08:00:00Z",
-    },
-    {
-      name: "포장명세서(P/L)",
-      status: "확인완료",
-      uploadDate: "2024-01-10T08:00:00Z",
-    },
-    {
-      name: "원산지증명서",
-      status: "검토중",
-      uploadDate: "2024-01-15T14:00:00Z",
-    },
-  ],
-  fees: [
-    {
-      type: "관세",
-      amount: 125000,
-      currency: "KRW",
-      status: "미납",
-    },
-    {
-      type: "부가세",
-      amount: 87500,
-      currency: "KRW",
-      status: "미납",
-    },
-    {
-      type: "하역비",
-      amount: 45000,
-      currency: "KRW",
-      status: "납부완료",
+      id: "alert-2",
+      type: "WARNING",
+      title: "원산지증명서 보완 필요",
+      message:
+        "원산지증명서에 일부 보완이 필요합니다. 빠른 시일 내에 보완해 주시기 바랍니다.",
+      timestamp: "2024-01-15T15:30:00Z",
+      actionRequired: true,
+      contact: {
+        department: "부산세관 심사과",
+        phone: "051-620-1000",
+        email: "busan@customs.go.kr",
+      },
     },
   ],
+  lastUpdated: "2024-01-15T15:30:00Z",
 };
 
-// 추적 이력 Mock 데이터
-export const mockTrackingHistory = [
+/**
+ * 화물 문서 정보 Mock 데이터
+ *
+ * 해당 화물과 관련된 모든 제출 서류의 상태를 추적합니다.
+ */
+export const mockCargoDocuments: CargoDocument[] = [
   {
-    number: "MSKU1234567",
-    searchDate: "2024-01-15T16:30:00Z",
-    status: "통관 진행 중",
-    commodity: "전자제품",
+    id: "doc-1",
+    name: "선적서류(B/L)",
+    type: "상업송장",
+    status: "승인",
+    submittedAt: "2024-01-10T08:00:00Z",
+    fileUrl: "https://example.com/docs/bl.pdf",
+    fileSize: 1024576,
+    notes: "선적서류 확인 완료",
   },
   {
-    number: "COSCO987654",
-    searchDate: "2024-01-14T10:20:00Z",
-    status: "통관 완료",
-    commodity: "의류",
+    id: "doc-2",
+    name: "상업송장(Invoice)",
+    type: "상업송장",
+    status: "승인",
+    submittedAt: "2024-01-10T08:00:00Z",
+    fileUrl: "https://example.com/docs/invoice.pdf",
+    fileSize: 512000,
+    notes: "금액 및 품목 확인 완료",
   },
   {
-    number: "HAPAG555888",
-    searchDate: "2024-01-12T14:15:00Z",
-    status: "운송 중",
-    commodity: "자동차 부품",
+    id: "doc-3",
+    name: "포장명세서(P/L)",
+    type: "포장명세서",
+    status: "승인",
+    submittedAt: "2024-01-10T08:00:00Z",
+    fileUrl: "https://example.com/docs/packing.pdf",
+    fileSize: 256000,
+    notes: "포장 상세 확인 완료",
+  },
+  {
+    id: "doc-4",
+    name: "원산지증명서",
+    type: "원산지증명서",
+    status: "보완요청",
+    submittedAt: "2024-01-15T14:00:00Z",
+    fileUrl: "https://example.com/docs/origin.pdf",
+    fileSize: 128000,
+    notes: "발급기관 확인 필요",
   },
 ];
 
-// 유틸리티 함수
+/**
+ * 화물 번호로 추적 정보 조회
+ *
+ * 17자리 화물관리번호를 기준으로 해당 화물의 추적 정보를 검색하여 반환합니다.
+ *
+ * @param number - 17자리 화물관리번호
+ * @returns 해당 화물의 추적 정보, 없으면 undefined
+ *
+ * @example
+ * ```typescript
+ * const tracking = getTrackingByNumber("12345670123456789");
+ * if (tracking) {
+ *   console.log(`현재 상태: ${tracking.status}`);
+ * }
+ * ```
+ */
 export const getTrackingByNumber = (
   number: string,
-): CargoTracking | undefined => {
-  // 실제 구현에서는 number로 조회
-  return mockCargoTracking.number === number ? mockCargoTracking : undefined;
+): CargoTrackingInfo | undefined => {
+  // 실제로는 여러 화물 데이터가 있겠지만, Mock에서는 하나만 제공
+  return number === mockCargoTracking.cargoNumber
+    ? mockCargoTracking
+    : undefined;
 };
+
+/**
+ * 화물 문서 목록 조회
+ *
+ * 특정 화물번호와 관련된 모든 제출 서류 목록을 반환합니다.
+ *
+ * @param cargoNumber - 화물관리번호
+ * @returns 해당 화물의 문서 목록
+ */
+export const getDocumentsByCargoNumber = (
+  cargoNumber: string,
+): CargoDocument[] => {
+  return cargoNumber === mockCargoTracking.cargoNumber
+    ? mockCargoDocuments
+    : [];
+};
+
+// 레거시 호환성을 위한 타입 별칭 export
+export type { CargoTrackingStep as TimelineStep };

@@ -1,4 +1,9 @@
-import type { TradeStatistics } from "@/types";
+import type {
+  TradeStatistics,
+  DetailedTradeStatistics,
+  TradeStatisticsSummary,
+  TimeSeriesTradeStats,
+} from "@/types/trade";
 import { getCountriesByCodes } from "@/data/common";
 
 /**
@@ -19,49 +24,118 @@ export type TradeBalanceData = {
 };
 
 /**
- * 무역 통계 요약 정보의 구조
- *
- * 특정 기간의 전체 무역 실적을 요약한 핵심 지표들을 포함합니다.
- * 대시보드나 보고서의 요약 섹션에서 사용됩니다.
- */
-export type StatisticsSummaryData = {
-  /** 총 무역액 (수출+수입, 달러) */
-  totalTradeValue: number;
-  /** 총 수출액 (달러) */
-  exportValue: number;
-  /** 총 수입액 (달러) */
-  importValue: number;
-  /** 무역수지 (달러) */
-  tradeBalance: number;
-  /** 수출 증가율 (%) */
-  exportGrowth: number;
-  /** 수입 증가율 (%) */
-  importGrowth: number;
-  /** 통계 기준 기간 */
-  period: string;
-};
-
-/**
  * 무역 통계 요약 Mock 데이터
  *
  * 2024년 1-11월 한국의 전체 무역 실적 요약 정보입니다.
  * 총 무역규모, 수출입 현황, 성장률 등 핵심 지표를 포함합니다.
- *
- * @example
- * ```typescript
- * const summary = mockStatisticsSummary;
- * console.log(`무역수지: ${summary.tradeBalance > 0 ? '흑자' : '적자'}`);
- * console.log(`수출 증가율: ${summary.exportGrowth}%`);
- * ```
  */
-export const mockStatisticsSummary: StatisticsSummaryData = {
-  totalTradeValue: 1328000000000, // 1.328조 달러
-  exportValue: 683400000000, // 6,834억 달러
-  importValue: 644600000000, // 6,446억 달러
-  tradeBalance: 38800000000, // 388억 달러 흑자
-  exportGrowth: 8.3,
-  importGrowth: 7.1,
+export const mockTradeStatisticsSummary: TradeStatisticsSummary = {
   period: "2024년 1-11월",
+  overallTrade: {
+    totalExport: 683400000000, // 6,834억 달러
+    totalImport: 644600000000, // 6,446억 달러
+    tradeBalance: 38800000000, // 388억 달러 흑자
+    tradeVolume: 1328000000000, // 1.328조 달러
+  },
+  growthRates: {
+    exportGrowth: 8.3,
+    importGrowth: 7.1,
+    volumeGrowth: 7.7,
+  },
+  topExportItems: [
+    {
+      hsCode: "8542.31",
+      itemName: "반도체",
+      value: 89500000000,
+      share: 13.1,
+      growthRate: 8.7,
+    },
+    {
+      hsCode: "8703.23",
+      itemName: "자동차",
+      value: 65200000000,
+      share: 9.5,
+      growthRate: 12.4,
+    },
+    {
+      hsCode: "8517.12",
+      itemName: "스마트폰",
+      value: 45800000000,
+      share: 6.7,
+      growthRate: 15.2,
+    },
+  ],
+  topImportItems: [
+    {
+      hsCode: "2709.00",
+      itemName: "원유",
+      value: 89500000000,
+      share: 13.9,
+      growthRate: 5.2,
+    },
+    {
+      hsCode: "8542.39",
+      itemName: "집적회로",
+      value: 67200000000,
+      share: 10.4,
+      growthRate: 18.7,
+    },
+    {
+      hsCode: "8471.30",
+      itemName: "디지털처리장치",
+      value: 34500000000,
+      share: 5.4,
+      growthRate: 22.1,
+    },
+  ],
+  majorTradingPartners: [
+    {
+      country: getCountriesByCodes(["CN"])[0],
+      exportStats: {
+        value: 124800000000,
+        share: 18.3,
+        growthRate: 6.8,
+        topItems: [
+          {
+            hsCode: "8542.31",
+            itemName: "반도체",
+            value: 34500000000,
+            share: 27.6,
+          },
+          {
+            hsCode: "2710.19",
+            itemName: "석유제품",
+            value: 12300000000,
+            share: 9.9,
+          },
+        ],
+      },
+      importStats: {
+        value: 145600000000,
+        share: 22.6,
+        growthRate: 8.9,
+        topItems: [
+          {
+            hsCode: "8471.30",
+            itemName: "디지털처리장치",
+            value: 23400000000,
+            share: 16.1,
+          },
+          {
+            hsCode: "8542.39",
+            itemName: "집적회로",
+            value: 18700000000,
+            share: 12.8,
+          },
+        ],
+      },
+      tradeBalance: -20800000000,
+      tariffInfo: {
+        averageRate: "8.2%",
+        applicableAgreements: ["한중FTA", "RCEP"],
+      },
+    },
+  ],
 };
 
 /**
@@ -69,20 +143,6 @@ export const mockStatisticsSummary: StatisticsSummaryData = {
  *
  * 2024년 각 월별 수출입 실적과 무역수지 변화를 보여주는 시계열 데이터입니다.
  * 무역수지 차트 생성이나 월별 트렌드 분석에 사용됩니다.
- *
- * @example
- * ```typescript
- * const chartData = mockTradeBalanceChart;
- * const surplusMonths = chartData.filter(data => data.balance > 0);
- * console.log(`흑자 달: ${surplusMonths.length}개월`);
- *
- * // 차트 라이브러리에서 사용
- * const chartConfig = {
- *   data: chartData,
- *   xField: 'month',
- *   yField: 'balance'
- * };
- * ```
  */
 export const mockTradeBalanceChart: TradeBalanceData[] = [
   {
@@ -158,15 +218,6 @@ export const mockTradeBalanceChart: TradeBalanceData[] = [
  *
  * 주요 HS Code 품목들의 수출입 실적과 성장률, 주요 거래국 정보를 제공합니다.
  * 특정 품목의 무역 동향 분석에 활용됩니다.
- *
- * @example
- * ```typescript
- * const smartphoneStats = mockTradeStatistics.find(stat => stat.hsCode === "8517.12");
- * if (smartphoneStats) {
- *   console.log(`스마트폰 수출액: $${smartphoneStats.exportValue.toLocaleString()}`);
- *   console.log(`주요 수출국: ${smartphoneStats.mainExportCountries.map(c => c.name).join(", ")}`);
- * }
- * ```
  */
 export const mockTradeStatistics: TradeStatistics[] = [
   {
@@ -199,25 +250,79 @@ export const mockTradeStatistics: TradeStatistics[] = [
     mainExportCountries: getCountriesByCodes(["CN", "US", "JP"]),
     mainImportCountries: getCountriesByCodes(["TW", "JP", "NL"]),
   },
+  {
+    hsCode: "9018.90",
+    period: "2024-Q4",
+    exportValue: 45600000,
+    importValue: 23100000,
+    exportGrowthRate: 12.8,
+    importGrowthRate: 8.9,
+    mainExportCountries: getCountriesByCodes(["US", "DE", "JP"]),
+    mainImportCountries: getCountriesByCodes(["DE", "US", "CH"]),
+  },
+  {
+    hsCode: "6203.42",
+    period: "2024-Q4",
+    exportValue: 234000000,
+    importValue: 89500000,
+    exportGrowthRate: 18.7,
+    importGrowthRate: 5.4,
+    mainExportCountries: getCountriesByCodes(["US", "EU", "JP"]),
+    mainImportCountries: getCountriesByCodes(["VN", "BD", "IN"]),
+  },
+];
+
+/**
+ * 시계열 무역 통계 Mock 데이터
+ */
+export const mockTimeSeriesStats: TimeSeriesTradeStats[] = [
+  {
+    hsCode: "8517.12",
+    dataPoints: [
+      {
+        period: "2024-Q1",
+        exportValue: 22400000,
+        importValue: 9200000,
+        tradeBalance: 13200000,
+        exportGrowthRate: 12.5,
+        importGrowthRate: -2.1,
+      },
+      {
+        period: "2024-Q2",
+        exportValue: 24100000,
+        importValue: 8700000,
+        tradeBalance: 15400000,
+        exportGrowthRate: 7.6,
+        importGrowthRate: -5.4,
+      },
+      {
+        period: "2024-Q3",
+        exportValue: 23900000,
+        importValue: 9100000,
+        tradeBalance: 14800000,
+        exportGrowthRate: -0.8,
+        importGrowthRate: 4.6,
+      },
+      {
+        period: "2024-Q4",
+        exportValue: 25800000,
+        importValue: 8900000,
+        tradeBalance: 16900000,
+        exportGrowthRate: 7.9,
+        importGrowthRate: -2.2,
+      },
+    ],
+    trendAnalysis: {
+      exportTrend: "증가",
+      importTrend: "감소",
+      seasonality: true,
+      majorFactors: ["5G 스마트폰 수요 증가", "중국 제조업체 경쟁 심화"],
+    },
+  },
 ];
 
 /**
  * HS Code별 무역 통계 조회
- *
- * 특정 HS Code에 해당하는 무역 통계 정보를 반환합니다.
- * 품목별 상세 분석 페이지에서 사용됩니다.
- *
- * @param hsCode - 조회할 HS Code (예: "8517.12")
- * @returns 해당 HS Code의 무역 통계, 없으면 undefined
- *
- * @example
- * ```typescript
- * const stats = getTradeStatisticsByHSCode("8517.12");
- * if (stats) {
- *   const tradeBalance = stats.exportValue - stats.importValue;
- *   console.log(`HS Code 8517.12 무역수지: $${tradeBalance.toLocaleString()}`);
- * }
- * ```
  */
 export const getTradeStatisticsByHSCode = (
   hsCode: string,
@@ -225,10 +330,25 @@ export const getTradeStatisticsByHSCode = (
   return mockTradeStatistics.find((stat) => stat.hsCode === hsCode);
 };
 
-export const getStatisticsSummary = (): StatisticsSummaryData => {
-  return mockStatisticsSummary;
+/**
+ * 무역 통계 요약 정보 조회
+ */
+export const getTradeStatisticsSummary = (): TradeStatisticsSummary => {
+  return mockTradeStatisticsSummary;
 };
 
+/**
+ * 월별 무역 수지 차트 데이터 조회
+ */
 export const getTradeBalanceChart = (): TradeBalanceData[] => {
   return mockTradeBalanceChart;
+};
+
+/**
+ * 시계열 무역 통계 조회
+ */
+export const getTimeSeriesStatsByHSCode = (
+  hsCode: string,
+): TimeSeriesTradeStats | undefined => {
+  return mockTimeSeriesStats.find((stat) => stat.hsCode === hsCode);
 };
