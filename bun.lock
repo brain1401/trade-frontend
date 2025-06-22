@@ -63,6 +63,7 @@
         "vaul": "^1.1.2",
         "zod": "^3.25.67",
         "zustand": "^5.0.5",
+        "zustand-tracked": "^0.0.4",
       },
       "devDependencies": {
         "@tanstack/eslint-config": "^0.2.0",
@@ -1485,6 +1486,8 @@
     "zod": ["zod@3.25.67", "", {}, "sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw=="],
 
     "zustand": ["zustand@5.0.5", "", { "peerDependencies": { "@types/react": ">=18.0.0", "immer": ">=9.0.6", "react": ">=18.0.0", "use-sync-external-store": ">=1.2.0" }, "optionalPeers": ["@types/react", "immer", "react", "use-sync-external-store"] }, "sha512-mILtRfKW9xM47hqxGIxCv12gXusoY/xTSHBYApXozR0HmQv299whhBeeAcRy+KrPPybzosvJBCOmVjq6x12fCg=="],
+
+    "zustand-tracked": ["zustand-tracked@0.0.4", "", { "peerDependencies": { "react": ">=18.0.0", "zod": ">=3.0.0", "zustand": ">=5.0.0" } }, "sha512-7nm2sZamUac1Xnhy+huDRIUOI+kff7hjRSCmvtOu7+iwGL+krOtwC27fHdi3AZJTeT4sKnJsZ9sNoM87vrrRLw=="],
 
     "@asamuzakjp/css-color/lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
 
