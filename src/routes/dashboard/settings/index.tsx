@@ -4,15 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { Settings, Bell, Shield, Database, AlertCircle } from "lucide-react";
-import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import {
   mockNotificationSettings,
   mockNotifications,
+  type NotificationSettings,
 } from "@/data/mock/notifications";
-import type { NotificationSettings } from "@/data/mock/notifications";
 
 /**
  * 설정 관리 라우트 정의
