@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+구현 후, 검증 할 때 마음대로 build, route 생성, 서버 실행 하지 마.
+왜내하면 이미 run dev 한 순간 파일이 바뀌면 알아서 생성 되니까 말이야.
