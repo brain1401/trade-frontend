@@ -7,6 +7,10 @@ import type {
   SmsSettingsUpdateRequest,
   SmsSettingsResponse,
 } from "./types";
+import type {
+  UpdateBookmarkNotificationSettingsV61,
+  UpdateBookmarkNotificationResponseV61,
+} from "../../../types/bookmark";
 import { httpClient, ApiError } from "../common";
 
 /**
@@ -46,9 +50,9 @@ export const notificationApi = {
 
   async updateBookmarkNotification(
     bookmarkId: string,
-    settings: { enabled: boolean },
-  ): Promise<ApiResponse<any>> {
-    return httpClient.postRaw<any>(
+    settings: UpdateBookmarkNotificationSettingsV61,
+  ): Promise<ApiResponse<UpdateBookmarkNotificationResponseV61>> {
+    return httpClient.putRaw<UpdateBookmarkNotificationResponseV61>(
       `/bookmarks/${bookmarkId}/notifications`,
       settings,
     );
