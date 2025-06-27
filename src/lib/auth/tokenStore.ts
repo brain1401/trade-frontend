@@ -4,6 +4,8 @@
  * - Refresh Token: HttpOnly 쿠키로 자동 관리
  * - 토큰 만료 시간 추적 및 자동 갱신 지원
  */
+import type { JwtPayload } from "../../types/auth";
+
 class TokenStore {
   private accessToken: string | null = null;
   private tokenExpiresAt: number | null = null;
@@ -103,7 +105,7 @@ class TokenStore {
   private extractTokenExpiry(token: string): number | null {
     try {
       const payload = this.parseJWTPayload(token);
-      if (payload?.exp) {
+      if (payload.exp) {
         return payload.exp * 1000; // JWT exp는 초 단위이므로 밀리초로 변환
       }
     } catch (error) {
@@ -115,7 +117,7 @@ class TokenStore {
   /**
    * JWT 페이로드 파싱 (검증 없이 디코딩만)
    */
-  private parseJWTPayload(token: string): any {
+  private parseJWTPayload(token: string): JwtPayload {
     try {
       const parts = token.split(".");
       if (parts.length !== 3) {
@@ -126,8 +128,8 @@ class TokenStore {
       const decodedPayload = atob(
         payload.replace(/-/g, "+").replace(/_/g, "/"),
       );
-      return JSON.parse(decodedPayload);
-    } catch (error) {
+      return JSON.parse(decodedPayload) as JwtPayload;
+    } catch {
       throw new Error("JWT 페이로드 디코딩 실패");
     }
   }
