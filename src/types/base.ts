@@ -1,7 +1,9 @@
 /**
- * 공통 기본 타입 정의
- *
- * API v2.4 명세서에 따른 표준화된 기본 타입들을 정의합니다.
+ * @file 도메인 전반에서 사용되는 원자적(atomic) 기본 타입 정의
+ * @description
+ * 특정 도메인에 종속되지 않고, 프로젝트 전반에서 재사용되는 가장 기본적인 타입들을 정의함.
+ * - API 응답 구조와 같은 상위 레벨 타입은 `common.ts`에 정의.
+ * - 특정 도메인(뉴스, 인증 등)에 특화된 타입은 각 `types/{domain}.ts`에 정의.
  */
 
 /**
@@ -60,22 +62,6 @@ export type UserPreferences = {
   };
   /** 기본 화면 설정 */
   defaultView: string;
-};
-
-/**
- * 페이지네이션 정보 타입 (API v2.4 표준)
- */
-export type PaginationInfo = {
-  /** 현재 페이지 오프셋 */
-  offset: number;
-  /** 페이지 크기 */
-  limit: number;
-  /** 전체 항목 수 */
-  total: number;
-  /** 다음 페이지 존재 여부 */
-  hasNext: boolean;
-  /** 이전 페이지 존재 여부 */
-  hasPrevious?: boolean;
 };
 
 /**
