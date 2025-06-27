@@ -22,6 +22,7 @@ import type {
   DetailPageButtonEvent,
   MemberSessionEvent,
   RelatedInfo,
+  ErrorEventData,
 } from "@/types/chat";
 
 /**
@@ -275,7 +276,7 @@ export function ChatInterface({
       },
 
       // Error Event
-      onError: (error: Error) => {
+      onError: (error: ErrorEventData) => {
         setError(error.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
