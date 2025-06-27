@@ -99,6 +99,16 @@ export type ApiResponse<T> = {
 };
 
 /**
+ * API 에러 응답 데이터 타입
+ */
+export type ApiErrorData = {
+  success: "ERROR";
+  message: string;
+  data: null;
+  errorCode?: ApiErrorCode;
+};
+
+/**
  * API 에러 코드 타입 (API v6.1 기준)
  *
  */

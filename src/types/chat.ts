@@ -225,7 +225,7 @@ export type RelatedInfo = {
   /** 국가 코드 (규제 조회 시) */
   countryCode?: string;
   /** 기타 메타데이터 */
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 /**
@@ -347,4 +347,156 @@ export type ChatHistoryItem = {
     productName?: string;
     confidence?: number;
   };
+};
+
+// ======================================================================================
+// 🆕 v6.1: 회원 전용 채팅 기록 API 타입
+// ======================================================================================
+
+/**
+ * 채팅 세션 목록 조회 API 쿼리 파라미터 (GET /api/chat/history)
+ */
+export type ChatHistoryGetParams = {
+  page?: number;
+  size?: number;
+  startDate?: string;
+  endDate?: string;
+  keyword?: string;
+};
+
+/**
+ * 채팅 세션 요약 정보
+ */
+export type ChatSessionSummary = {
+  sessionId: string;
+  sessionTitle: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+  firstMessage: string;
+  lastMessage: string;
+  partitionYear: number;
+};
+
+/**
+ * 채팅 기록 통계
+ */
+export type ChatHistorySummary = {
+  totalSessions: number;
+  totalMessages: number;
+  sessionsLast30Days: number;
+  oldestSessionDate: string;
+  newestSessionDate: string;
+};
+
+/**
+ * 채팅 세션 목록 API 응답 데이터 (GET /api/chat/history)
+ */
+export type PaginatedChatSessions = {
+  sessions: ChatSessionSummary[];
+  pagination: import("./common").PaginationMeta;
+  summary: ChatHistorySummary;
+};
+
+/**
+ * HSCode 분석 정보 (AI 메시지에 포함)
+ */
+export type HSCodeAnalysis = {
+  hsCode: string;
+  productName: string;
+  confidence: number;
+  classificationBasis: string;
+};
+
+/**
+ * SSE 기반 북마크 데이터 (AI 메시지에 포함)
+ */
+export type SSEBookmarkData = {
+  available: boolean;
+  hsCode: string;
+  productName: string;
+  confidence: number;
+};
+
+/**
+ * 채팅 메시지 상세 정보
+ */
+export type ChatMessage = {
+  messageId: number;
+  messageType: "USER" | "AI";
+  content: string;
+  createdAt: string;
+  aiModel?: string;
+  thinkingProcess?: string;
+  hsCodeAnalysis?: HSCodeAnalysis;
+  sseBookmarkData?: SSEBookmarkData;
+};
+
+/**
+ * 채팅 세션 관련 데이터
+ */
+export type ChatRelatedData = {
+  extractedHsCodes: string[];
+  createdBookmarks: {
+    bookmarkId: string;
+    hsCode: string;
+    displayName: string;
+    createdAt: string;
+  }[];
+  sessionStats: {
+    totalTokens: number;
+    processingTimeMs: number;
+    ragSearches: number;
+    webSearches: number;
+  };
+};
+
+/**
+ * 개별 채팅 세션 상세 API 응답 데이터 (GET /api/chat/history/{sessionId})
+ */
+export type ChatSessionDetail = {
+  session: ChatSessionSummary;
+  messages: ChatMessage[];
+  relatedData: ChatRelatedData;
+};
+
+/**
+ * 채팅 기록 검색 API 쿼리 파라미터 (GET /api/chat/history/search)
+ */
+export type ChatHistorySearchParams = {
+  keyword: string;
+  page?: number;
+  size?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
+/**
+ * 채팅 기록 검색 결과 항목
+ */
+export type ChatSearchResult = {
+  sessionId: string;
+  sessionTitle: string;
+  matchedMessage: string;
+  matchType: "USER_MESSAGE" | "AI_MESSAGE";
+  createdAt: string;
+  relevanceScore: number;
+};
+
+/**
+ * 채팅 기록 검색 정보
+ */
+export type ChatSearchInfo = {
+  keyword: string;
+  searchTimeMs: number;
+  totalMatches: number;
+};
+
+/**
+ * 채팅 기록 검색 API 응답 데이터 (GET /api/chat/history/search)
+ */
+export type PaginatedChatSearchResults = {
+  searchResults: ChatSearchResult[];
+  pagination: import("./common").PaginationMeta;
+  searchInfo: ChatSearchInfo;
 };

@@ -251,7 +251,7 @@ export type SearchResult = {
   /** 하이라이트된 텍스트 */
   highlightedText?: string;
   /** 메타데이터 */
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   /** 생성 일시 */
   createdAt: string;
 };

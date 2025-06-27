@@ -18,6 +18,28 @@ export type User = {
 };
 
 /**
+ * JWT 페이로드 타입
+ */
+export type JwtPayload = {
+  /** 토큰 발급자 (issuer) */
+  iss?: string;
+  /** 토큰 주체 (subject) */
+  sub?: string;
+  /** 토큰 대상자 (audience) */
+  aud?: string | string[];
+  /** 만료 시간 (expiration time, Unix timestamp) */
+  exp?: number;
+  /** 활성 시간 (not before, Unix timestamp) */
+  nbf?: number;
+  /** 발급 시간 (issued at, Unix timestamp) */
+  iat?: number;
+  /** JWT ID (JWT-ID) */
+  jti?: string;
+  /** 기타 클레임 */
+  [key: string]: unknown;
+};
+
+/**
  * 인증 상태 타입 (통합 인증 시스템용)
  */
 export type AuthState = {

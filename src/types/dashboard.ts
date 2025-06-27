@@ -231,7 +231,7 @@ export type DashboardSettings = {
     defaultTypeFilter: FeedType[];
     autoFilterRules: Array<{
       name: string;
-      conditions: Record<string, any>;
+      conditions: Record<string, unknown>;
       action: "hide" | "highlight" | "priority";
     }>;
   };
@@ -259,9 +259,9 @@ export type DashboardWidget = {
     };
     visible: boolean;
     refreshInterval?: number;
-    customSettings?: Record<string, any>;
+    customSettings?: Record<string, unknown>;
   };
-  data?: any;
+  data?: unknown;
   lastUpdated: string;
 };
 
