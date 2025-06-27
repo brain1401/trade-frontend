@@ -1,8 +1,8 @@
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 function Toaster({ ...props }: ToasterProps) {
-  const { theme = "system" } = useTheme();
+  // 기본 라이트 테마 사용 (next-themes 의존성 제거)
+  const theme = "light";
 
   return (
     <Sonner

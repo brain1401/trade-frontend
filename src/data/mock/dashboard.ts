@@ -1,5 +1,11 @@
 import type { ImportanceLevel } from "@/types/base";
-import type { UpdateFeed, DashboardSummary } from "@/types/dashboard";
+import type {
+  UpdateFeed,
+  DashboardSummary,
+  DashboardSummaryResponse,
+  DashboardFeedsResponse,
+  RecentActivity,
+} from "@/types/dashboard";
 import type {
   BookmarkType,
   Bookmark as OfficialBookmark,
@@ -52,41 +58,41 @@ export type FeedItem = {
 export type Bookmark = OfficialBookmark;
 
 /**
- * 업데이트 피드 Mock 데이터
+ * 대시보드 Mock 데이터 (API v4.0)
  *
- * 사용자 대시보드에 표시될 최신 업데이트 정보들을 담고 있습니다.
- * HS Code 규제 변경, 화물 상태, 무역 뉴스, 환율 변동 등의 정보가 포함됩니다.
- *
- * @example
- * ```typescript
- * const highImportanceItems = mockUpdatesFeed.filter(
- *   item => item.importance === "HIGH"
- * );
- * ```
+ * 🆕 v4.0 변경사항:
+ * - SMS 알림 필드 추가
+ * - 새로운 피드 타입 및 중요도 추가
+ * - 개선된 응답 구조
  */
-export const mockUpdatesFeed: UpdateFeed[] = [
+
+/**
+ * 샘플 업데이트 피드 데이터
+ */
+export const mockUpdateFeeds: UpdateFeed[] = [
   {
     id: 1,
     feedType: "HS_CODE_TARIFF_CHANGE",
     targetType: "HS_CODE",
-    targetValue: "8517.12.00",
-    title: "스마트폰 관세율 변경",
-    content: "미국향 스마트폰 관세율이 5%에서 3%로 인하되었습니다.",
+    targetValue: "1905.90.90",
+    title: "냉동피자 관세율 변경",
+    content: "미국향 냉동피자 관세율이 8%에서 5%로 인하되었습니다.",
     changeDetails: {
-      previous: "5%",
-      current: "3%",
+      previous: "8%",
+      current: "5%",
       effectiveDate: "2024-01-15T00:00:00Z",
     },
-    sourceUrl: "https://customs.go.kr/tariff-update",
+    sourceUrl: "https://example.com/tariff-update",
     importance: "HIGH",
     isRead: false,
+    smsNotificationSent: true,
     createdAt: "2024-01-15T10:00:00Z",
   },
   {
     id: 2,
     feedType: "CARGO_STATUS_UPDATE",
     targetType: "CARGO",
-    targetValue: "12345678901234567",
+    targetValue: "241CJ1A12340001234567",
     title: "화물 통관 완료",
     content: "등록하신 화물의 통관이 완료되었습니다.",
     changeDetails: {
@@ -97,151 +103,259 @@ export const mockUpdatesFeed: UpdateFeed[] = [
     sourceUrl: null,
     importance: "MEDIUM",
     isRead: true,
+    smsNotificationSent: false,
     createdAt: "2024-01-15T14:35:00Z",
   },
   {
     id: 3,
     feedType: "TRADE_NEWS",
     targetType: "HS_CODE",
-    targetValue: "8507.60",
-    title: "중국 리튬배터리 수입규제 강화",
-    content: "2024년 3월부터 리튬배터리 관련 안전 기준이 강화됩니다.",
+    targetValue: "2202.10.00",
+    title: "에너지드링크 새로운 수출 규제",
+    content:
+      "미국 FDA에서 에너지드링크 수출 시 추가 라벨링 요구사항을 발표했습니다.",
     changeDetails: {
-      current: "안전 테스트 항목 추가, 인증서 갱신 주기 단축",
-      effectiveDate: "2024-03-01T00:00:00Z",
+      previous: "기존 규제",
+      current: "새로운 라벨링 요구사항 추가",
+      effectiveDate: "2024-02-01T00:00:00Z",
     },
-    sourceUrl: "https://trade.go.kr/news/lithium-battery-regulation",
+    sourceUrl: "https://example.com/fda-update",
     importance: "HIGH",
-    isRead: true,
-    createdAt: "2024-01-14T16:45:00Z",
+    isRead: false,
+    smsNotificationSent: true,
+    createdAt: "2024-01-16T09:30:00Z",
   },
   {
     id: 4,
     feedType: "POLICY_UPDATE",
     targetType: "HS_CODE",
-    targetValue: "ALL",
-    title: "관세율 일괄 조정 발표",
-    content: "주요 수입품목의 관세율이 전면 재조정됩니다.",
+    targetValue: "8517.12.00",
+    title: "스마트폰 관련 정책 변경",
+    content: "중국향 스마트폰 수출 시 새로운 인증 절차가 추가되었습니다.",
     changeDetails: {
-      current: "평균 관세율 2%p 인하",
-      effectiveDate: "2024-04-01T00:00:00Z",
+      previous: "기존 인증 절차",
+      current: "강화된 보안 인증 추가",
+      effectiveDate: "2024-01-20T00:00:00Z",
     },
-    sourceUrl: "https://customs.go.kr/policy/tariff-adjustment-2024",
+    sourceUrl: "https://example.com/policy-update",
     importance: "MEDIUM",
-    isRead: true,
-    createdAt: "2024-01-14T09:30:00Z",
+    isRead: false,
+    smsNotificationSent: false,
+    createdAt: "2024-01-16T11:15:00Z",
   },
 ];
 
 /**
- * 사용자 북마크 Mock 데이터 (API v2.4 명세서 준수)
- *
- * 사용자가 저장한 북마크 목록으로, HS Code, 화물 추적, 규제 정보 등
- * 다양한 타입의 북마크를 포함합니다.
- *
- * @example
- * ```typescript
- * const hsCodeBookmarks = mockBookmarks.filter(
- *   bookmark => bookmark.type === "HS_CODE"
- * );
- * ```
+ * 샘플 북마크 데이터 (v4.0 SMS 알림 설정 포함)
  */
 export const mockBookmarks: Bookmark[] = [
   {
     bookmarkId: "bm_001",
     type: "HS_CODE",
-    targetValue: "8517.12.00",
-    displayName: "스마트폰 (아이폰 15)",
-    description: "5G 지원 스마트폰 분류 및 규제 현황",
+    targetValue: "1905.90.90",
+    displayName: "냉동피자",
+    description: "이탈리아식 냉동피자 수출용",
     monitoringEnabled: true,
+    smsNotificationEnabled: true,
     alertCount: 3,
     lastAlert: "2024-01-15T10:00:00Z",
-    createdAt: "2024-01-10T10:00:00Z",
+    createdAt: "2024-01-10T09:00:00Z",
     updatedAt: "2024-01-15T14:30:00Z",
   },
   {
     bookmarkId: "bm_002",
     type: "HS_CODE",
-    targetValue: "3304.99.00",
-    displayName: "기타 화장품",
-    description: "K-뷰티 화장품 수출 가이드",
+    targetValue: "2202.10.00",
+    displayName: "에너지드링크",
+    description: "미국 수출용 에너지드링크",
     monitoringEnabled: true,
-    alertCount: 1,
-    lastAlert: "2024-01-12T09:15:00Z",
-    createdAt: "2024-01-08T15:20:00Z",
+    smsNotificationEnabled: true,
+    alertCount: 2,
+    lastAlert: "2024-01-16T09:30:00Z",
+    createdAt: "2024-01-12T11:30:00Z",
     updatedAt: "2024-01-12T11:45:00Z",
   },
   {
     bookmarkId: "bm_003",
     type: "CARGO",
-    targetValue: "12345678901234567",
-    displayName: "전자제품 수입 화물",
-    description: "1월 전자제품 수입 화물 추적",
+    targetValue: "241CJ1A12340001234567",
+    displayName: "1월 수입 화물",
+    description: "전자제품 수입 화물",
     monitoringEnabled: false,
-    alertCount: 0,
+    smsNotificationEnabled: false,
+    alertCount: 1,
     lastAlert: null,
-    createdAt: "2024-01-10T08:00:00Z",
+    createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:15:00Z",
   },
 ];
 
 /**
- * 대시보드 요약 정보 Mock 데이터
- *
- * 북마크, 피드, 활동 등의 요약 통계를 제공합니다.
+ * 대시보드 요약 Mock 데이터 (API v4.0 표준)
  */
-export const mockDashboardSummary: DashboardSummary = {
+export const mockDashboardSummary: DashboardSummaryResponse = {
   bookmarks: {
-    total: 4,
-    activeMonitoring: 3,
+    total: 8,
+    activeMonitoring: 5,
+    smsNotificationEnabled: 3,
     byType: {
-      HS_CODE: 3,
-      CARGO: 1,
+      HS_CODE: 5,
+      CARGO: 3,
     },
   },
   feeds: {
-    unreadCount: 2,
-    todayCount: 2,
-    weekCount: 4,
+    unreadCount: 3,
+    todayCount: 7,
+    weekCount: 18,
     byImportance: {
       HIGH: 2,
-      MEDIUM: 2,
-      LOW: 0,
+      MEDIUM: 4,
+      LOW: 12,
     },
+  },
+  notifications: {
+    smsEnabled: true,
+    phoneVerified: true,
+    sentToday: 2,
+    sentThisWeek: 8,
   },
   recentActivity: [
     {
       type: "BOOKMARK_ADDED",
-      message: "HS Code 8517.12를 북마크에 추가했습니다",
-      timestamp: "2024-01-15T14:30:00Z",
-      relatedData: {
-        id: "bookmark-1",
-        type: "HS_CODE",
-      },
+      message: "새로운 HS Code 북마크 추가: 1905.90.90",
+      timestamp: "2024-01-15T09:30:00Z",
     },
     {
       type: "FEED_RECEIVED",
-      message: "화물 MSKU1234567 상태가 업데이트되었습니다",
-      timestamp: "2024-01-15T10:15:00Z",
-      relatedData: {
-        id: "2",
-        type: "CARGO_STATUS_UPDATE",
-      },
+      message: "관세율 변경 알림 수신",
+      timestamp: "2024-01-15T10:00:00Z",
     },
     {
-      type: "ALERT_TRIGGERED",
-      message: "리튬배터리 수입규제 강화 알림",
-      timestamp: "2024-01-14T16:45:00Z",
-      relatedData: {
-        id: "3",
-        type: "TRADE_NEWS",
-      },
+      type: "SMS_SENT",
+      message: "문자 알림 발송: 냉동피자 관세율 변경",
+      timestamp: "2024-01-15T10:01:00Z",
+    },
+    {
+      type: "SEARCH_PERFORMED",
+      message: "채팅 검색: 에너지드링크 수출 규제",
+      timestamp: "2024-01-16T08:45:00Z",
+    },
+    {
+      type: "SETTINGS_UPDATED",
+      message: "SMS 알림 설정 변경",
+      timestamp: "2024-01-16T11:20:00Z",
     },
   ],
   quickStats: {
-    searchCount: 47,
-    totalSavedTime: "3시간 25분",
-    accuracyRate: "94.5%",
+    searchCount: 32,
+    totalSavedTime: "3.2시간",
+    accuracyRate: "97%",
+  },
+};
+
+/**
+ * 피드 목록 응답 Mock 데이터
+ */
+export const mockDashboardFeedsResponse: DashboardFeedsResponse = {
+  content: mockUpdateFeeds,
+  pagination: {
+    offset: 0,
+    limit: 20,
+    total: 4,
+    hasNext: false,
+    hasPrevious: false,
+  },
+  summary: {
+    totalUnread: 3,
+    totalHigh: 2,
+    totalMedium: 2,
+    totalLow: 0,
+  },
+};
+
+/**
+ * Mock API 지연 시간 시뮬레이션
+ */
+export const MOCK_DELAY = 800;
+
+/**
+ * 대시보드 관련 Mock API 함수들
+ */
+export const dashboardMockApi = {
+  /**
+   * 대시보드 요약 정보 조회
+   */
+  async getDashboardSummary(): Promise<DashboardSummaryResponse> {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+    return mockDashboardSummary;
+  },
+
+  /**
+   * 업데이트 피드 목록 조회
+   */
+  async getUpdateFeeds(params?: {
+    offset?: number;
+    limit?: number;
+    unreadOnly?: boolean;
+  }): Promise<DashboardFeedsResponse> {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+
+    let filteredFeeds = [...mockUpdateFeeds];
+
+    if (params?.unreadOnly) {
+      filteredFeeds = filteredFeeds.filter((feed) => !feed.isRead);
+    }
+
+    const offset = params?.offset || 0;
+    const limit = params?.limit || 20;
+    const paginatedFeeds = filteredFeeds.slice(offset, offset + limit);
+
+    return {
+      content: paginatedFeeds,
+      pagination: {
+        offset,
+        limit,
+        total: filteredFeeds.length,
+        hasNext: offset + limit < filteredFeeds.length,
+        hasPrevious: offset > 0,
+      },
+      summary: {
+        totalUnread: filteredFeeds.filter((f) => !f.isRead).length,
+        totalHigh: filteredFeeds.filter((f) => f.importance === "HIGH").length,
+        totalMedium: filteredFeeds.filter((f) => f.importance === "MEDIUM")
+          .length,
+        totalLow: filteredFeeds.filter((f) => f.importance === "LOW").length,
+      },
+    };
+  },
+
+  /**
+   * 피드 읽음 처리
+   */
+  async markFeedAsRead(feedId: number): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY / 2));
+
+    const feed = mockUpdateFeeds.find((f) => f.id === feedId);
+    if (feed) {
+      feed.isRead = true;
+    }
+  },
+
+  /**
+   * 모든 피드 읽음 처리
+   */
+  async markAllFeedsAsRead(): Promise<{ processedCount: number }> {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
+
+    let processedCount = 0;
+    mockUpdateFeeds.forEach((feed) => {
+      if (!feed.isRead) {
+        feed.isRead = true;
+        processedCount++;
+      }
+    });
+
+    return { processedCount };
   },
 };
 
@@ -337,7 +451,7 @@ export const mockFilterOptions = {
  * ```
  */
 export const getRecentFeedItems = (limit: number = 10): UpdateFeed[] => {
-  return mockUpdatesFeed
+  return mockUpdateFeeds
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
