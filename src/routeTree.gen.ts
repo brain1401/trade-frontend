@@ -15,7 +15,6 @@ import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as AdvancedIndexRouteImport } from './routes/advanced/index'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -51,11 +50,6 @@ const ExchangeRatesIndexRoute = ExchangeRatesIndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdvancedIndexRoute = AdvancedIndexRouteImport.update({
-  id: '/advanced/',
-  path: '/advanced/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -94,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/advanced': typeof AdvancedIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/news': typeof NewsIndexRoute
@@ -109,7 +102,6 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/advanced': typeof AdvancedIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/news': typeof NewsIndexRoute
@@ -125,7 +117,6 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
-  '/advanced/': typeof AdvancedIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/exchange-rates/': typeof ExchangeRatesIndexRoute
   '/news/': typeof NewsIndexRoute
@@ -142,7 +133,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/login'
     | '/auth/signup'
-    | '/advanced'
     | '/dashboard'
     | '/exchange-rates'
     | '/news'
@@ -157,7 +147,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/login'
     | '/auth/signup'
-    | '/advanced'
     | '/dashboard'
     | '/exchange-rates'
     | '/news'
@@ -172,7 +161,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/login'
     | '/auth/signup'
-    | '/advanced/'
     | '/dashboard/'
     | '/exchange-rates/'
     | '/news/'
@@ -188,7 +176,6 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
-  AdvancedIndexRoute: typeof AdvancedIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
@@ -243,13 +230,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/advanced/': {
-      id: '/advanced/'
-      path: '/advanced'
-      fullPath: '/advanced'
-      preLoaderRoute: typeof AdvancedIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/signup': {
       id: '/auth/signup'
       path: '/auth/signup'
@@ -300,7 +280,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
-  AdvancedIndexRoute: AdvancedIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
