@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  User as UserIcon,
+  Shield,
+  Settings,
+  Mail,
+  Calendar,
+} from "lucide-react";
+import type { User } from "../../../types/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, Settings, Mail, Calendar } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 
@@ -24,7 +31,7 @@ export const Route = createFileRoute("/dashboard/profile/")({
  * 프로필 요약 통계 컴포넌트
  * 사용자 계정의 기본 정보를 요약하여 표시
  */
-function ProfileSummary({ user }: { user: any }) {
+function ProfileSummary({ user }: { user: User | null }) {
   // 가입일로부터 경과 일수 계산 (임시 데이터)
   const memberSince = "2023-06-15";
   const daysSinceMember = Math.floor(
@@ -105,7 +112,7 @@ function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary-600" />
+              <UserIcon className="h-5 w-5 text-primary-600" />
               <CardTitle>기본 정보</CardTitle>
             </div>
           </CardHeader>
