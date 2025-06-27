@@ -5,12 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
-import {
-  mockBookmarks,
-  getBookmarksByCategory,
-  getActiveBookmarks,
-  mockFilterOptions,
-} from "@/data/mock/dashboard";
+import { mockBookmarks, getActiveBookmarks } from "@/data/mock/bookmarks";
+import type { Bookmark as BookmarkType } from "@/types/bookmark";
 
 /**
  * 북마크 관리 라우트 정의
@@ -75,7 +71,7 @@ const getTypeName = (type: string) => {
  * 북마크 상세 정보와 액션 버튼을 포함한 카드 형태로 표시
  */
 type BookmarkCardProps = {
-  bookmark: (typeof mockBookmarks)[0];
+  bookmark: BookmarkType;
   onToggleMonitoring?: (id: string) => void;
   onDelete?: (id: string) => void;
 };
@@ -194,7 +190,7 @@ function BookmarksPage() {
 
   // 타입별 북마크 분류
   const bookmarksByCategory = bookmarks.reduce(
-    (acc, bookmark) => {
+    (acc: Record<string, BookmarkType[]>, bookmark: BookmarkType) => {
       const category = bookmark.type;
       if (!acc[category]) {
         acc[category] = [];
@@ -202,7 +198,7 @@ function BookmarksPage() {
       acc[category].push(bookmark);
       return acc;
     },
-    {} as Record<string, typeof bookmarks>,
+    {},
   );
 
   return (
@@ -267,10 +263,10 @@ function BookmarksPage() {
           ([category, categoryBookmarks]) => (
             <div key={category}>
               <h2 className="mb-4 text-xl font-semibold text-neutral-900">
-                {category} ({categoryBookmarks.length})
+                {getTypeName(category)} ({categoryBookmarks.length})
               </h2>
               <div className="grid gap-4">
-                {categoryBookmarks.map((bookmark) => (
+                {categoryBookmarks.map((bookmark: BookmarkType) => (
                   <BookmarkCard
                     key={bookmark.bookmarkId}
                     bookmark={bookmark}

@@ -10,9 +10,9 @@ import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import {
   mockNotificationSettings,
-  getNotificationsByType,
-  getUnreadNotifications,
+  mockNotifications,
 } from "@/data/mock/notifications";
+import type { NotificationSettings } from "@/data/mock/notifications";
 
 /**
  * 설정 관리 라우트 정의
@@ -27,46 +27,33 @@ export const Route = createFileRoute("/dashboard/settings/")({
 });
 
 /**
- * 알림 카테고리 설정 컴포넌트
- * 각 알림 타입별 푸시/이메일 설정을 관리
+ * 북마크 알림 설정 컴포넌트
+ * 각 북마크별 SMS/이메일 설정을 관리
  */
-type NotificationCategoryProps = {
-  categoryKey: string;
-  category: {
-    name: string;
-    pushEnabled: boolean;
-    emailEnabled: boolean;
-  };
-  onTogglePush?: (categoryKey: string) => void;
-  onToggleEmail?: (categoryKey: string) => void;
+type BookmarkNotificationSettingProps = {
+  setting: NotificationSettings["bookmarkSettings"][0];
+  onToggleSms?: (bookmarkId: string) => void;
+  onToggleEmail?: (bookmarkId: string) => void;
 };
 
-function NotificationCategory({
-  categoryKey,
-  category,
-  onTogglePush,
+function BookmarkNotificationSetting({
+  setting,
+  onToggleSms,
   onToggleEmail,
-}: NotificationCategoryProps) {
-  // 해당 카테고리의 최근 알림 수 계산
-  const categoryNotifications = getNotificationsByType(categoryKey as any);
-  const unreadCount = categoryNotifications.filter(
-    (notif) => !notif.read,
-  ).length;
-
+}: BookmarkNotificationSettingProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Label className="text-base font-medium">{category.name}</Label>
-            {unreadCount > 0 && (
-              <Badge variant="secondary" className="text-xs">
-                {unreadCount}개 미읽음
-              </Badge>
-            )}
+            <Label className="text-base font-medium">
+              {setting.displayName}
+            </Label>
           </div>
           <p className="text-sm text-neutral-500">
-            {getCategoryDescription(categoryKey)}
+            {setting.type === "HS_CODE"
+              ? `HS Code: ${setting.displayName}`
+              : `화물번호: ${setting.displayName}`}
           </p>
         </div>
       </div>
@@ -75,11 +62,11 @@ function NotificationCategory({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell className="h-4 w-4 text-neutral-500" />
-            <Label className="text-sm">푸시 알림</Label>
+            <Label className="text-sm">SMS 알림</Label>
           </div>
           <Switch
-            checked={category.pushEnabled}
-            onCheckedChange={() => onTogglePush?.(categoryKey)}
+            checked={setting.smsNotificationEnabled}
+            onCheckedChange={() => onToggleSms?.(setting.bookmarkId)}
           />
         </div>
 
@@ -89,8 +76,8 @@ function NotificationCategory({
             <Label className="text-sm">이메일 알림</Label>
           </div>
           <Switch
-            checked={category.emailEnabled}
-            onCheckedChange={() => onToggleEmail?.(categoryKey)}
+            checked={setting.emailNotificationEnabled}
+            onCheckedChange={() => onToggleEmail?.(setting.bookmarkId)}
           />
         </div>
       </div>
@@ -99,55 +86,27 @@ function NotificationCategory({
 }
 
 /**
- * 카테고리별 설명 텍스트 반환
- */
-function getCategoryDescription(categoryKey: string): string {
-  switch (categoryKey) {
-    case "hscode_regulation":
-      return "HS Code 관련 규제 변경사항을 알려드립니다";
-    case "cargo_status":
-      return "화물 추적 상태 변경을 알려드립니다";
-    case "trade_news":
-      return "무역 관련 중요한 뉴스를 알려드립니다";
-    case "exchange_rate":
-      return "주요 통화의 환율 변동을 알려드립니다";
-    case "system":
-      return "시스템 점검 및 공지사항을 알려드립니다";
-    default:
-      return "관련 정보를 알려드립니다";
-  }
-}
-
-/**
  * 설정 요약 통계 컴포넌트
  */
 function SettingsSummary() {
   const settings = mockNotificationSettings;
-  const unreadNotifications = getUnreadNotifications();
-
-  // 활성화된 알림 카테고리 수 계산
-  const enabledPushCategories = Object.values(settings.categories).filter(
-    (cat) => cat.pushEnabled,
-  ).length;
-
-  const enabledEmailCategories = Object.values(settings.categories).filter(
-    (cat) => cat.emailEnabled,
-  ).length;
+  const unreadNotifications = mockNotifications.filter((n) => !n.isRead);
 
   return (
     <div className="mb-8 grid gap-4 md:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            푸시 알림
+            SMS 알림
           </CardTitle>
           <Bell className="h-4 w-4 text-primary-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {enabledPushCategories}/{Object.keys(settings.categories).length}
+            {settings.notificationStats.smsEnabledBookmarks}/
+            {settings.notificationStats.totalBookmarks}
           </div>
-          <p className="text-xs text-neutral-500">카테고리 활성화</p>
+          <p className="text-xs text-neutral-500">북마크 활성화</p>
         </CardContent>
       </Card>
 
@@ -160,9 +119,10 @@ function SettingsSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {enabledEmailCategories}/{Object.keys(settings.categories).length}
+            {settings.notificationStats.emailEnabledBookmarks}/
+            {settings.notificationStats.totalBookmarks}
           </div>
-          <p className="text-xs text-neutral-500">카테고리 활성화</p>
+          <p className="text-xs text-neutral-500">북마크 활성화</p>
         </CardContent>
       </Card>
 
@@ -194,18 +154,18 @@ function SettingsPage() {
   const notificationSettings = mockNotificationSettings;
 
   // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
-  const handleTogglePush = (categoryKey: string) => {
-    console.log(`푸시 알림 토글: ${categoryKey}`);
+  const handleToggleSms = (bookmarkId: string) => {
+    console.log(`SMS 알림 토글: ${bookmarkId}`);
     // TODO: 실제 구현 시 상태 업데이트 로직 추가
   };
 
-  const handleToggleEmail = (categoryKey: string) => {
-    console.log(`이메일 알림 토글: ${categoryKey}`);
+  const handleToggleEmail = (bookmarkId: string) => {
+    console.log(`이메일 알림 토글: ${bookmarkId}`);
     // TODO: 실제 구현 시 상태 업데이트 로직 추가
   };
 
-  const handleToggleGlobalPush = () => {
-    console.log(`전체 푸시 알림 토글`);
+  const handleToggleGlobalSms = () => {
+    console.log(`전체 SMS 알림 토글`);
     // TODO: 실제 구현 시 전체 설정 업데이트 로직 추가
   };
 
@@ -240,14 +200,16 @@ function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-base font-medium">모든 푸시 알림</Label>
+                <Label className="text-base font-medium">모든 SMS 알림</Label>
                 <p className="text-sm text-neutral-500">
-                  모든 카테고리의 푸시 알림을 한번에 관리합니다
+                  모든 북마크의 SMS 알림을 한번에 관리합니다
                 </p>
               </div>
               <Switch
-                checked={notificationSettings.pushEnabled}
-                onCheckedChange={handleToggleGlobalPush}
+                checked={
+                  notificationSettings.globalSettings.smsNotificationEnabled
+                }
+                onCheckedChange={handleToggleGlobalSms}
               />
             </div>
             <Separator />
@@ -257,11 +219,13 @@ function SettingsPage() {
                   모든 이메일 알림
                 </Label>
                 <p className="text-sm text-neutral-500">
-                  모든 카테고리의 이메일 알림을 한번에 관리합니다
+                  모든 북마크의 이메일 알림을 한번에 관리합니다
                 </p>
               </div>
               <Switch
-                checked={notificationSettings.emailEnabled}
+                checked={
+                  notificationSettings.globalSettings.emailNotificationEnabled
+                }
                 onCheckedChange={handleToggleGlobalEmail}
               />
             </div>
@@ -273,25 +237,22 @@ function SettingsPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              <CardTitle>카테고리별 알림 설정</CardTitle>
+              <CardTitle>북마크별 알림 설정</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {Object.entries(notificationSettings.categories).map(
-              ([categoryKey, category], index) => (
-                <div key={categoryKey}>
-                  <NotificationCategory
-                    categoryKey={categoryKey}
-                    category={category}
-                    onTogglePush={handleTogglePush}
-                    onToggleEmail={handleToggleEmail}
-                  />
-                  {index <
-                    Object.entries(notificationSettings.categories).length -
-                      1 && <Separator className="mt-6" />}
-                </div>
-              ),
-            )}
+            {notificationSettings.bookmarkSettings.map((setting, index) => (
+              <div key={setting.bookmarkId}>
+                <BookmarkNotificationSetting
+                  setting={setting}
+                  onToggleSms={handleToggleSms}
+                  onToggleEmail={handleToggleEmail}
+                />
+                {index < notificationSettings.bookmarkSettings.length - 1 && (
+                  <Separator className="mt-6" />
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
 

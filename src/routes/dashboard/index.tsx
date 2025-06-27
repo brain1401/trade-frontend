@@ -15,17 +15,13 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
+  MessageSquare,
 } from "lucide-react";
 import {
   mockDashboardSummary,
-  mockUpdateFeeds,
   getRecentFeedItems,
-  getBookmarksByCategory,
-  getActiveBookmarks,
 } from "@/data/mock/dashboard";
 import { mockExchangeRates } from "@/data/mock/exchange-rates";
-import { getRecentNews } from "@/data/mock/news";
-import { getUnreadNotifications } from "@/data/mock/notifications";
 
 /**
  * 대시보드 라우트 정의 (TanStack Router 공식 방식)
@@ -171,8 +167,6 @@ function DashboardCard({
  */
 function DashboardSummary() {
   const dashboardSummary = mockDashboardSummary;
-  const unreadNotifications = getUnreadNotifications();
-  const activeBookmarks = getActiveBookmarks();
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
@@ -188,7 +182,7 @@ function DashboardSummary() {
             {dashboardSummary.bookmarks.total}
           </div>
           <p className="text-xs text-neutral-500">
-            활성 모니터링: {dashboardSummary.bookmarks.activeMonitoring}개
+            활성 모니터링: {dashboardSummary.bookmarks.monitoringActive}개
           </p>
         </CardContent>
       </Card>
@@ -196,16 +190,16 @@ function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            읽지 않은 알림
+            읽지 않은 피드
           </CardTitle>
           <Bell className="h-4 w-4 text-warning-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {unreadNotifications.length}
+            {dashboardSummary.notifications.unreadFeeds}
           </div>
           <p className="text-xs text-neutral-500">
-            오늘: {dashboardSummary.feeds.todayCount}개
+            오늘 발송: SMS {dashboardSummary.notifications.dailySms}건
           </p>
         </CardContent>
       </Card>
@@ -213,16 +207,16 @@ function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            검색 횟수
+            총 채팅 세션
           </CardTitle>
           <Search className="h-4 w-4 text-info-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.quickStats.searchCount}
+            {dashboardSummary.chatHistory.totalSessions}
           </div>
           <p className="text-xs text-neutral-500">
-            정확도: {dashboardSummary.quickStats.accuracyRate}
+            최근 30일: {dashboardSummary.chatHistory.sessionsLast30Days}개
           </p>
         </CardContent>
       </Card>
@@ -230,15 +224,17 @@ function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            절약 시간
+            총 메시지
           </CardTitle>
-          <TrendingUp className="text-brand-600 h-4 w-4" />
+          <MessageSquare className="text-brand-600 h-4 w-4" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.quickStats.totalSavedTime}
+            {dashboardSummary.chatHistory.totalMessages}
           </div>
-          <p className="text-xs text-success-600">효율성 개선</p>
+          <p className="text-xs text-neutral-500">
+            최근 30일: {dashboardSummary.chatHistory.messagesLast30Days}개
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -345,12 +341,12 @@ function ExchangeRatesWidget() {
       <CardContent className="space-y-3">
         {exchangeRates.map((rate) => (
           <div
-            key={rate.currency}
+            key={rate.currencyCode}
             className="flex items-center justify-between"
           >
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-neutral-900">
-                {rate.currency}
+                {rate.currencyCode}
               </span>
               <span className="text-xs text-neutral-500">
                 {rate.currencyName}
@@ -358,15 +354,15 @@ function ExchangeRatesWidget() {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium text-neutral-900">
-                {rate.rate.toLocaleString()}원
+                {rate.exchangeRate.toLocaleString()}원
               </p>
               <p
                 className={`text-xs ${
-                  rate.change > 0 ? "text-danger-600" : "text-success-600"
+                  rate.changeAmount > 0 ? "text-danger-600" : "text-success-600"
                 }`}
               >
-                {rate.change > 0 ? "+" : ""}
-                {rate.change}
+                {rate.changeAmount > 0 ? "+" : ""}
+                {rate.changeAmount.toFixed(2)}
               </p>
             </div>
           </div>
@@ -385,17 +381,15 @@ function ExchangeRatesWidget() {
 function DashboardPage() {
   // const { user } = useAuth();
   const dashboardSummary = mockDashboardSummary;
-  const unreadNotifications = getUnreadNotifications();
-  const activeBookmarks = getActiveBookmarks();
 
   // 카드별 뱃지 추가
   const enhancedCards = dashboardCards.map((card) => ({
     ...card,
     badge:
       card.id === "bookmarks"
-        ? `${activeBookmarks.length}개 활성`
+        ? `${dashboardSummary.bookmarks.monitoringActive}개 활성`
         : card.id === "notifications"
-          ? `${unreadNotifications.length}개 미읽음`
+          ? `${dashboardSummary.notifications.unreadFeeds}개 미읽음`
           : undefined,
   }));
 

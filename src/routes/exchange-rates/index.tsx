@@ -46,8 +46,8 @@ const getTrendColor = (change: number) => {
 type ExchangeRateCardProps = {
   currencyCode: string;
   currencyName: string;
-  rate: number;
-  change: number;
+  exchangeRate: number;
+  changeAmount: number;
   flag: string;
   lastUpdated: string;
 };
@@ -55,8 +55,8 @@ type ExchangeRateCardProps = {
 function ExchangeRateCard({
   currencyCode,
   currencyName,
-  rate,
-  change,
+  exchangeRate,
+  changeAmount,
   flag,
   lastUpdated,
 }: ExchangeRateCardProps) {
@@ -78,13 +78,13 @@ function ExchangeRateCard({
           {/* 현재 환율 */}
           <div>
             <div className="text-2xl font-bold text-neutral-900">
-              ₩{rate.toLocaleString()}
+              ₩{exchangeRate.toLocaleString()}
             </div>
             <div className="flex items-center gap-1 text-sm">
-              {getTrendIcon(change)}
-              <span className={getTrendColor(change)}>
-                {change > 0 ? "+" : ""}
-                {change.toFixed(2)}
+              {getTrendIcon(changeAmount)}
+              <span className={getTrendColor(changeAmount)}>
+                {changeAmount > 0 ? "+" : ""}
+                {changeAmount.toFixed(2)}
               </span>
             </div>
           </div>
@@ -125,11 +125,11 @@ function ExchangeRatesPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {exchangeRates.map((rate: EnhancedExchangeRate) => (
           <ExchangeRateCard
-            key={rate.currency}
-            currencyCode={rate.currency}
+            key={rate.currencyCode}
+            currencyCode={rate.currencyCode}
             currencyName={rate.currencyName}
-            rate={rate.rate}
-            change={rate.change}
+            exchangeRate={rate.exchangeRate}
+            changeAmount={rate.changeAmount}
             flag={rate.flag}
             lastUpdated={rate.lastUpdated}
           />
