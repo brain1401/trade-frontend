@@ -1,5 +1,22 @@
-import type { ExchangeRate } from "@/types/base";
 import { CURRENCIES } from "@/data/common";
+
+/**
+ * v6.1 API 명세서 기준, 환율 정보 타입
+ */
+export type ExchangeRate = {
+  /** 통화 코드 (e.g., "USD") */
+  currencyCode: string;
+  /** 통화명 (e.g., "미국 달러") */
+  currencyName: string;
+  /** 현재 환율 */
+  exchangeRate: number;
+  /** 전일 대비 등락률 */
+  changeRate: number;
+  /** 전일 대비 등락액 */
+  changeAmount: number;
+  /** 마지막 업데이트 시간 (ISO 8601) */
+  lastUpdated: string;
+};
 
 /**
  * 환율 히스토리 데이터의 구조
@@ -31,49 +48,65 @@ export type EnhancedExchangeRate = ExchangeRate & {
 };
 
 /**
- * 주요 4개 통화의 환율 정보 Mock 데이터
- *
- * USD, EUR, JPY, CNY 등 주요 거래 통화들의 현재 환율 정보를 제공합니다.
- * 실시간 환율 API 대신 사용되는 테스트용 데이터입니다.
- *
- * @example
- * ```typescript
- * const usdRate = mockExchangeRates.find(rate => rate.currency === "USD");
- * console.log(`USD 환율: ${usdRate?.rate}원`);
- * ```
+ * v6.1 API 명세서 기준, 특정 통화 상세 환율 정보 타입
+ */
+export type DetailedExchangeRate = ExchangeRate & {
+  /** 당일 고가 */
+  todayHigh: number;
+  /** 당일 저가 */
+  todayLow: number;
+  /** 주간 고가 */
+  weekHigh: number;
+  /** 주간 저가 */
+  weekLow: number;
+  /** 월간 고가 */
+  monthHigh: number;
+  /** 월간 저가 */
+  monthLow: number;
+  /** 변동 추이 (UP, DOWN, SAME) */
+  trend: "UP" | "DOWN" | "SAME";
+  /** 과거 데이터 */
+  historicalData: {
+    date: string;
+    rate: number;
+  }[];
+};
+
+/**
+ * 주요 통화의 환율 정보 Mock 데이터 (v6.1)
  */
 export const mockExchangeRates: ExchangeRate[] = [
   {
-    currency: "USD",
-    currencyName: CURRENCIES.USD.name,
-    rate: 1359.4,
-    change: -2.78,
-    symbol: CURRENCIES.USD.symbol,
-    lastUpdated: "2025-01-12T09:00:00Z",
+    currencyCode: "USD",
+    currencyName: "미국 달러",
+    exchangeRate: 1328.5,
+    changeRate: -0.75,
+    changeAmount: -10.0,
+    lastUpdated: "2024-01-16T11:30:00Z",
   },
   {
-    currency: "EUR",
-    currencyName: CURRENCIES.EUR.name,
-    rate: 1421.5,
-    change: -1.52,
-    symbol: CURRENCIES.EUR.symbol,
-    lastUpdated: "2025-01-12T09:00:00Z",
+    currencyCode: "EUR",
+    currencyName: "유로",
+    exchangeRate: 1445.2,
+    changeRate: 0.45,
+    changeAmount: 6.5,
+    lastUpdated: "2024-01-16T11:30:00Z",
   },
   {
-    currency: "JPY",
-    currencyName: CURRENCIES.JPY.name,
-    rate: 9.43,
-    change: -0.08,
-    symbol: CURRENCIES.JPY.symbol,
-    lastUpdated: "2025-01-12T09:00:00Z",
+    currencyCode: "JPY",
+    currencyName: "일본 엔 (100엔)",
+    exchangeRate: 895.3,
+    changeRate: -0.25,
+    changeAmount: -2.2,
+    lastUpdated: "2024-01-16T11:30:00Z",
   },
   {
-    currency: "CNY",
-    currencyName: CURRENCIES.CNY.name,
-    rate: 188.2,
-    change: -0.85,
-    symbol: CURRENCIES.CNY.symbol,
-    lastUpdated: "2025-01-12T09:00:00Z",
+    currencyCode: "CNY",
+    currencyName: "중국 위안",
+    exchangeRate: 184.75,
+    changeRate: 0.15,
+    changeAmount: 0.28,
+    lastUpdated: "2024-01-16T11:30:00Z",
   },
 ];
 
@@ -87,7 +120,7 @@ export const mockExchangeRates: ExchangeRate[] = [
  * ```typescript
  * const popularRates = mockGlobalExchangeRates.filter(rate => rate.isPopular);
  * popularRates.forEach(rate => {
- *   console.log(`${rate.flag} ${rate.countryName}: ${rate.rate}원`);
+ *   console.log(`${rate.flag} ${rate.countryName}: ${rate.exchangeRate}원`);
  * });
  * ```
  */
@@ -121,11 +154,11 @@ export const mockGlobalExchangeRates: EnhancedExchangeRate[] = [
     isPopular: true,
   },
   {
-    currency: "GBP",
+    currencyCode: "GBP",
     currencyName: CURRENCIES.GBP.name,
-    rate: 1702.3,
-    change: -2.1,
-    symbol: CURRENCIES.GBP.symbol,
+    exchangeRate: 1702.3,
+    changeRate: -2.1,
+    changeAmount: -3.5,
     lastUpdated: "2025-01-12T09:00:00Z",
     countryCode: "GB",
     countryName: "영국",
@@ -133,6 +166,35 @@ export const mockGlobalExchangeRates: EnhancedExchangeRate[] = [
     isPopular: true,
   },
 ];
+
+/**
+ * USD 상세 환율 정보 Mock 데이터 (v6.1)
+ */
+export const mockDetailedUSDExchangeRate: DetailedExchangeRate = {
+  currencyCode: "USD",
+  currencyName: "미국 달러",
+  exchangeRate: 1328.5,
+  changeRate: -0.75,
+  changeAmount: -10.0,
+  todayHigh: 1335.0,
+  todayLow: 1325.0,
+  weekHigh: 1340.0,
+  weekLow: 1315.0,
+  monthHigh: 1365.0,
+  monthLow: 1310.0,
+  lastUpdated: "2024-01-16T11:30:00Z",
+  trend: "DOWN",
+  historicalData: [
+    {
+      date: "2024-01-15",
+      rate: 1338.5,
+    },
+    {
+      date: "2024-01-14",
+      rate: 1342.0,
+    },
+  ],
+};
 
 /**
  * 환율 관련 뉴스 Mock 데이터
@@ -175,14 +237,14 @@ export const mockExchangeRateNews = [
  * ```typescript
  * const usdRate = getExchangeRateByCurrency("USD");
  * if (usdRate) {
- *   console.log(`USD 변동: ${usdRate.change > 0 ? '상승' : '하락'}`);
+ *   console.log(`USD 변동: ${usdRate.changeRate > 0 ? '상승' : '하락'}`);
  * }
  * ```
  */
 export const getExchangeRateByCurrency = (
   currency: string,
 ): ExchangeRate | undefined => {
-  return mockExchangeRates.find((rate) => rate.currency === currency);
+  return mockExchangeRates.find((rate) => rate.currencyCode === currency);
 };
 
 /**
@@ -230,7 +292,7 @@ export const searchExchangeRates = (query: string): EnhancedExchangeRate[] => {
   const searchTerm = query.toLowerCase();
   return mockGlobalExchangeRates.filter(
     (rate) =>
-      rate.currency.toLowerCase().includes(searchTerm) ||
+      rate.currencyCode.toLowerCase().includes(searchTerm) ||
       rate.currencyName.toLowerCase().includes(searchTerm) ||
       rate.countryName.toLowerCase().includes(searchTerm),
   );

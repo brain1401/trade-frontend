@@ -1,4 +1,5 @@
 import type { TradeNews, HSCodeNews } from "@/types/news";
+import type { PaginationMeta } from "../../types/common";
 
 /**
  * 무역 뉴스 Mock 데이터 배열
@@ -275,4 +276,128 @@ export const getRecentNews = (
   return [...mockTradeNews, ...mockHSCodeNews]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, limit);
+};
+
+/**
+ * v6.1 API 명세서 기준, 뉴스 카테고리 타입
+ */
+export type NewsCategory = "관세" | "수출입" | "규제" | "통계" | "전체";
+
+/**
+ * v6.1 API 명세서 기준, 뉴스 아이템 타입
+ */
+export type News = {
+  /** 뉴스 고유 식별자 */
+  id: string;
+  /** 뉴스 제목 */
+  title: string;
+  /** 뉴스 요약 */
+  summary: string;
+  /** 정보 출처명 */
+  sourceName: string;
+  /** 정보 출처 URL */
+  sourceUrl: string;
+  /** 발행 시간 (ISO 8601) */
+  publishedAt: string;
+  /** 뉴스 카테고리 */
+  category: NewsCategory;
+  /** 우선순위 (1: 높음) */
+  priority: number;
+  /** 활성 여부 */
+  isActive: boolean;
+  /** 연관된 HS Code 목록 */
+  relatedHsCodes: string[];
+  /** 생성 시간 (ISO 8601) */
+  createdAt: string;
+};
+
+/**
+ * v6.1 API 명세서 기준, 뉴스 상세 정보 타입
+ */
+export type DetailedNews = Omit<News, "relatedHsCodes"> & {
+  /** 뉴스 전체 내용 (HTML 또는 Markdown) */
+  content: string;
+  /** 연관된 HS Code 상세 정보 */
+  relatedHsCodes: {
+    hsCode: string;
+    productName: string;
+    oldTariffRate?: string;
+    newTariffRate?: string;
+  }[];
+  /** 관련 태그 목록 */
+  tags: string[];
+  /** 조회수 */
+  viewCount: number;
+};
+
+/**
+ * 뉴스 상세 정보 Mock 데이터 (v6.1)
+ */
+export const mockDetailedNews: DetailedNews = {
+  id: "news_001",
+  title: "2024년 상반기 스마트폰 수입 관세율 인하 발표",
+  summary:
+    "정부가 스마트폰 등 IT 기기 수입 관세율을 기존 8%에서 6%로 인하한다고 발표했습니다.",
+  content:
+    "관세청은 16일 2024년 상반기부터 스마트폰(HS Code: 8517.12.00) 등 주요 IT 기기의 수입 관세율을 기존 8%에서 6%로 2%포인트 인하한다고 발표했습니다...",
+  sourceName: "관세청",
+  sourceUrl: "https://unipass.customs.go.kr/news/...",
+  publishedAt: "2024-01-16T09:00:00Z",
+  category: "관세",
+  priority: 1,
+  isActive: true,
+  relatedHsCodes: [
+    {
+      hsCode: "8517.12.00",
+      productName: "스마트폰 및 기타 무선전화기",
+      oldTariffRate: "8%",
+      newTariffRate: "6%",
+    },
+    {
+      hsCode: "8517.11.00",
+      productName: "유선전화기",
+      oldTariffRate: "8%",
+      newTariffRate: "6%",
+    },
+  ],
+  tags: ["관세율", "인하", "스마트폰", "IT기기"],
+  viewCount: 1523,
+  createdAt: "2024-01-16T09:05:00Z",
+};
+
+/**
+ * 뉴스 목록 응답 Mock 데이터 (v6.1)
+ */
+export const mockNewsResponse = {
+  news: mockTradeNews,
+  pagination: {
+    currentPage: 1,
+    totalPages: 5,
+    totalElements: 85,
+    pageSize: 20,
+    hasNext: true,
+    hasPrevious: false,
+  } as PaginationMeta,
+  categories: [
+    {
+      name: "전체" as NewsCategory,
+      count: 85,
+    },
+    {
+      name: "관세" as NewsCategory,
+      count: 23,
+    },
+    {
+      name: "수출입" as NewsCategory,
+      count: 31,
+    },
+    {
+      name: "규제" as NewsCategory,
+      count: 19,
+    },
+    {
+      name: "통계" as NewsCategory,
+      count: 12,
+    },
+  ],
 };

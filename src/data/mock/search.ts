@@ -3,6 +3,7 @@ import type {
   RecentSearchItem,
   SearchResult,
 } from "@/types/search";
+import type { PaginationMeta } from "../../types/common";
 
 /**
  * 인기 검색어 Mock 데이터
@@ -300,4 +301,153 @@ export const getSearchSuggestions = (query: string): string[] => {
   return mockSearchSuggestions.filter((suggestion) =>
     suggestion.toLowerCase().includes(lowercaseQuery),
   );
+};
+
+/**
+ * v6.1 API 명세서 기준, 채팅 세션 정보 타입
+ */
+export type ChatSession = {
+  /** 세션 고유 ID */
+  sessionId: string;
+  /** 세션 제목 */
+  sessionTitle: string;
+  /** 메시지 수 */
+  messageCount: number;
+  /** 생성 시간 (ISO 8601) */
+  createdAt: string;
+  /** 마지막 업데이트 시간 (ISO 8601) */
+  updatedAt: string;
+  /** 첫 번째 메시지 내용 */
+  firstMessage: string;
+  /** 마지막 메시지 내용 */
+  lastMessage: string;
+  /** 데이터 파티션 연도 */
+  partitionYear: number;
+};
+
+/**
+ * v6.1 API 명세서 기준, 채팅 세션 목록 응답 타입
+ */
+export type ChatHistoryResponse = {
+  /** 세션 목록 */
+  sessions: ChatSession[];
+  /** 페이지네이션 정보 */
+  pagination: PaginationMeta;
+  /** 요약 정보 */
+  summary: {
+    totalSessions: number;
+    totalMessages: number;
+    sessionsLast30Days: number;
+    oldestSessionDate: string;
+    newestSessionDate: string;
+  };
+};
+
+/**
+ * v6.1 API 명세서 기준, 채팅 검색 결과 항목 타입
+ */
+export type ChatSearchResultItem = {
+  /** 세션 고유 ID */
+  sessionId: string;
+  /** 세션 제목 */
+  sessionTitle: string;
+  /** 일치하는 메시지 내용 */
+  matchedMessage: string;
+  /** 일치 타입 (USER 또는 AI 메시지) */
+  matchType: "USER_MESSAGE" | "AI_MESSAGE";
+  /** 메시지 생성 시간 (ISO 8601) */
+  createdAt: string;
+  /** 관련도 점수 */
+  relevanceScore: number;
+};
+
+/**
+ * v6.1 API 명세서 기준, 채팅 검색 응답 타입
+ */
+export type ChatSearchResponse = {
+  /** 검색 결과 목록 */
+  searchResults: ChatSearchResultItem[];
+  /** 페이지네이션 정보 */
+  pagination: PaginationMeta;
+  /** 검색 정보 */
+  searchInfo: {
+    keyword: string;
+    searchTimeMs: number;
+    totalMatches: number;
+  };
+};
+
+/**
+ * 채팅 세션 목록 Mock 데이터 (v6.1)
+ */
+export const mockChatHistory: ChatHistoryResponse = {
+  sessions: [
+    {
+      sessionId: "chat_session_20240116_123456",
+      sessionTitle: "아이폰 15 프로 수입 HS Code 문의",
+      messageCount: 6,
+      createdAt: "2024-01-16T10:32:00Z",
+      updatedAt: "2024-01-16T10:45:00Z",
+      firstMessage:
+        "아이폰 15 프로를 수입할 때 HS Code와 관세율이 어떻게 되나요?",
+      lastMessage: "추가 질문이 있으시면 언제든 문의해 주세요.",
+      partitionYear: 2024,
+    },
+    {
+      sessionId: "chat_session_20240115_098765",
+      sessionTitle: "전자제품 수입 규제 확인",
+      messageCount: 4,
+      createdAt: "2024-01-15T14:20:00Z",
+      updatedAt: "2024-01-15T14:35:00Z",
+      firstMessage:
+        "전자제품을 중국에서 수입할 때 필요한 인증서류가 무엇인가요?",
+      lastMessage: "KC 인증과 전파인증이 필수입니다.",
+      partitionYear: 2024,
+    },
+  ],
+  pagination: {
+    currentPage: 1,
+    totalPages: 3,
+    totalElements: 45,
+    pageSize: 20,
+    hasNext: true,
+    hasPrevious: false,
+  },
+  summary: {
+    totalSessions: 45,
+    totalMessages: 180,
+    sessionsLast30Days: 8,
+    oldestSessionDate: "2023-06-15T09:00:00Z",
+    newestSessionDate: "2024-01-16T10:32:00Z",
+  },
+};
+
+/**
+ * 채팅 검색 결과 Mock 데이터 (v6.1)
+ */
+export const mockChatSearchResponse: ChatSearchResponse = {
+  searchResults: [
+    {
+      sessionId: "chat_session_20240116_123456",
+      sessionTitle: "아이폰 15 프로 수입 HS Code 문의",
+      matchedMessage:
+        "아이폰 15 프로를 수입할 때 HS Code와 관세율이 어떻게 되나요?",
+      matchType: "USER_MESSAGE",
+      createdAt: "2024-01-16T10:32:00Z",
+      relevanceScore: 0.95,
+    },
+  ],
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalElements: 5,
+    pageSize: 20,
+    hasNext: false,
+    hasPrevious: false,
+  },
+  searchInfo: {
+    keyword: "아이폰",
+    searchTimeMs: 150,
+    totalMatches: 5,
+  },
 };
