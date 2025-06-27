@@ -1,5 +1,5 @@
 /**
- * 사용자 정보 타입
+ * 사용자 정보 타입 (API v6.1)
  *
  * 프론트엔드에서 실제로 필요한 최소한의 사용자 정보만 포함합니다.
  * 보안상 민감한 정보(ID, 권한 등)는 서버에서 이메일 기반으로 관리합니다.
@@ -11,15 +11,21 @@ export type User = {
   name: string;
   /** 프로필 이미지 URL (OAuth 제공업체에서 제공, 선택적) */
   profileImage: string | null;
+  /** 🆕 휴대폰 인증 완료 여부 (v6.1 신규) */
+  phoneVerified?: boolean;
+  /** 🆕 Remember me 설정 상태 (v6.1 신규) */
+  rememberMe?: boolean;
 };
 
 /**
- * 인증 상태 타입
+ * 인증 상태 타입 (통합 인증 시스템용)
  */
 export type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  /** @deprecated v6.1 - AuthManager에서 토큰 관리됨 */
+  accessToken?: string | null;
 };
 
 /**
@@ -49,10 +55,31 @@ export type RegisterRequest = {
 };
 
 /**
- * 로그인 응답 데이터 타입
+ * 🆕 v6.1 로그인 응답 데이터 타입 (JWT 세부화)
  */
 export type LoginResponse = {
+  /** JWT Access Token (30분, 헤더&Zustand 저장용) */
+  accessToken: string;
+  /** 토큰 타입 ("Bearer") */
+  tokenType: string;
+  /** Access Token 만료 시간 (초, 1800) */
+  expiresIn: number;
+  /** 사용자 정보 */
   user: User;
+};
+
+/**
+ * 🆕 토큰 갱신 응답 타입 (v6.1 세부화)
+ */
+export type RefreshTokenResponse = {
+  /** 새로 발급된 Access Token (30분) */
+  accessToken: string;
+  /** 토큰 타입 ("Bearer") */
+  tokenType: string;
+  /** Access Token 만료 시간 (초, 1800) */
+  expiresIn: number;
+  /** 현재 Remember Me 설정 상태 */
+  rememberMe: boolean;
 };
 
 /**
@@ -61,7 +88,7 @@ export type LoginResponse = {
 export type OAuthProvider = "google" | "naver" | "kakao";
 
 /**
- * API v2.4 에러 코드 타입 (확장된 에러 코드 체계)
+ * API v6.1 에러 코드 타입 (확장된 에러 코드 체계)
  */
 export type ApiErrorCode =
   // 인증 관련 (AUTH_xxx)
@@ -123,26 +150,36 @@ export type AuthError = {
 
 /**
  * OAuth 콜백 처리 타입
+ *
+ * 🚨 임시 수정: 백엔드가 실제로 전달하는 형태에 맞게 확장
  */
 export type OAuthCallbackResult = {
   success: boolean;
   error?: string;
   user?: User;
+  /** 🚨 임시: 백엔드가 URL에 직접 전달하는 accessToken (보안 문제) */
+  accessToken?: string;
+  /** 🚨 임시: 백엔드가 URL에 직접 전달하는 email */
+  email?: string;
+  /** 🚨 임시: 백엔드가 URL에 직접 전달하는 name */
+  name?: string;
 };
 
 /**
- * 보안 정책 상수
+ * 🆕 v6.1 보안 정책 상수 (JWT 세부화)
  */
 export const AUTH_SECURITY_POLICIES = {
-  /** Remember Me 쿠키 만료 시간 (7일) */
-  REMEMBER_ME_MAX_AGE: 604800,
-  /** 세션 쿠키 (브라우저 종료시 삭제) */
-  SESSION_COOKIE: 0,
+  /** Access Token 만료 시간 (30분) */
+  ACCESS_TOKEN_EXPIRES_IN: 1800,
+  /** Remember Me 체크시 Refresh Token 만료 시간 (30일) */
+  REFRESH_TOKEN_REMEMBER_MAX_AGE: 2592000,
+  /** Remember Me 미체크시 Refresh Token 만료 시간 (1일) */
+  REFRESH_TOKEN_SESSION_MAX_AGE: 86400,
   /** HttpOnly 쿠키 속성 */
   COOKIE_OPTIONS: {
     httpOnly: true,
     secure: import.meta.env.PROD, // HTTPS에서만 전송
     sameSite: "strict" as const, // CSRF 공격 방지
-    path: "/",
+    path: "/auth/refresh", // Refresh 엔드포인트에서만 전송
   },
 } as const;
