@@ -1,307 +1,228 @@
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { authApi } from "@/lib/api/auth";
-import { setupApiInterceptor, ApiError } from "@/lib/api/client";
-import type { User, AuthState, ApiErrorCode } from "@/types/auth";
+import { authService, tokenStore } from "@/lib/auth";
+import type { User } from "@/types/auth";
 
 /**
- * 인증 스토어의 액션들
+ * v6.1 인증 스토어 상태
+ */
+type AuthStoreState = {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  rememberMe: boolean;
+  tokenExpiresAt: Date | null;
+  isInitialized: boolean;
+};
+
+/**
+ * v6.1 인증 스토어 액션
  */
 type AuthActions = {
-  // 초기화
   initialize: () => Promise<void>;
-
-  // 로그인
   login: (
     email: string,
     password: string,
     rememberMe?: boolean,
   ) => Promise<void>;
-
-  // 로그아웃 (API v2.4 - 204 No Content 응답)
   logout: () => Promise<void>;
-
-  // 사용자 정보 설정
+  refreshToken: () => Promise<void>;
   setUser: (user: User | null) => void;
-
-  // 로딩 상태 설정
   setLoading: (loading: boolean) => void;
-
-  // 인증 상태 초기화 (401 에러 시)
-  clearAuth: () => void;
-
-  // 강제 쿠키 삭제 (문제 해결용)
-  clearAuthCookies: () => void;
-
-  // OAuth 콜백 처리
+  setRememberMe: (rememberMe: boolean) => void;
   handleOAuthCallback: () => Promise<boolean>;
+  clearClientAuthState: () => void;
 };
 
-/**
- * 인증 상태와 액션들을 포함한 스토어 타입
- */
-type AuthStore = AuthState & AuthActions;
+type AuthStore = AuthStoreState & AuthActions;
 
 /**
- * 인증 상태 관리 스토어 (API v2.4 대응)
- *
- * 주요 변경사항:
- * - 로그아웃 응답 변경: 200 OK -> 204 No Content
- * - OAuth 프로필 이미지 지원
- * - 확장된 에러 코드 체계
- * - 보안 정책 강화 (사용자 열거 공격 방지)
- *
- * useShallow를 사용한 최적화된 useAuth 훅과 함께 제공됩니다.
- * 실제로 사용하는 상태나 액션이 변경될 때만 리렌더링을 트리거합니다.
- *
- * 보안 우선 설계 원칙:
- * - JWT 토큰은 HttpOnly 쿠키에서만 관리 (클라이언트 접근 불가)
- * - 프론트엔드 필요 최소 정보만 저장 (email, name, profileImage)
- * - 권한 검증은 서버에서 이메일 기반으로 수행
- * - 민감한 정보(ID, roles 등)는 클라이언트에 노출 금지
- * - 사용자가 삭제되거나 토큰이 유효하지 않으면 자동으로 쿠키 정리
- *
- * @example 기본 사용법
- * ```typescript
- * const { user, isAuthenticated, isLoading, login, logout, initialize } = useAuth();
- *
- * // 초기화
- * useEffect(() => {
- *   initialize();
- * }, [initialize]);
- *
- * // 로그인
- * const handleLogin = async (email: string, password: string) => {
- *   try {
- *     await login(email, password);
- *     router.push('/dashboard');
- *   } catch (error) {
- *     setError(authApi.parseErrorMessage(error));
- *   }
- * };
- *
- * // 조건부 렌더링
- * if (isLoading) return <LoadingSpinner />;
- * if (!isAuthenticated) return <LoginForm onLogin={handleLogin} />;
- * return <Welcome user={user} onLogout={logout} />;
- * ```
+ * v6.1 JWT 세부화 인증 스토어
+ * - Access Token: 30분 (tokenStore에서 메모리 관리)
+ * - Refresh Token: HttpOnly 쿠키로 서버에서 자동 관리
+ * - API 요청 시 401 응답 받을 때 자동 토큰 갱신
  */
 export const useAuthStore = create<AuthStore>((set, get) => ({
   // 초기 상태
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  rememberMe: false,
+  tokenExpiresAt: null,
+  isInitialized: false,
 
   /**
    * 앱 시작 시 인증 상태 초기화
-   *
-   * HttpOnly 쿠키가 존재하면 서버에서 사용자 정보를 가져와 상태 설정
-   * 쿠키가 없거나 만료되었으면 익명 상태로 초기화
-   *
-   * API v2.4 개선사항:
-   * - 사용자가 데이터베이스에서 삭제된 경우 자동 쿠키 삭제
-   * - 토큰이 유효하지 않은 경우 자동 쿠키 삭제
-   * - OAuth 프로필 이미지 지원
+   * v6.1: HttpOnly 쿠키 환경에서 리프레시 토큰 상태 확인
    */
   initialize: async () => {
+    const currentState = get();
+
+    // 이미 초기화되었다면 건너뛰기 (중복 실행 방지)
+    if (currentState.isInitialized) {
+      if (import.meta.env.DEV) {
+        console.log("⚠️ 인증 초기화 이미 완료됨 - 중복 실행 방지");
+      }
+      return;
+    }
+
     try {
       set({ isLoading: true });
 
-      // 서버에서 인증 상태 확인
-      const response = await authApi.verify();
-
-      if (response.success === "SUCCESS" && response.data) {
-        // 인증 성공: 사용자 정보 설정
-        set({
-          user: response.data,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-
-        console.log("인증 상태 초기화 완료:", {
-          email: response.data.email,
-          name: response.data.name,
-          hasProfileImage: !!response.data.profileImage,
-        });
-      } else {
-        // 인증 실패: 익명 상태로 설정
-        console.warn("인증 실패 - 익명 모드로 전환");
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
+      if (import.meta.env.DEV) {
+        console.log("🔐 인증 초기화 시작");
       }
-    } catch (error) {
-      console.warn("인증 상태 확인 실패:", error);
 
-      // API 에러인 경우 상세 로깅
-      if (error instanceof ApiError) {
-        console.warn("인증 에러 상세:", {
-          statusCode: error.statusCode,
-          errorCode: error.errorCode,
-          message: error.message,
-        });
+      // 1단계: 기존 Access Token이 유효한지 확인
+      if (tokenStore.isAuthenticated()) {
+        try {
+          if (import.meta.env.DEV) {
+            console.log("✅ 기존 Access Token으로 사용자 정보 조회 시도");
+            console.log(tokenStore.getToken());
+          }
+          const user = await authService.getCurrentUser();
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            isInitialized: true,
+            tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+          });
 
-        // 에러 코드별 처리
-        switch (error.errorCode) {
-          case "AUTH_003":
-          case "TOKEN_EXPIRED":
-            console.warn("토큰이 만료되었습니다");
-            break;
-          case "AUTH_004":
-          case "INVALID_TOKEN":
-            console.warn("토큰이 유효하지 않습니다");
-            break;
-          case "AUTH_005":
-          case "FORBIDDEN":
-            console.warn("사용자가 삭제되었거나 비활성화되었습니다");
-            break;
+          if (import.meta.env.DEV) {
+            console.log("✅ 기존 토큰으로 인증 초기화 완료");
+          }
+          return;
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn("⚠️ 기존 토큰으로 사용자 정보 조회 실패:", error);
+          }
+          // Access Token이 만료되었을 수 있으므로 다음 단계로 진행
         }
       }
 
-      // 모든 경우에 대해 익명 상태로 초기화
+      // 2단계: HttpOnly 쿠키의 리프레시 토큰으로 갱신 시도
+      // 주의: HttpOnly 쿠키는 JavaScript로 확인할 수 없으므로 API 호출로 간접 확인
+      try {
+        if (import.meta.env.DEV) {
+          console.log("🔄 HttpOnly 리프레시 토큰으로 액세스 토큰 갱신 시도");
+        }
+
+        const token = await authService.refreshToken();
+        console.log(token);
+
+        // 토큰 갱신 성공 시 사용자 정보 조회
+        const user = await authService.getCurrentUser();
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          isInitialized: true,
+          tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+        });
+
+        if (import.meta.env.DEV) {
+          console.log("🎉 HttpOnly 리프레시 토큰을 통한 자동 로그인 성공");
+        }
+        return;
+      } catch (refreshError) {
+        if (import.meta.env.DEV) {
+          console.info(
+            "ℹ️ 리프레시 토큰 갱신 실패 - 로그아웃 상태로 전환:",
+            refreshError,
+          );
+        }
+        // 리프레시 토큰이 없거나 만료된 경우 (정상적인 로그아웃 상태)
+      }
+
+      // 3단계: 모든 토큰이 유효하지 않은 경우 로그아웃 상태로 설정
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-      });
-    }
-  },
-
-  /**
-   * 로그인 처리 (API v2.4 보안 강화)
-   *
-   * 성공 시 서버에서 HttpOnly 쿠키 자동 설정
-   * 클라이언트는 사용자 정보만 상태에 저장
-   *
-   * 보안 강화:
-   * - 로그인 실패 시 기존 쿠키 자동 정리
-   * - 사용자 열거 공격 방지를 위한 통합 에러 메시지
-   */
-  login: async (email: string, password: string, rememberMe = false) => {
-    try {
-      const response = await authApi.login({
-        email,
-        password,
-        rememberMe,
+        isInitialized: true,
+        tokenExpiresAt: null,
       });
 
-      if (response.success === "SUCCESS" && response.data) {
-        // 로그인 성공: 사용자 정보 설정
-        set({
-          user: response.data.user,
-          isAuthenticated: true,
-        });
-
-        console.log("로그인 성공:", {
-          email: response.data.user.email,
-          name: response.data.user.name,
-          hasProfileImage: !!response.data.user.profileImage,
-          rememberMe,
-        });
-      } else {
-        throw new Error(response.message || "로그인에 실패했습니다");
+      if (import.meta.env.DEV) {
+        console.log("🚪 로그아웃 상태로 초기화 완료");
       }
     } catch (error) {
-      console.error("로그인 실패:", error);
-
-      // API 에러 상세 로깅
-      if (error instanceof ApiError) {
-        console.error("로그인 에러 상세:", {
-          statusCode: error.statusCode,
-          errorCode: error.errorCode,
-          message: error.message,
-        });
-
-        // 에러 코드별 추가 처리
-        switch (error.errorCode) {
-          case "AUTH_001":
-            // 사용자 열거 공격 방지: 동일한 메시지 표시
-            console.warn("인증 실패 (사용자 열거 공격 방지)");
-            break;
-          case "AUTH_002":
-            console.warn("계정 일시 잠김");
-            break;
-          case "RATE_LIMIT_001":
-            console.warn("로그인 시도 한도 초과");
-            break;
-        }
-      }
-
-      throw error; // 컴포넌트에서 에러 처리하도록 재던짐
-    }
-  },
-
-  /**
-   * 로그아웃 처리 (API v2.4 - 204 No Content 응답)
-   *
-   * 서버에서 HttpOnly 쿠키 삭제
-   * 클라이언트 상태 초기화
-   *
-   * 변경사항:
-   * - 응답 코드: 200 OK -> 204 No Content
-   * - 응답 본문 없음
-   * - 에러 발생 시에도 클라이언트 상태는 항상 정리
-   */
-  logout: async () => {
-    try {
-      await authApi.logout(); // 이제 void 반환
-      console.log("로그아웃 API 호출 완료");
-    } catch (error) {
-      console.warn("로그아웃 API 호출 실패:", error);
-      // 에러가 발생해도 클라이언트 상태는 정리해야 함
-    } finally {
-      // API 호출 성공 여부와 관계없이 클라이언트 상태 초기화
+      console.error("❌ 인증 상태 초기화 중 예상치 못한 오류:", error);
       set({
         user: null,
         isAuthenticated: false,
+        isLoading: false,
+        isInitialized: true,
+        tokenExpiresAt: null,
       });
-      console.log("로그아웃 완료 - 클라이언트 상태 정리됨");
     }
   },
 
   /**
-   * OAuth 콜백 처리 (API v2.4 신규 기능)
-   *
-   * OAuth 로그인 완료 후 리디렉션된 페이지에서 호출
-   * URL 파라미터를 통해 성공/실패 여부 확인
+   * v6.1: JWT 세부화 로그인 처리
    */
-  handleOAuthCallback: async (): Promise<boolean> => {
-    try {
-      const result = authApi.parseOAuthCallback();
+  login: async (email: string, password: string, rememberMe = false) => {
+    const user = await authService.login({ email, password, rememberMe });
+    set({
+      user,
+      isAuthenticated: true,
+      rememberMe,
+      tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+    });
 
-      if (result.success) {
-        // OAuth 성공 시 사용자 정보 다시 확인
-        const response = await authApi.verify();
-
-        if (response.success === "SUCCESS" && response.data) {
-          set({
-            user: response.data,
-            isAuthenticated: true,
-          });
-
-          console.log("OAuth 로그인 완료:", {
-            email: response.data.email,
-            name: response.data.name,
-            hasProfileImage: !!response.data.profileImage,
-          });
-
-          return true;
-        }
-      } else {
-        console.error("OAuth 콜백 실패:", result.error);
-      }
-
-      return false;
-    } catch (error) {
-      console.error("OAuth 콜백 처리 실패:", error);
-      return false;
+    if (import.meta.env.DEV) {
+      console.log("✅ 로그인 성공:", { email, rememberMe });
     }
   },
 
   /**
-   * 사용자 정보 수동 설정
+   * 로그아웃 처리
+   * HttpOnly 쿠키는 서버에서 삭제됨
+   */
+  logout: async () => {
+    try {
+      await authService.logout();
+      if (import.meta.env.DEV) {
+        console.log("✅ 서버 로그아웃 완료");
+      }
+    } catch (error) {
+      console.warn("⚠️ 서버 로그아웃 실패 (클라이언트 상태는 정리됨):", error);
+    } finally {
+      set({
+        user: null,
+        isAuthenticated: false,
+        rememberMe: false,
+        tokenExpiresAt: null,
+      });
+
+      if (import.meta.env.DEV) {
+        console.log("🚪 클라이언트 로그아웃 상태 정리 완료");
+      }
+    }
+  },
+
+  /**
+   * v6.1: 토큰 갱신
+   */
+  refreshToken: async () => {
+    try {
+      await authService.refreshToken();
+      set({
+        tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+      });
+
+      if (import.meta.env.DEV) {
+        console.log("🔄 토큰 갱신 성공");
+      }
+    } catch (error) {
+      console.error("❌ 토큰 갱신 실패:", error);
+      await get().logout();
+    }
+  },
+
+  /**
+   * 사용자 정보 설정
    */
   setUser: (user: User | null) => {
     set({
@@ -318,56 +239,64 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   /**
-   * 인증 상태 강제 초기화
-   *
-   * 401/403 에러 발생 시 API 인터셉터에서 호출
+   * v6.1: Remember Me 설정
    */
-  clearAuth: () => {
-    set({
-      user: null,
-      isAuthenticated: false,
-    });
-    console.log("인증 상태 강제 초기화");
+  setRememberMe: (rememberMe: boolean) => {
+    set({ rememberMe });
   },
 
   /**
-   * 인증 쿠키 강제 삭제
-   *
-   * 인증 문제 해결용 디버깅 기능
+   * OAuth 콜백 처리
    */
-  clearAuthCookies: () => {
-    authApi.clearAuthCookies();
+  handleOAuthCallback: async (): Promise<boolean> => {
+    try {
+      const result = authService.handleOAuthCallback();
+
+      if (result.success) {
+        const user = await authService.getCurrentUser();
+        set({
+          user,
+          isAuthenticated: true,
+          tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+        });
+
+        if (import.meta.env.DEV) {
+          console.log("✅ OAuth 콜백 처리 성공");
+        }
+        return true;
+      }
+
+      if (import.meta.env.DEV) {
+        console.warn("⚠️ OAuth 콜백 실패:", result.error);
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ OAuth 콜백 처리 중 오류:", error);
+      return false;
+    }
+  },
+
+  /**
+   * 클라이언트 인증 상태 정리
+   * HttpOnly 쿠키는 서버에서만 관리 가능
+   */
+  clearClientAuthState: () => {
     set({
       user: null,
       isAuthenticated: false,
+      rememberMe: false,
+      tokenExpiresAt: null,
+      isInitialized: false,
     });
-    console.log("인증 쿠키 강제 삭제 및 상태 초기화");
+
+    if (import.meta.env.DEV) {
+      console.log("🧹 클라이언트 인증 상태 정리 완료");
+    }
   },
 }));
 
-// API 인터셉터 설정
-setupApiInterceptor(() => {
-  const { clearAuth } = useAuthStore.getState();
-  clearAuth();
-});
-
 /**
- * 최적화된 인증 훅
- *
- * useShallow를 사용하여 실제로 사용하는 상태나 액션이 변경될 때만
- * 리렌더링을 트리거합니다.
- *
- * @example 선택적 구독
- * ```typescript
- * // 사용자 정보만 필요한 경우
- * const { user, isAuthenticated } = useAuth();
- *
- * // 로그인 액션만 필요한 경우
- * const { login, logout } = useAuth();
- *
- * // 모든 상태와 액션이 필요한 경우
- * const auth = useAuth();
- * ```
+ * v6.1 간편 인증 상태 훅
  */
 export const useAuth = () =>
   useAuthStore(
@@ -375,13 +304,60 @@ export const useAuth = () =>
       user: state.user,
       isAuthenticated: state.isAuthenticated,
       isLoading: state.isLoading,
+      rememberMe: state.rememberMe,
+      tokenExpiresAt: state.tokenExpiresAt,
+      isInitialized: state.isInitialized,
       initialize: state.initialize,
       login: state.login,
       logout: state.logout,
-      setUser: state.setUser,
-      setLoading: state.setLoading,
-      clearAuth: state.clearAuth,
-      clearAuthCookies: state.clearAuthCookies,
+      refreshToken: state.refreshToken,
       handleOAuthCallback: state.handleOAuthCallback,
+      clearClientAuthState: state.clearClientAuthState,
     })),
   );
+
+/**
+ * v6.1 토큰 변경 리스너 - 무한루프 방지 개선
+ * tokenStore의 토큰 변경을 authStore에 반영
+ */
+let isUpdatingFromTokenStore = false;
+
+tokenStore.onTokenChange((token) => {
+  // 이미 업데이트 중이면 무한루프 방지
+  if (isUpdatingFromTokenStore) {
+    return;
+  }
+
+  try {
+    isUpdatingFromTokenStore = true;
+    const state = useAuthStore.getState();
+
+    if (!token) {
+      // 토큰이 없으면 로그아웃 상태로 변경 (사용자 정보만 삭제)
+      if (state.isAuthenticated) {
+        state.setUser(null);
+
+        if (import.meta.env.DEV) {
+          console.log("🔄 토큰 삭제로 인한 로그아웃 상태 전환");
+        }
+      }
+    } else {
+      // 토큰이 있으면 만료 시간 업데이트
+      const currentExpiresAt = state.tokenExpiresAt?.getTime();
+      const newExpiresAt = tokenStore.getTokenExpiryDate()?.getTime();
+
+      // 만료 시간이 실제로 변경된 경우에만 업데이트
+      if (currentExpiresAt !== newExpiresAt) {
+        useAuthStore.setState({
+          tokenExpiresAt: tokenStore.getTokenExpiryDate(),
+        });
+
+        if (import.meta.env.DEV) {
+          console.log("🔄 토큰 만료 시간 업데이트");
+        }
+      }
+    }
+  } finally {
+    isUpdatingFromTokenStore = false;
+  }
+});
