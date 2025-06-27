@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, AlertTriangle, Target } from "lucide-react";
 import { mockHSCodeResult } from "@/data/mock/hscode";
+import type { CertificationInfo, ExportRequirement } from "@/types/search";
 
 /**
  * HS Code 스마트 분석 위젯 컴포넌트
@@ -44,7 +45,7 @@ export function SmartHSCodeAnalysis() {
               <div className="space-y-2">
                 {analysisData.analysis.exportRequirements
                   .slice(0, 3)
-                  .map((req, index) => (
+                  .map((req: ExportRequirement, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-600" />
                       <div className="flex-1">
@@ -69,7 +70,7 @@ export function SmartHSCodeAnalysis() {
               <div className="space-y-1">
                 {analysisData.analysis.certifications
                   .slice(0, 2)
-                  .map((cert, index) => (
+                  .map((cert: CertificationInfo, index) => (
                     <div
                       key={index}
                       className="flex items-center gap-2 text-sm"

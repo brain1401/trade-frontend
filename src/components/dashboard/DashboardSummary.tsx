@@ -1,10 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bookmark, Bell, Search, TrendingUp } from "lucide-react";
-import {
-  mockDashboardSummary,
-  getActiveBookmarks,
-} from "@/data/mock/dashboard";
-import { getUnreadNotifications } from "@/data/mock/notifications";
+import { Bookmark, Bell, Search, MessageSquare } from "lucide-react";
+import { mockDashboardSummary } from "@/data/mock/dashboard";
 
 /**
  * 대시보드 요약 통계 컴포넌트
@@ -14,8 +10,6 @@ import { getUnreadNotifications } from "@/data/mock/notifications";
  */
 export function DashboardSummary() {
   const dashboardSummary = mockDashboardSummary;
-  const unreadNotifications = getUnreadNotifications();
-  const activeBookmarks = getActiveBookmarks();
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
@@ -31,7 +25,7 @@ export function DashboardSummary() {
             {dashboardSummary.bookmarks.total}
           </div>
           <p className="text-xs text-neutral-500">
-            활성 모니터링: {dashboardSummary.bookmarks.activeMonitoring}개
+            활성 모니터링: {dashboardSummary.bookmarks.monitoringActive}개
           </p>
         </CardContent>
       </Card>
@@ -39,16 +33,16 @@ export function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            읽지 않은 알림
+            읽지 않은 피드
           </CardTitle>
           <Bell className="h-4 w-4 text-warning-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {unreadNotifications.length}
+            {dashboardSummary.notifications.unreadFeeds}
           </div>
           <p className="text-xs text-neutral-500">
-            오늘: {dashboardSummary.feeds.todayCount}개
+            오늘 발송: SMS {dashboardSummary.notifications.dailySms}건
           </p>
         </CardContent>
       </Card>
@@ -56,16 +50,16 @@ export function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            검색 횟수
+            총 채팅 세션
           </CardTitle>
           <Search className="h-4 w-4 text-info-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.quickStats.searchCount}
+            {dashboardSummary.chatHistory.totalSessions}
           </div>
           <p className="text-xs text-neutral-500">
-            정확도: {dashboardSummary.quickStats.accuracyRate}
+            최근 30일: {dashboardSummary.chatHistory.sessionsLast30Days}개
           </p>
         </CardContent>
       </Card>
@@ -73,15 +67,17 @@ export function DashboardSummary() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            절약 시간
+            총 메시지
           </CardTitle>
-          <TrendingUp className="text-brand-600 h-4 w-4" />
+          <MessageSquare className="text-brand-600 h-4 w-4" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.quickStats.totalSavedTime}
+            {dashboardSummary.chatHistory.totalMessages}
           </div>
-          <p className="text-xs text-success-600">효율성 개선</p>
+          <p className="text-xs text-neutral-500">
+            최근 30일: {dashboardSummary.chatHistory.messagesLast30Days}개
+          </p>
         </CardContent>
       </Card>
     </div>

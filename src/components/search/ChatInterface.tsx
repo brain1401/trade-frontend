@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +60,7 @@ type ParallelProcessingState = {
  * 🆕 v6.1: ChatGPT 스타일 회원/비회원 차별화 통합 채팅 인터페이스
  *
  * v6.1의 핵심 컴포넌트로, 회원/비회원 차별화된 채팅을 처리하고
- * SSE 메타데이터 기반 북마크와 3단계 병렬 처리를 지원합니다.
+ * SSE 메타데이터 기반 북마크와 3단계 병렬 처리를 지원한다.
  */
 export function ChatInterface({
   onBookmark,
@@ -68,7 +68,7 @@ export function ChatInterface({
   welcomeMessage = "무역 관련 질문을 자유롭게 물어보세요! 🚀",
 }: ChatInterfaceProps) {
   // 인증 상태
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   // 채팅 상태
   const [messages, setMessages] = useState<ChatMessageItem[]>([]);
@@ -167,120 +167,133 @@ export function ChatInterface({
   /**
    * 🆕 v6.1: v6.1 SSE 이벤트 핸들러들
    */
-  const sseHandlers: V61SSEEventHandlers = {
-    // 초기 메타데이터 (회원/비회원 차별화)
-    onInitialMetadata: (data: InitialMetadataEvent) => {
-      console.log("🔍 초기 메타데이터 수신:", data);
-      setUserType(data.isAuthenticated ? "MEMBER" : "GUEST");
-      if (data.sessionId) {
-        setCurrentSessionId(data.sessionId);
-      }
-    },
+  const sseHandlers: V61SSEEventHandlers = useMemo(
+    () => ({
+      // 초기 메타데이터 (회원/비회원 차별화)
+      onInitialMetadata: (data: InitialMetadataEvent) => {
+        console.log("🔍 초기 메타데이터 수신:", data);
+        setUserType(data.isAuthenticated ? "MEMBER" : "GUEST");
+        if (data.sessionId) {
+          setCurrentSessionId(data.sessionId);
+        }
+      },
 
-    onSessionInfo: (data: SessionInfoEvent) => {
-      console.log("👤 세션 정보 수신:", data);
-      setUserType(data.userType);
-      setCurrentSessionId(data.sessionId || null);
+      onSessionInfo: (data: SessionInfoEvent) => {
+        console.log("👤 세션 정보 수신:", data);
+        setUserType(data.userType);
+        setCurrentSessionId(data.sessionId || null);
 
-      // 사용자 유형 알림
-      if (data.userType === "MEMBER") {
-        toast.success(data.message, { duration: 3000 });
-      } else {
-        toast.info(data.message, { duration: 5000 });
-      }
-    },
+        // 사용자 유형 알림
+        if (data.userType === "MEMBER") {
+          toast.success(data.message, { duration: 3000 });
+        } else {
+          toast.info(data.message, { duration: 5000 });
+        }
+      },
 
-    // Thinking Events (v6.1 3단계 병렬 처리)
-    onThinking: (data: ThinkingEventData, eventType) => {
-      setCurrentThinking(data.content);
-      setSessionStatus("THINKING");
+      // Thinking Events (v6.1 3단계 병렬 처리)
+      onThinking: (data: ThinkingEventData, eventType?: string) => {
+        setCurrentThinking(data.content);
+        setSessionStatus("THINKING");
 
-      // 병렬 처리 시작 감지
-      if (eventType === "thinking_parallel_processing_start") {
-        toast.info("3단계 병렬 처리를 시작합니다", { duration: 2000 });
-      }
-    },
+        // 병렬 처리 시작 감지
+        if (eventType === "thinking_parallel_processing_start") {
+          toast.info("3단계 병렬 처리를 시작합니다", { duration: 2000 });
+        }
+      },
 
-    // Main Message Events
-    onMainMessageStart: () => {
-      // Thinking 메시지를 고정하고 Main Message 시작
-      if (currentThinking) {
-        addMessage("thinking", { content: currentThinking });
-        setCurrentThinking("");
-      }
-      setSessionStatus("RESPONDING");
-    },
+      // Main Message Events
+      onMainMessageStart: () => {
+        // Thinking 메시지를 고정하고 Main Message 시작
+        if (currentThinking) {
+          addMessage("thinking", { content: currentThinking });
+          setCurrentThinking("");
+        }
+        setSessionStatus("RESPONDING");
+      },
 
-    onMainMessageData: (content: string) => {
-      setCurrentMainResponse((prev) => prev + content);
-    },
+      onMainMessageData: (content: string) => {
+        setCurrentMainResponse((prev) => prev + content);
+      },
 
-    onMainMessageComplete: (data: MainMessageCompleteEvent) => {
-      // 최종 AI 메시지 추가
-      addMessage("ai", {
-        content: currentMainResponse,
-        relatedInfo: data.relatedInfo,
-        sources: data.sources,
-      });
+      onMainMessageComplete: (data: MainMessageCompleteEvent) => {
+        // 최종 AI 메시지 추가
+        addMessage("ai", {
+          content: currentMainResponse,
+          relatedInfo: data.relatedInfo,
+          sources: data.sources,
+        });
 
-      setCurrentMainResponse("");
+        setCurrentMainResponse("");
 
-      // 🆕 v6.1: SSE 메타데이터 기반 북마크 데이터 설정
-      if (data.bookmarkData?.available && isAuthenticated) {
-        setBookmarkData(data.bookmarkData);
-      }
+        // 🆕 v6.1: SSE 메타데이터 기반 북마크 데이터 설정
+        if (data.bookmarkData?.available && isAuthenticated) {
+          setBookmarkData(data.bookmarkData);
+        }
 
-      // 병렬 처리 상태 업데이트
-      setParallelProcessing((prev) => ({
-        ...prev,
-        mainMessageComplete: true,
-      }));
-
-      setSessionStatus("COMPLETED");
-    },
-
-    // 🆕 v6.1: 상세페이지 버튼 이벤트
-    onDetailPageButtonsStart: (buttonsCount: number) => {
-      console.log(`🔄 상세페이지 버튼 ${buttonsCount}개 준비 시작`);
-    },
-
-    onDetailPageButtonReady: (button: DetailPageButtonEvent) => {
-      setParallelProcessing((prev) => ({
-        ...prev,
-        detailButtons: [...prev.detailButtons, button].sort(
-          (a, b) => a.priority - b.priority,
-        ),
-      }));
-    },
-
-    onDetailPageButtonsComplete: (totalPreparationTime: number) => {
-      console.log(
-        `✅ 모든 상세페이지 버튼 준비 완료 (${totalPreparationTime}초)`,
-      );
-    },
-
-    // 🆕 v6.1: 회원 전용 이벤트
-    onMemberEvent: (data: MemberSessionEvent) => {
-      if (data.type === "session_created") {
-        console.log("📝 회원 세션 생성:", data.sessionId);
-        setCurrentSessionId(data.sessionId);
-      } else if (data.type === "record_saved") {
-        console.log("💾 회원 기록 저장 완료:", data);
+        // 병렬 처리 상태 업데이트
         setParallelProcessing((prev) => ({
           ...prev,
-          memberRecordSaved: true,
+          mainMessageComplete: true,
         }));
-      }
-    },
 
-    // Error Event
-    onError: (error: any) => {
-      setError(error.message || "채팅 처리 중 오류가 발생했습니다");
-      setSessionStatus("FAILED");
-      setIsStreaming(false);
-      toast.error(error.message || "오류가 발생했습니다");
-    },
-  };
+        setSessionStatus("COMPLETED");
+      },
+
+      // 🆕 v6.1: 상세페이지 버튼 이벤트
+      onDetailPageButtonsStart: (buttonsCount: number) => {
+        console.log(`🔄 상세페이지 버튼 ${buttonsCount}개 준비 시작`);
+      },
+
+      onDetailPageButtonReady: (button: DetailPageButtonEvent) => {
+        setParallelProcessing((prev) => ({
+          ...prev,
+          detailButtons: [...prev.detailButtons, button].sort(
+            (a, b) => a.priority - b.priority,
+          ),
+        }));
+      },
+
+      onDetailPageButtonsComplete: (totalPreparationTime: number) => {
+        console.log(
+          `✅ 모든 상세페이지 버튼 준비 완료 (${totalPreparationTime}초)`,
+        );
+      },
+
+      // 🆕 v6.1: 회원 전용 이벤트
+      onMemberEvent: (data: MemberSessionEvent) => {
+        if (data.type === "session_created") {
+          console.log("📝 회원 세션 생성:", data.sessionId);
+          setCurrentSessionId(data.sessionId);
+        } else {
+          console.log("💾 회원 기록 저장 완료:", data);
+          setParallelProcessing((prev) => ({
+            ...prev,
+            memberRecordSaved: true,
+          }));
+        }
+      },
+
+      // Error Event
+      onError: (error: Error) => {
+        setError(error.message || "채팅 처리 중 오류가 발생했습니다");
+        setSessionStatus("FAILED");
+        setIsStreaming(false);
+        toast.error(error.message || "오류가 발생했습니다");
+      },
+    }),
+    [
+      addMessage,
+      currentThinking,
+      currentMainResponse,
+      isAuthenticated,
+      setBookmarkData,
+      setCurrentSessionId,
+      setParallelProcessing,
+      setSessionStatus,
+      setUserType,
+    ],
+  );
 
   /**
    * 🆕 v6.1: 채팅 메시지 전송 및 SSE 스트리밍 시작
