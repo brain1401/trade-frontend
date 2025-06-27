@@ -192,10 +192,7 @@ function BookmarksPage() {
   const bookmarksByCategory = bookmarks.reduce(
     (acc: Record<string, BookmarkType[]>, bookmark: BookmarkType) => {
       const category = bookmark.type;
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(bookmark);
+      (acc[category] ??= []).push(bookmark);
       return acc;
     },
     {},
