@@ -25,8 +25,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/stores/authStore";
-import { authApi } from "@/lib/api/auth";
-import { ApiError } from "@/lib/api/client";
+import { authService } from "@/lib/auth/authService";
+import { ApiError } from "@/lib/api";
 import { requireGuest } from "@/lib/utils/authGuard";
 
 export const Route = createFileRoute("/auth/signup")({
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/auth/signup")({
 });
 
 /**
- * 회원가입 폼 유효성 검사 스키마 (API v2.4 정책 반영)
+ * 회원가입 폼 유효성 검사 스키마 (API v6.1 정책 반영)
  */
 const signupSchema = z
   .object({
@@ -70,13 +70,15 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 /**
- * 회원가입 페이지 (API v2.4 대응)
+ * 회원가입 페이지 (API v6.1 JWT 세부화 대응)
  *
  * 주요 변경사항:
+ * - JWT 세부화 정책 지원 (Access Token 30분, Refresh Token 1일/30일)
  * - 새로운 에러 코드 체계 지원
  * - 비밀번호 정책 강화 (USER_004 에러)
  * - 사용자 친화적 에러 메시지
  * - 개선된 입력 검증 및 피드백
+ * - 회원/비회원 차별화 시스템 안내
  */
 function SignupPage() {
   const navigate = useNavigate();
@@ -99,7 +101,7 @@ function SignupPage() {
   });
 
   /**
-   * 회원가입 폼 제출 처리 (API v2.4 에러 처리)
+   * 회원가입 폼 제출 처리 (API v6.1 JWT 세부화 에러 처리)
    */
   const onSubmit = async (values: SignupFormValues) => {
     try {
@@ -107,43 +109,39 @@ function SignupPage() {
       setError(null);
 
       // 회원가입 API 호출
-      const response = await authApi.register({
+      const user = await authService.register({
         email: values.email,
         password: values.password,
         name: values.name,
       });
 
-      if (response.success === "SUCCESS" && response.data) {
-        setSuccess(true);
+      setSuccess(true);
 
-        console.log("회원가입 성공:", {
-          email: response.data.email,
-          name: response.data.name,
-        });
+      console.log("회원가입 성공:", {
+        email: user.email,
+        name: user.name,
+      });
 
-        // 회원가입 성공 후 자동 로그인 시도
-        try {
-          await login(values.email, values.password, false);
+      // 회원가입 성공 후 자동 로그인 시도
+      try {
+        await login(values.email, values.password, false);
 
-          // 로그인 성공 시 홈으로 이동
-          setTimeout(() => {
-            navigate({ to: "/" });
-          }, 2000);
-        } catch (loginError) {
-          console.warn("자동 로그인 실패:", loginError);
+        // 로그인 성공 시 홈으로 이동
+        setTimeout(() => {
+          navigate({ to: "/" });
+        }, 2000);
+      } catch (loginError) {
+        console.warn("자동 로그인 실패:", loginError);
 
-          // 자동 로그인 실패 시 로그인 페이지로 안내
-          setTimeout(() => {
-            navigate({
-              to: "/auth/login",
-              search: {
-                message: "회원가입이 완료되었습니다. 로그인해주세요.",
-              },
-            });
-          }, 2000);
-        }
-      } else {
-        throw new Error(response.message || "회원가입에 실패했습니다");
+        // 자동 로그인 실패 시 로그인 페이지로 안내
+        setTimeout(() => {
+          navigate({
+            to: "/auth/login",
+            search: {
+              message: "회원가입이 완료되었습니다. 로그인해주세요.",
+            },
+          });
+        }, 2000);
       }
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -153,7 +151,7 @@ function SignupPage() {
 
       if (error instanceof ApiError) {
         // 사용자 친화적 에러 메시지 사용
-        errorMessage = error.getUserFriendlyMessage();
+        errorMessage = error.message;
 
         // 에러 코드별 추가 처리
         switch (error.errorCode) {
@@ -201,7 +199,10 @@ function SignupPage() {
         }
       } else {
         // API가 아닌 일반 에러
-        errorMessage = authApi.parseErrorMessage(error);
+        errorMessage =
+          error instanceof Error
+            ? error.message
+            : "회원가입 중 오류가 발생했습니다";
       }
 
       setError(errorMessage);
@@ -220,6 +221,10 @@ function SignupPage() {
             </CardTitle>
             <CardDescription className="text-neutral-600">
               AI 무역 규제 레이더 플랫폼에 가입하세요
+              <br />
+              <span className="mt-1 block text-xs text-neutral-500">
+                💾 회원만 채팅 기록 영구 저장 • 🔐 JWT 세부화 보안
+              </span>
             </CardDescription>
           </CardHeader>
 
@@ -408,7 +413,13 @@ function SignupPage() {
             </div>
 
             <div className="text-center text-xs text-neutral-400">
-              <p>API v2.4 • 강화된 보안 정책 • 자동 로그인 지원</p>
+              <p>
+                🚀 API v6.1 • JWT 세부화 시스템 • Access Token 30분/Refresh
+                Token 1일~30일
+              </p>
+              <p className="mt-1">
+                🎯 강화된 보안 정책 • 자동 로그인 지원 • 회원/비회원 차별화
+              </p>
             </div>
           </CardFooter>
         </Card>

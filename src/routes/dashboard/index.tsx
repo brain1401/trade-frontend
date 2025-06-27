@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import {
   mockDashboardSummary,
-  mockUpdatesFeed,
+  mockUpdateFeeds,
   getRecentFeedItems,
   getBookmarksByCategory,
   getActiveBookmarks,
@@ -84,14 +84,6 @@ const dashboardCards = [
     icon: User,
     href: "/dashboard/profile" as const,
     color: "neutral" as const,
-  },
-  {
-    id: "advanced",
-    title: "고급 기능",
-    description: "AI 분석과 예측 기능을 활용할 수 있습니다.",
-    icon: Zap,
-    href: "/advanced" as const,
-    color: "brand" as const,
   },
 ];
 
@@ -391,7 +383,7 @@ function ExchangeRatesWidget() {
  * beforeLoad에서 인증을 확인하고 미인증 사용자는 로그인 페이지로 리디렉션됨
  */
 function DashboardPage() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const dashboardSummary = mockDashboardSummary;
   const unreadNotifications = getUnreadNotifications();
   const activeBookmarks = getActiveBookmarks();
@@ -415,7 +407,8 @@ function DashboardPage() {
           대시보드
         </h1>
         <p className="mt-2 text-neutral-600">
-          {user?.name}님, 개인화된 무역 정보를 확인해보세요.
+          {/* {user?.name}님, 개인화된 무역 정보를 확인해보세요. */}
+          김철수님, 개인화된 무역 정보를 확인해보세요.
         </p>
       </div>
 

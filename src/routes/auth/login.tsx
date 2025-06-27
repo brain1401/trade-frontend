@@ -26,8 +26,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/stores/authStore.ts";
-import { authApi } from "@/lib/api/auth";
-import { ApiError } from "@/lib/api/client";
+import { authService } from "@/lib/auth/authService";
+import { ApiError } from "@/lib/api";
 import type { OAuthProvider } from "@/types/auth";
 import { requireGuest } from "@/lib/utils/authGuard";
 
@@ -53,17 +53,21 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 /**
- * 로그인 페이지 (API v2.4 대응)
+ * 로그인 페이지 (API v6.1 JWT 세부화 대응)
  *
  * 주요 변경사항:
+ * - Access Token 30분, Refresh Token 1일/30일 정책
+ * - Access Token은 헤더&Zustand 저장, Refresh Token은 HttpOnly 쿠키
+ * - remember me 기간 수정 (7일 → 1일/30일)
  * - 새로운 에러 코드 체계 지원
  * - OAuth 프로필 이미지 지원
  * - 사용자 열거 공격 방지를 위한 통합 에러 메시지
  * - 개선된 에러 처리 및 사용자 친화적 메시지
+ * - 회원/비회원 차별화 시스템 안내
  */
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, clearAuthCookies } = useAuth();
+  const { login, clearClientAuthState } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +84,7 @@ function LoginPage() {
   });
 
   /**
-   * 로그인 폼 제출 처리 (API v2.4 에러 처리)
+   * 로그인 폼 제출 처리 (API v6.1 JWT 세부화)
    */
   const onSubmit = async (values: LoginFormValues) => {
     try {
@@ -90,18 +94,31 @@ function LoginPage() {
       await login(values.email, values.password, values.rememberMe);
 
       // 로그인 성공 시 이전 페이지 또는 홈으로 이동
+      // 1. URL 쿼리 파라미터 확인
       const searchParams = new URLSearchParams(window.location.search);
-      const redirect = searchParams.get("redirect") || "/";
+      const urlRedirect = searchParams.get("redirect");
+
+      // 2. sessionStorage에서 저장된 리디렉션 경로 확인 (httpClient에서 설정)
+      const sessionRedirect = sessionStorage.getItem("redirect_after_login");
+
+      // 3. 우선순위: URL 파라미터 > sessionStorage > 기본 홈
+      const redirect = urlRedirect || sessionRedirect || "/";
+
+      // 4. sessionStorage 정리
+      if (sessionRedirect) {
+        sessionStorage.removeItem("redirect_after_login");
+      }
+
       navigate({ to: redirect });
     } catch (error) {
       console.error("로그인 실패:", error);
 
-      // API v2.4 에러 메시지 처리
+      // API v6.1 에러 메시지 처리
       let errorMessage = "알 수 없는 오류가 발생했습니다";
 
       if (error instanceof ApiError) {
         // 사용자 친화적 에러 메시지 사용
-        errorMessage = error.getUserFriendlyMessage();
+        errorMessage = error.message;
 
         // 에러 코드별 추가 처리
         switch (error.errorCode) {
@@ -131,9 +148,10 @@ function LoginPage() {
             // 401: 인증 실패
             break;
           case 403:
-            // 403: 계정 문제 - 쿠키 정리 필요
-            errorMessage = "계정에 문제가 있습니다. 쿠키를 정리했습니다";
-            clearAuthCookies();
+            // 403: 계정 문제 - 클라이언트 상태 정리 필요
+            errorMessage =
+              "계정에 문제가 있습니다. 클라이언트 상태를 정리했습니다";
+            clearClientAuthState();
             setShowDebugInfo(true);
             break;
           case 423:
@@ -152,7 +170,7 @@ function LoginPage() {
         }
       } else {
         // API가 아닌 일반 에러
-        errorMessage = authApi.parseErrorMessage(error);
+        errorMessage = authService.parseErrorMessage(error);
       }
 
       setError(errorMessage);
@@ -162,7 +180,7 @@ function LoginPage() {
   };
 
   /**
-   * OAuth 로그인 처리 (프로필 이미지 지원)
+   * OAuth 로그인 처리 (🆕 v6.1 JWT 세부화 지원)
    */
   const handleOAuthLogin = (provider: OAuthProvider) => {
     const rememberMe = form.getValues("rememberMe");
@@ -173,16 +191,16 @@ function LoginPage() {
     sessionStorage.setItem("auth_redirect", redirect);
 
     // OAuth URL로 리디렉션 (프로필 이미지도 함께 획득됨)
-    const oauthUrl = authApi.getOAuthUrl(provider, rememberMe);
+    const oauthUrl = authService.getOAuthUrl(provider, rememberMe);
     console.log(`${provider} OAuth 로그인 시작:`, { provider, rememberMe });
     window.location.href = oauthUrl;
   };
 
   /**
-   * 인증 쿠키 수동 삭제 (문제 해결용)
+   * 클라이언트 인증 상태 수동 정리 (문제 해결용)
    */
-  const handleClearCookies = () => {
-    clearAuthCookies();
+  const handleClearClientAuth = () => {
+    clearClientAuthState();
     setError(null);
     setShowDebugInfo(false);
 
@@ -227,6 +245,10 @@ function LoginPage() {
             </CardTitle>
             <CardDescription className="text-neutral-600">
               AI 무역 규제 레이더 플랫폼에 로그인하세요
+              <br />
+              <span className="mt-1 block text-xs text-neutral-500">
+                💾 회원: 채팅 기록 영구 저장 • 👤 비회원: 휘발성 채팅만
+              </span>
             </CardDescription>
           </CardHeader>
 
@@ -269,11 +291,11 @@ function LoginPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={handleClearCookies}
+                      onClick={handleClearClientAuth}
                       className="mt-2 text-xs"
                     >
                       <RefreshCw className="mr-1 h-3 w-3" />
-                      쿠키 삭제 후 새로고침
+                      클라이언트 상태 정리 후 새로고침
                     </Button>
                   </div>
                 </AlertDescription>
@@ -356,8 +378,11 @@ function LoginPage() {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm text-neutral-600">
-                          로그인 상태 유지 (7일간)
+                          로그인 상태 유지 (30일간)
                         </FormLabel>
+                        <p className="text-xs text-neutral-500">
+                          체크 안 함: 1일간 유지
+                        </p>
                       </div>
                     </FormItem>
                   )}
@@ -385,7 +410,7 @@ function LoginPage() {
               </div>
             </div>
 
-            {/* OAuth 로그인 버튼들 (프로필 이미지 지원) */}
+            {/* OAuth 로그인 버튼들 (🆕 v6.1 JWT 세부화 지원) */}
             <div className="grid gap-3">
               {oauthProviders.map(({ provider, label, icon }) => (
                 <Button
@@ -414,10 +439,6 @@ function LoginPage() {
               >
                 회원가입
               </Link>
-            </div>
-
-            <div className="text-center text-xs text-neutral-400">
-              <p>API v2.4 • 보안 강화 • OAuth 프로필 이미지 지원</p>
             </div>
           </CardFooter>
         </Card>

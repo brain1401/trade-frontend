@@ -85,20 +85,32 @@ function OAuthCallbackPage() {
 
           let errorMessage = "소셜 로그인에 실패했습니다";
 
-          switch (urlError) {
-            case "oauth_failed":
-              errorMessage = "소셜 로그인 처리 중 서버 오류가 발생했습니다";
-              break;
-            case "oauth_cancelled":
-              errorMessage = "소셜 로그인이 취소되었습니다";
-              break;
-            case "unsupported_provider":
-              errorMessage = "지원하지 않는 소셜 로그인 방식입니다";
-              break;
-            default:
-              if (error instanceof Error) {
-                errorMessage = error.message;
-              }
+          // API 에러인 경우 서버 상태에 따른 메시지 설정
+          if (error instanceof Error && error.message.includes("fetch")) {
+            errorMessage =
+              "서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
+          } else if (urlError) {
+            switch (urlError) {
+              case "oauth_failed":
+                errorMessage = "소셜 로그인 처리 중 서버 오류가 발생했습니다";
+                break;
+              case "oauth_cancelled":
+                errorMessage = "소셜 로그인이 취소되었습니다";
+                break;
+              case "unsupported_provider":
+                errorMessage = "지원하지 않는 소셜 로그인 방식입니다";
+                break;
+              default:
+                errorMessage = "소셜 로그인 처리 중 오류가 발생했습니다";
+            }
+          } else if (error instanceof Error) {
+            // 개발 환경에서는 더 자세한 정보 제공
+            if (import.meta.env.DEV) {
+              errorMessage = `소셜 로그인 후 서버 처리 중 오류가 발생했습니다: ${error.message}`;
+            } else {
+              errorMessage =
+                "소셜 로그인 후 처리 중 오류가 발생했습니다. 페이지를 새로고침해보세요.";
+            }
           }
 
           setError(errorMessage);
