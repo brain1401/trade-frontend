@@ -3,7 +3,15 @@ import type {
   V61SSEEventHandlers,
   StreamingOptions,
 } from "./types";
+import type {
+  ChatHistoryGetParams,
+  PaginatedChatSessions,
+  ChatSessionDetail,
+  ChatHistorySearchParams,
+  PaginatedChatSearchResults,
+} from "../../../types/chat";
 import { httpClient, ApiError } from "../common";
+import type { ApiResponse } from "../../../types/common";
 import { tokenStore } from "../../auth/tokenStore";
 
 /**
@@ -61,15 +69,9 @@ export const chatApi = {
     const decoder = new TextDecoder();
 
     try {
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          options?.onClose?.();
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
+      let result;
+      while (!(result = await reader.read()).done) {
+        const chunk = decoder.decode(result.value, { stream: true });
         const lines = chunk.split("\n");
 
         for (const line of lines) {
@@ -124,12 +126,19 @@ export const chatApi = {
                 }
               } catch (parseError) {
                 console.error("SSE 데이터 파싱 오류:", parseError);
-                handlers.onError?.(parseError);
+                handlers.onError?.({
+                  errorCode: "CLIENT_PARSE_ERROR",
+                  message:
+                    parseError instanceof Error
+                      ? parseError.message
+                      : "SSE 데이터 파싱 중 클라이언트 오류 발생",
+                });
               }
             }
           }
         }
       }
+      options?.onClose?.();
     } catch (error) {
       console.error("SSE 스트림 처리 오류:", error);
       options?.onError?.(error as Error);
@@ -141,10 +150,10 @@ export const chatApi = {
   /**
    * SSE 스트림 처리
    */
-  async processSSEStream(
+  async processSSEStream<T>(
     response: Response,
-    onMessage: (data: any) => void,
-    onError?: (error: any) => void,
+    onMessage: (data: T) => void,
+    onError?: (error: unknown) => void,
     onClose?: () => void,
   ): Promise<void> {
     if (!response.body) {
@@ -155,15 +164,9 @@ export const chatApi = {
     const decoder = new TextDecoder();
 
     try {
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          onClose?.();
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
+      let result;
+      while (!(result = await reader.read()).done) {
+        const chunk = decoder.decode(result.value, { stream: true });
         const lines = chunk.split("\n");
 
         for (const line of lines) {
@@ -171,7 +174,7 @@ export const chatApi = {
             const dataStr = line.slice(5).trim();
             if (dataStr) {
               try {
-                const data = JSON.parse(dataStr);
+                const data = JSON.parse(dataStr) as T;
                 onMessage(data);
               } catch (parseError) {
                 console.error("SSE 데이터 파싱 오류:", parseError);
@@ -181,6 +184,7 @@ export const chatApi = {
           }
         }
       }
+      onClose?.();
     } catch (error) {
       console.error("SSE 스트림 처리 오류:", error);
       onError?.(error);
@@ -209,28 +213,34 @@ export const chatApi = {
  * 채팅 기록 API
  */
 export const chatHistoryApi = {
-  async getChatSessions(params?: any): Promise<any> {
+  async getChatSessions(
+    params?: ChatHistoryGetParams,
+  ): Promise<ApiResponse<PaginatedChatSessions>> {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
+        if (value !== undefined) {
+          queryParams.append(key, String(value));
         }
       });
     }
     return httpClient.get(`/chat/history?${queryParams.toString()}`);
   },
 
-  async getChatSession(sessionId: string): Promise<any> {
+  async getChatSession(
+    sessionId: string,
+  ): Promise<ApiResponse<ChatSessionDetail>> {
     return httpClient.get(`/chat/history/${sessionId}`);
   },
 
-  async searchChatHistory(params: any): Promise<any> {
+  async searchChatHistory(
+    params: ChatHistorySearchParams,
+  ): Promise<ApiResponse<PaginatedChatSearchResults>> {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
+        if (value !== undefined) {
+          queryParams.append(key, String(value));
         }
       });
     }
