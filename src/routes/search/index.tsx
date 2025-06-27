@@ -48,7 +48,6 @@ function SearchPage() {
             displayName:
               relatedInfo.category || `HS Code ${relatedInfo.hsCode}`,
             description: `검색에서 추가된 HS Code 정보`,
-            monitoringEnabled: true,
             smsNotificationEnabled: false,
           };
         } else if (relatedInfo.trackingNumber) {
@@ -58,7 +57,6 @@ function SearchPage() {
             targetValue: relatedInfo.trackingNumber,
             displayName: `화물 ${relatedInfo.trackingNumber}`,
             description: `검색에서 추가된 화물 정보`,
-            monitoringEnabled: true,
             smsNotificationEnabled: false,
           };
         } else {
@@ -66,25 +64,20 @@ function SearchPage() {
           return;
         }
 
-        const response = await bookmarkApi.addBookmark(bookmarkData);
+        await bookmarkApi.addBookmark(bookmarkData);
 
-        // 성공적으로 Bookmark 객체가 반환되면 성공
-        if (response) {
-          if (relatedInfo.hsCode) {
-            toast.success(
-              `HS Code ${relatedInfo.hsCode}이(가) 북마크에 추가되었습니다!`,
-            );
-          } else if (relatedInfo.trackingNumber) {
-            toast.success(
-              `화물 ${relatedInfo.trackingNumber}이(가) 북마크에 추가되었습니다!`,
-            );
-          }
-        } else {
-          toast.error("북마크 추가에 실패했습니다.");
+        if (relatedInfo.hsCode) {
+          toast.success(
+            `HS Code ${relatedInfo.hsCode}이(가) 북마크에 추가되었습니다!`,
+          );
+        } else if (relatedInfo.trackingNumber) {
+          toast.success(
+            `화물 ${relatedInfo.trackingNumber}이(가) 북마크에 추가되었습니다!`,
+          );
         }
       } catch (error) {
         console.error("북마크 추가 실패:", error);
-        toast.error("북마크 추가 중 오류가 발생했습니다.");
+        toast.error("북마크 추가에 실패했습니다.");
       }
     },
     [isAuthenticated],
