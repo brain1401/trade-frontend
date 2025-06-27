@@ -1,5 +1,9 @@
 import axios, { type AxiosInstance, type AxiosError } from "axios";
-import type { ApiResponse, ApiErrorCode } from "../../../types/common";
+import type {
+  ApiResponse,
+  ApiErrorCode,
+  ApiErrorData,
+} from "../../../types/common";
 import { tokenStore } from "../../auth/tokenStore";
 
 /**
@@ -85,10 +89,11 @@ class HttpClient {
         }
 
         // API 에러로 래핑하여 일관된 에러 처리
+        const errorData = error.response?.data as ApiErrorData | undefined;
         throw new ApiError(
           error.response?.status || 0,
-          (error.response?.data as any)?.errorCode,
-          (error.response?.data as any)?.message || error.message,
+          errorData?.errorCode,
+          errorData?.message || error.message,
         );
       },
     );
@@ -195,6 +200,11 @@ class HttpClient {
 
   async postRaw<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     const response = await this.instance.post<ApiResponse<T>>(endpoint, data);
+    return response.data;
+  }
+
+  async putRaw<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    const response = await this.instance.put<ApiResponse<T>>(endpoint, data);
     return response.data;
   }
 
