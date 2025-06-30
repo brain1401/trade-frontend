@@ -78,8 +78,7 @@ export function ChatInterface({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🆕 v6.1: 회원/비회원 상태
-  const [userType, setUserType] = useState<"MEMBER" | "GUEST">("GUEST");
+  // 🆕 v6.1: 회원/비회원 상태 > useAuth.isAuthenticated로 대체
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   // 🆕 v6.1: 현재 스트리밍 중인 메시지들
@@ -173,7 +172,6 @@ export function ChatInterface({
       // 초기 메타데이터 (회원/비회원 차별화)
       onInitialMetadata: (data: InitialMetadataEvent) => {
         console.log("🔍 초기 메타데이터 수신:", data);
-        setUserType(data.isAuthenticated ? "MEMBER" : "GUEST");
         if (data.sessionId) {
           setCurrentSessionId(data.sessionId);
         }
@@ -181,7 +179,6 @@ export function ChatInterface({
 
       onSessionInfo: (data: SessionInfoEvent) => {
         console.log("👤 세션 정보 수신:", data);
-        setUserType(data.userType);
         setCurrentSessionId(data.sessionId || null);
 
         // 사용자 유형 알림
@@ -292,7 +289,6 @@ export function ChatInterface({
       setCurrentSessionId,
       setParallelProcessing,
       setSessionStatus,
-      setUserType,
     ],
   );
 
@@ -371,6 +367,8 @@ export function ChatInterface({
     setSessionStatus("PENDING");
     setError(null);
   }, []);
+
+  const userType = isAuthenticated ? "MEMBER" : "GUEST";
 
   return (
     <div className={cn("flex h-full flex-col bg-background", className)}>
