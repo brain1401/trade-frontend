@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import * as TanStackQueryProvider from "./integrations/tanstack-query/root-provider.tsx";
@@ -11,6 +11,7 @@ import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
 import reportWebVitals from "./reportWebVitals.ts";
+import useInit from "./hooks/useInit.ts";
 
 // 새로운 라우터 인스턴스 생성
 const router = createRouter({
@@ -39,56 +40,9 @@ declare module "@tanstack/react-router" {
 
 // auth 컨텍스트를 주입하는 내부 컴포넌트
 function InnerApp() {
+  const { isLoading } = useInit();
+
   const auth = useAuth();
-  const { isLoading, initialize } = auth;
-
-  // 앱 시작 시 인증 상태 초기화 (한 번만 실행)
-  // initialize를 의존성 배열에서 제거하여 무한루프 방지
-  useEffect(() => {
-    let isMounted = true;
-
-    console.log("🚀 앱 시작 - 통합 인증 시스템 초기화");
-
-    const initializeAuth = async () => {
-      try {
-        await initialize();
-        if (isMounted) {
-          console.log("✅ 인증 초기화 완료");
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("❌ 인증 초기화 실패:", error);
-
-          // 개발 환경에서는 재시도 로직 추가
-          if (import.meta.env.DEV) {
-            console.log("💡 개발 모드 - 3초 후 재시도");
-            setTimeout(async () => {
-              if (!isMounted) return;
-              try {
-                console.log("🔄 인증 초기화 재시도");
-                await initialize();
-                if (isMounted) {
-                  console.log("✅ 인증 초기화 재시도 성공");
-                }
-              } catch (retryError) {
-                if (isMounted) {
-                  console.error("❌ 인증 초기화 재시도 실패:", retryError);
-                }
-              }
-            }, 3000);
-          }
-        }
-      }
-    };
-
-    initializeAuth();
-
-    // cleanup 함수로 메모리 누수 방지
-    return () => {
-      isMounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 빈 의존성 배열로 한 번만 실행 (initialize는 zustand 액션으로 안정적)
 
   // auth 컨텍스트를 메모이제이션하여 불필요한 재렌더링 방지
   const authContext = useMemo(
@@ -108,18 +62,18 @@ function InnerApp() {
     ],
   );
 
-  // 인증 초기화 중일 때 로딩 화면 표시
+  // 앱 초기화 중일 때 로딩 화면 표시
   if (isLoading) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-card">
         <div className="space-y-4 text-center">
           <div className="mx-auto size-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
           <p className="text-sm text-neutral-600">
-            통합 인증 시스템을 초기화하고 있습니다...
+            앱을 초기화하고 있습니다...
           </p>
           {import.meta.env.DEV && (
             <p className="text-xs text-neutral-400">
-              개발 모드: 백엔드 연결 및 토큰 상태를 확인 중입니다.
+              (개발 모드) 데이터 로딩 및 인증 상태 확인 중...
             </p>
           )}
         </div>
