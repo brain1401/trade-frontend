@@ -1,12 +1,11 @@
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 import type { RouterAuthContext } from "@/types/auth";
 import { Toaster } from "@/components/ui/sonner";
 import SideBar from "@/components/root/SideBar.tsx";
-import { SidebarProvider } from "@/components/ui/sidebar.tsx";
 
 /**
  * 라우터 컨텍스트 타입 정의
@@ -26,17 +25,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootLayout() {
   // 인증 상태에 관계없이 항상 사이드바와 함께 표시
   return (
-    <SidebarProvider>
-      <div className="-mr-scrollbar flex min-h-dvh min-w-dvw flex-col font-nanum_square_neo_variable font-[500]">
-        <SideBar />
-        <main className="flex flex-1 flex-col">
-          <Outlet />
-        </main>
-        <TanStackQueryLayout />
-        {/* 프로필 사진을 가려서 일시 비활성화 */}
-        {/* <TanStackRouterDevtools /> */}
-        <Toaster />
-      </div>
-    </SidebarProvider>
+    <div className="font-pretendard flex h-screen w-full bg-neutral-50">
+      <SideBar />
+      <main className="flex-1 overflow-y-auto">
+        <Outlet />
+      </main>
+      <TanStackQueryLayout />
+      <Toaster />
+      <TanStackRouterDevtools />
+    </div>
   );
 }

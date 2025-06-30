@@ -16,7 +16,7 @@ function HomePage() {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="via-brand-50 flex flex-1 flex-col items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200/80">
+    <div className="via-brand-50 flex h-full w-full flex-col bg-gradient-to-br from-primary-100 to-primary-200/80">
       <div className="flex min-h-full w-full flex-col">
         {/* 상단 환영 메시지 (간소화) */}
         <div className="flex items-center justify-between border-b bg-white/80 px-6 py-4 backdrop-blur-sm">
@@ -47,12 +47,12 @@ function HomePage() {
           </div>
 
           {!isAuthenticated && (
-            <Link to="/auth/login">
+            <Link to="/auth/login" className="flex items-center">
               <Badge
                 variant="default"
-                className="cursor-pointer bg-primary-600 px-4 py-2 hover:bg-primary-700"
+                className="cursor-pointer bg-primary-600 px-4 py-2 text-sm font-semibold hover:bg-primary-700"
               >
-                로그인하여 더 많은 기능 이용하기
+                로그인
               </Badge>
             </Link>
           )}
