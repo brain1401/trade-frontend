@@ -19,18 +19,14 @@ export type ExchangeRate = {
 /**
  * 환율 목록 응답 타입
  */
-export type ExchangeRatesResponse = {
-  /** 환율 정보 목록 */
-  exchangeRates: ExchangeRate[];
-  /** 마지막 업데이트 시간 */
-  lastUpdated: string;
-  /** 데이터 소스 정보 */
-  source: {
-    provider: string;
-    updateFrequency: string;
-    disclaimer: string;
-  };
-};
+export type ExchangeRates = {
+    currencyCode: string;
+    currencyName: string;
+    exchangeRate: number;
+    changeRate:   number | null;
+    lastUpdated:  string;
+}[]
+
 
 /**
  * 특정 통화 상세 환율 정보 타입

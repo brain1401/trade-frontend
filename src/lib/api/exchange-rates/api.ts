@@ -1,4 +1,4 @@
-import type { ExchangeRatesResponse, DetailedExchangeRate } from "./types";
+import type { ExchangeRates, DetailedExchangeRate } from "./types";
 import { httpClient, ApiError } from "../common";
 
 /**
@@ -16,7 +16,7 @@ export const exchangeRatesApi = {
   async getExchangeRates(params?: {
     currencies?: string;
     cache?: boolean;
-  }): Promise<ExchangeRatesResponse> {
+  }): Promise<ExchangeRates> {
     try {
       const queryParams = new URLSearchParams();
       if (params?.currencies) {
@@ -26,16 +26,20 @@ export const exchangeRatesApi = {
         queryParams.append("cache", params.cache.toString());
       }
 
-      const endpoint = `/exchange-rates${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-      const response = await httpClient.get<ExchangeRatesResponse>(endpoint);
+      if(params?.currencies) {
+      const endpoint = `/exchange-rates/${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+      const response = await httpClient.get<ExchangeRates>(endpoint);
 
-      console.log("환율 정보 조회 성공:", {
-        exchangeRatesCount: response.exchangeRates.length,
-        lastUpdated: response.lastUpdated,
-        provider: response.source.provider,
-      });
 
       return response;
+      }
+      const endpoint = `/exchange-rates`;
+      const response = await httpClient.get<ExchangeRates>(endpoint);
+
+
+      return response;
+
+
     } catch (error) {
       console.error("환율 정보 조회 실패:", error);
       throw error;
@@ -71,7 +75,7 @@ export const exchangeRatesApi = {
     if (error instanceof ApiError) {
       return error.message;
     }
-
+    
     if (error instanceof Error) {
       return error.message;
     }
