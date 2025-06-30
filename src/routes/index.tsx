@@ -4,9 +4,10 @@ import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FullPageChatInterface } from "@/components/search";
 import { useAuth } from "@/stores/authStore";
-import { bookmarkApi } from "@/lib/api";
+import { bookmarkApi, exchangeRatesApi } from "@/lib/api";
 import { toast } from "sonner";
 import type { RelatedInfo } from "@/types/chat";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -14,6 +15,10 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { user, isAuthenticated } = useAuth();
+      const _ = useQuery({
+      queryKey: ["exchange_rate"],
+      queryFn: () => exchangeRatesApi.getExchangeRates()
+    })
 
   return (
     <div className="via-brand-50 flex h-full w-full flex-col bg-gradient-to-br from-primary-100 to-primary-200/80">
