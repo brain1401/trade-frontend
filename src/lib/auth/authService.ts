@@ -1,4 +1,3 @@
-import type { ApiResponse } from "../../types/common";
 import type {
   LoginRequest,
   LoginResponse,
@@ -6,7 +5,7 @@ import type {
   User,
   OAuthProvider,
 } from "../../types/auth";
-import { httpClient } from "../api/common/httpClient";
+import { httpClient, rawHttpClient } from "../api/common/httpClient";
 import { tokenStore } from "./tokenStore";
 
 /**
@@ -15,7 +14,7 @@ import { tokenStore } from "./tokenStore";
  */
 class AuthService {
   async login(credentials: LoginRequest): Promise<User> {
-    const response = await httpClient.postRaw<LoginResponse>(
+    const response = await rawHttpClient.post<LoginResponse>(
       "/auth/login",
       credentials,
     );
@@ -42,7 +41,7 @@ class AuthService {
     try {
       // 서버에 로그아웃 요청. API 명세에 따라 서버는 이 요청에 대한 응답으로
       // HttpOnly 속성의 리프레시 토큰 쿠키를 삭제해야 함 (Max-Age=0).
-      await httpClient.postRaw("/auth/logout");
+      await rawHttpClient.post("/auth/logout");
 
       if (import.meta.env.DEV) {
         console.log(
@@ -116,7 +115,7 @@ class AuthService {
    */
   async refreshToken(): Promise<string> {
     try {
-      const response = await httpClient.postRaw<{ accessToken: string }>(
+      const response = await rawHttpClient.post<{ accessToken: string }>(
         "/auth/refresh",
       );
 
