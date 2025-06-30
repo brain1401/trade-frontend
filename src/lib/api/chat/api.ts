@@ -216,14 +216,9 @@ export const chatHistoryApi = {
   async getChatSessions(
     params?: ChatHistoryGetParams,
   ): Promise<ApiResponse<PaginatedChatSessions>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
+    const queryParams = new URLSearchParams(
+      Object.entries(params || {}).map(([key, value]) => [key, String(value)]),
+    );
     return httpClient.get(`/chat/history?${queryParams.toString()}`);
   },
 
@@ -236,14 +231,9 @@ export const chatHistoryApi = {
   async searchChatHistory(
     params: ChatHistorySearchParams,
   ): Promise<ApiResponse<PaginatedChatSearchResults>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
+    const queryParams = new URLSearchParams(
+      Object.entries(params).map(([key, value]) => [key, String(value)]),
+    );
     return httpClient.get(`/chat/history/search?${queryParams.toString()}`);
   },
 };

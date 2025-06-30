@@ -1,4 +1,5 @@
-import type { ApiResponse } from "../../../types/common";
+import type { Notification } from "@/types/notification";
+import { httpClient, rawHttpClient } from "../common/httpClient";
 import type {
   SmsVerificationSendRequest,
   SmsVerificationSendResponse,
@@ -10,66 +11,88 @@ import type {
 import type {
   UpdateBookmarkNotificationSettingsV61,
   UpdateBookmarkNotificationResponseV61,
-} from "../../../types/bookmark";
-import { httpClient, ApiError } from "../common";
+} from "@/types/bookmark";
+import type { ApiResponse } from "@/types/common";
 
-/**
- * 간단한 알림 API
- */
 export const notificationApi = {
-  async sendPhoneVerification(
+  /**
+   * 모든 알림 조회
+   * @returns 알림 목록
+   */
+  getNotifications(): Promise<Notification[]> {
+    return httpClient.get<Notification[]>("/notifications");
+  },
+
+  /**
+   * 특정 알림을 읽음으로 표시
+   * @param notificationId 읽음 처리할 알림 ID
+   * @returns 성공 여부
+   */
+  markNotificationAsRead(notificationId: string): Promise<void> {
+    return httpClient.put<void>(`/notifications/${notificationId}/read`);
+  },
+
+  /**
+   * 모든 알림을 읽음으로 표시
+   * @returns 성공 여부
+   */
+  markAllNotificationsAsRead(): Promise<void> {
+    return httpClient.put<void>("/notifications/read-all");
+  },
+
+  /**
+   * SMS 인증 코드 발송
+   */
+  sendPhoneVerification(
     request: SmsVerificationSendRequest,
   ): Promise<ApiResponse<SmsVerificationSendResponse>> {
-    return httpClient.postRaw<SmsVerificationSendResponse>(
-      "/notification/phone/send",
-      request,
-    );
+    return rawHttpClient.post<
+      SmsVerificationSendResponse,
+      SmsVerificationSendRequest
+    >("/notification/phone/send", request);
   },
 
-  async verifyPhoneCode(
+  /**
+   * SMS 인증 코드 검증
+   */
+  verifyPhoneCode(
     request: SmsVerificationVerifyRequest,
   ): Promise<ApiResponse<SmsVerificationVerifyResponse>> {
-    return httpClient.postRaw<SmsVerificationVerifyResponse>(
-      "/notification/phone/verify",
-      request,
-    );
+    return rawHttpClient.post<
+      SmsVerificationVerifyResponse,
+      SmsVerificationVerifyRequest
+    >("/notification/phone/verify", request);
   },
 
-  async getNotificationSettings(): Promise<ApiResponse<SmsSettingsResponse>> {
-    return httpClient.getRaw<SmsSettingsResponse>("/notification/settings");
+  /**
+   * 알림 설정 조회
+   */
+  getNotificationSettings(): Promise<ApiResponse<SmsSettingsResponse>> {
+    return rawHttpClient.get<SmsSettingsResponse>("/notification/settings");
   },
 
-  async updateNotificationSettings(
+  /**
+   * 알림 설정 업데이트
+   */
+  updateNotificationSettings(
     settings: SmsSettingsUpdateRequest,
   ): Promise<ApiResponse<SmsSettingsResponse>> {
-    return httpClient.postRaw<SmsSettingsResponse>(
+    return rawHttpClient.post<SmsSettingsResponse, SmsSettingsUpdateRequest>(
       "/notification/settings",
       settings,
     );
   },
 
-  async updateBookmarkNotification(
+  /**
+   * 북마크 알림 설정 업데이트
+   */
+  updateBookmarkNotification(
     bookmarkId: string,
     settings: UpdateBookmarkNotificationSettingsV61,
   ): Promise<ApiResponse<UpdateBookmarkNotificationResponseV61>> {
-    return httpClient.putRaw<UpdateBookmarkNotificationResponseV61>(
-      `/bookmarks/${bookmarkId}/notifications`,
-      settings,
-    );
-  },
-
-  /**
-   * 에러 메시지 파싱
-   */
-  parseErrorMessage(error: unknown): string {
-    if (error instanceof ApiError) {
-      return error.message;
-    }
-
-    if (error instanceof Error) {
-      return error.message;
-    }
-
-    return "알 수 없는 오류가 발생했습니다";
+    return rawHttpClient.put<
+      UpdateBookmarkNotificationResponseV61,
+      UpdateBookmarkNotificationSettingsV61
+    >(`/bookmarks/${bookmarkId}/notifications`, settings);
   },
 };

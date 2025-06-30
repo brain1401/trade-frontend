@@ -9,9 +9,9 @@ export type ExchangeRate = {
   /** 환율 */
   exchangeRate: number;
   /** 변동률 (%) */
-  changeRate: number;
+  changeRate: number | null;
   /** 변동액 */
-  changeAmount: number;
+  changeAmount?: number;
   /** 마지막 업데이트 시간 */
   lastUpdated: string;
 };
@@ -20,13 +20,12 @@ export type ExchangeRate = {
  * 환율 목록 응답 타입
  */
 export type ExchangeRates = {
-    currencyCode: string;
-    currencyName: string;
-    exchangeRate: number;
-    changeRate:   number | null;
-    lastUpdated:  string;
-}[]
-
+  currencyCode: string;
+  currencyName: string;
+  exchangeRate: number;
+  changeRate: number | null;
+  lastUpdated: string;
+}[];
 
 /**
  * 특정 통화 상세 환율 정보 타입
