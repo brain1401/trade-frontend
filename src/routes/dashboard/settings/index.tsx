@@ -9,8 +9,8 @@ import { requireAuth } from "@/lib/utils/authGuard";
 import {
   mockNotificationSettings,
   mockNotifications,
-  type NotificationSettings,
 } from "@/data/mock/notifications";
+import type { NotificationSettings } from "@/types/notification";
 
 /**
  * 설정 관리 라우트 정의
