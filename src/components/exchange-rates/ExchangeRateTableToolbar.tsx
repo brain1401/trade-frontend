@@ -84,6 +84,26 @@ export function ExchangeRateTableToolbar<TData>({
     return Array.from(currencyMap.values());
   }, [data]);
 
+  // 마지막 업데이트 시간 계산
+  const lastUpdated = useMemo(() => {
+    if (!data || data.length === 0) {
+      return null;
+    }
+    // 데이터 중에서 가장 최신 lastUpdated 값을 찾습니다.
+    // 각 ExchangeRate 객체에 lastUpdated가 직접 있다고 가정합니다.
+    const latestDate = data.reduce((latest, current) => {
+      if (current.lastUpdated) {
+        const currentDate = new Date(current.lastUpdated);
+        if (latest === null || currentDate > latest) {
+          return currentDate;
+        }
+      }
+      return latest;
+    }, null as Date | null);
+
+    return latestDate ? latestDate.toLocaleString("ko-KR") : null;
+  }, [data]);
+
   // 기준 금액 변경 핸들러 최적화
   const handleBaseAmountChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,14 +153,7 @@ export function ExchangeRateTableToolbar<TData>({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 rounded-md border p-4">
-        <span className="text-sm font-medium">만약</span>
-        <Input
-          type="number"
-          value={baseAmount}
-          onChange={handleBaseAmountChange}
-          className="w-36"
-          aria-label="기준 금액"
-        />
+        <span className="text-sm font-medium">환율 계산기 : </span>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -185,7 +198,14 @@ export function ExchangeRateTableToolbar<TData>({
             </Command>
           </PopoverContent>
         </Popover>
-        <span className="text-sm font-medium">를 받는다면?</span>
+        <Input
+          type="number"
+          value={baseAmount}
+          onChange={handleBaseAmountChange}
+          className="w-36 bg-white"
+          aria-label="기준 금액"
+        />
+        <span className="text-sm font-medium"></span>
       </div>
       <div className="flex items-center">
         <Input
@@ -194,9 +214,15 @@ export function ExchangeRateTableToolbar<TData>({
           onChange={handleSearchChange}
           className="max-w-sm"
         />
+        {/* 마지막 업데이트 시간 표시 */}
+        {lastUpdated && (
+          <div className="ml-3 text-sm text-neutral-500">
+            기준 시간: {lastUpdated}
+          </div>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-auto"> {/* ml-auto는 위에 주석처리된 ml-auto 대신 여기로 옮겼습니다. */}
               컬럼 표시 <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

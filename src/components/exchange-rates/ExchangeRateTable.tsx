@@ -44,8 +44,8 @@ export default function ExchangeRateTable({ data }: Props) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const [baseAmount, setBaseAmount] = useState(32300);
-  const [baseCurrency, setBaseCurrency] = useState("JPY");
+  const [baseAmount, setBaseAmount] = useState(1);
+  const [baseCurrency, setBaseCurrency] = useState("USD");
 
   const consolidatedRates = useConsolidatedExchangeRates(data);
 
@@ -94,8 +94,7 @@ export default function ExchangeRateTable({ data }: Props) {
         baseAmount={baseAmount}
         setBaseAmount={setBaseAmount}
         baseCurrency={baseCurrency}
-        setBaseCurrency={setBaseCurrency}
-      />
+        setBaseCurrency={setBaseCurrency} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
