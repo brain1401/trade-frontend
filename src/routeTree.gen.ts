@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
+import { Route as QnaIndexRouteImport } from './routes/qna/index'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -35,6 +36,11 @@ const StatisticsIndexRoute = StatisticsIndexRouteImport.update({
 const SearchIndexRoute = SearchIndexRouteImport.update({
   id: '/search/',
   path: '/search/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QnaIndexRoute = QnaIndexRouteImport.update({
+  id: '/qna/',
+  path: '/qna/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/news': typeof NewsIndexRoute
+  '/qna': typeof QnaIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/news': typeof NewsIndexRoute
+  '/qna': typeof QnaIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/exchange-rates/': typeof ExchangeRatesIndexRoute
   '/news/': typeof NewsIndexRoute
+  '/qna/': typeof QnaIndexRoute
   '/search/': typeof SearchIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
   '/dashboard/bookmarks/': typeof DashboardBookmarksIndexRoute
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exchange-rates'
     | '/news'
+    | '/qna'
     | '/search'
     | '/statistics'
     | '/dashboard/bookmarks'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exchange-rates'
     | '/news'
+    | '/qna'
     | '/search'
     | '/statistics'
     | '/dashboard/bookmarks'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/exchange-rates/'
     | '/news/'
+    | '/qna/'
     | '/search/'
     | '/statistics/'
     | '/dashboard/bookmarks/'
@@ -179,6 +191,7 @@ export interface RootRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
+  QnaIndexRoute: typeof QnaIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   StatisticsIndexRoute: typeof StatisticsIndexRoute
   DashboardBookmarksIndexRoute: typeof DashboardBookmarksIndexRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qna/': {
+      id: '/qna/'
+      path: '/qna'
+      fullPath: '/qna'
+      preLoaderRoute: typeof QnaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news/': {
@@ -283,6 +303,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
+  QnaIndexRoute: QnaIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   StatisticsIndexRoute: StatisticsIndexRoute,
   DashboardBookmarksIndexRoute: DashboardBookmarksIndexRoute,

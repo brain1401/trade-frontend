@@ -77,15 +77,13 @@ export function ChatInterface({
     useState<ChatSessionStatus>("PENDING");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // 🆕 v6.1: 회원/비회원 상태 > useAuth.isAuthenticated로 대체
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
-  // 🆕 v6.1: 현재 스트리밍 중인 메시지들
+  // 현재 스트리밍 중인 메시지들
   const [currentThinking, setCurrentThinking] = useState<string>("");
   const [currentMainResponse, setCurrentMainResponse] = useState<string>("");
 
-  // 🆕 v6.1: 3단계 병렬 처리 상태
+  // 3단계 병렬 처리 상태
   const [parallelProcessing, setParallelProcessing] =
     useState<ParallelProcessingState>({
       mainMessageComplete: false,
@@ -94,13 +92,31 @@ export function ChatInterface({
       allProcessingComplete: false,
     });
 
-  // 🆕 v6.1: SSE 메타데이터 기반 북마크 데이터
+  // SSE 메타데이터 기반 북마크 데이터
   const [bookmarkData, setBookmarkData] = useState<{
     available: boolean;
     hsCode?: string;
     productName?: string;
     confidence?: number;
   } | null>(null);
+
+  // 🔧 모든 상태의 최신 값을 유지하는 ref들
+  const isAuthenticatedRef = useRef(isAuthenticated);
+  const messagesRef = useRef(messages);
+  const sessionStatusRef = useRef(sessionStatus);
+  const currentThinkingRef = useRef(currentThinking);
+  const currentMainResponseRef = useRef(currentMainResponse);
+  const parallelProcessingRef = useRef(parallelProcessing);
+  const currentSessionIdRef = useRef(currentSessionId);
+
+  // ref 값들을 최신 상태로 동기화
+  isAuthenticatedRef.current = isAuthenticated;
+  messagesRef.current = messages;
+  sessionStatusRef.current = sessionStatus;
+  currentThinkingRef.current = currentThinking;
+  currentMainResponseRef.current = currentMainResponse;
+  parallelProcessingRef.current = parallelProcessing;
+  currentSessionIdRef.current = currentSessionId;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -112,7 +128,7 @@ export function ChatInterface({
   }, []);
 
   /**
-   * 메시지 목록에 새 메시지 추가
+   * 메시지 목록에 새 메시지 추가 (ref 기반으로 최신 상태 보장)
    */
   const addMessage = useCallback(
     (type: ChatMessageType, data: ChatMessageData) => {
@@ -130,10 +146,14 @@ export function ChatInterface({
   );
 
   /**
-   * 🆕 v6.1: SSE 메타데이터 기반 북마크 생성
+   * SSE 메타데이터 기반 북마크 생성
    */
   const handleCreateBookmark = useCallback(async () => {
-    if (!bookmarkData?.available || !bookmarkData.hsCode || !isAuthenticated) {
+    if (
+      !bookmarkData?.available ||
+      !bookmarkData.hsCode ||
+      !isAuthenticatedRef.current
+    ) {
       toast.error("북마크를 생성할 수 없습니다.");
       return;
     }
@@ -146,26 +166,25 @@ export function ChatInterface({
     try {
       await onBookmark?.(relatedInfo);
       toast.success(`${bookmarkData.productName} 북마크가 생성되었습니다!`);
-      setBookmarkData(null); // 북마크 생성 후 숨김
+      setBookmarkData(null);
     } catch (error) {
       console.error("북마크 생성 실패:", error);
       toast.error("북마크 생성에 실패했습니다.");
     }
-  }, [bookmarkData, isAuthenticated, onBookmark]);
+  }, [bookmarkData, onBookmark]);
 
   /**
-   * 🆕 v6.1: 상세페이지 버튼 클릭 핸들러
+   * 상세페이지 버튼 클릭 핸들러
    */
   const handleDetailPageButton = useCallback(
     (button: DetailPageButtonEvent) => {
-      // 클라이언트 사이드 라우팅
       window.location.href = button.url;
     },
     [],
   );
 
   /**
-   * 🆕 v6.1: v6.1 SSE 이벤트 핸들러들
+   * 🔧 v6.1 SSE 이벤트 핸들러들 (ref 기반으로 stale closure 완전 해결)
    */
   const sseHandlers: V61SSEEventHandlers = useMemo(
     () => ({
@@ -189,9 +208,10 @@ export function ChatInterface({
         }
       },
 
-      // Thinking Events (v6.1 3단계 병렬 처리)
-      onThinking: (data: ThinkingEventData, eventType?: string) => {
-        setCurrentThinking(data.content);
+      // Thinking Events
+      onThinking: (message: string, eventType?: string) => {
+        console.log("💭 Thinking 수신:", message, eventType);
+        setCurrentThinking(message);
         setSessionStatus("THINKING");
 
         // 병렬 처리 시작 감지
@@ -202,10 +222,23 @@ export function ChatInterface({
 
       // Main Message Events
       onMainMessageStart: () => {
+        console.log(
+          "🚀 Main Message 시작 - Thinking:",
+          currentThinkingRef.current,
+        );
+
         // Thinking 메시지를 고정하고 Main Message 시작
-        if (currentThinking) {
-          addMessage("thinking", { content: currentThinking });
+        if (currentThinkingRef.current) {
+          const newMessage: ChatMessageItem = {
+            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            type: "thinking",
+            data: { content: currentThinkingRef.current },
+            timestamp: new Date().toISOString(),
+          };
+
+          setMessages((prev) => [...prev, newMessage]);
           setCurrentThinking("");
+          setTimeout(scrollToBottom, 100);
         }
         setSessionStatus("RESPONDING");
       },
@@ -215,17 +248,37 @@ export function ChatInterface({
       },
 
       onMainMessageComplete: (data: MainMessageCompleteEvent) => {
-        // 최종 AI 메시지 추가
-        addMessage("ai", {
-          content: currentMainResponse,
-          relatedInfo: data.relatedInfo,
-          sources: data.sources,
+        console.log("✅ Main Message 완료:", data);
+
+        // 🔧 스트리밍되지 않은 경우를 위한 fallback: 서버 응답에서 직접 콘텐츠 추출
+        const rawData = data as any; // 임시로 any 타입 사용하여 서버 응답 접근
+        const finalContent =
+          rawData.fullContent || currentMainResponseRef.current || "";
+        console.log("📝 최종 콘텐츠:", {
+          rawData,
+          fullContent: rawData.fullContent,
+          currentResponse: currentMainResponseRef.current,
+          finalContent,
         });
 
-        setCurrentMainResponse("");
+        // 최종 AI 메시지 추가
+        const newMessage: ChatMessageItem = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: "ai",
+          data: {
+            content: finalContent,
+            relatedInfo: data.relatedInfo,
+            sources: data.sources,
+          },
+          timestamp: new Date().toISOString(),
+        };
 
-        // 🆕 v6.1: SSE 메타데이터 기반 북마크 데이터 설정
-        if (data.bookmarkData?.available && isAuthenticated) {
+        setMessages((prev) => [...prev, newMessage]);
+        setCurrentMainResponse("");
+        setTimeout(scrollToBottom, 100);
+
+        // SSE 메타데이터 기반 북마크 데이터 설정
+        if (data.bookmarkData?.available && isAuthenticatedRef.current) {
           setBookmarkData(data.bookmarkData);
         }
 
@@ -238,7 +291,7 @@ export function ChatInterface({
         setSessionStatus("COMPLETED");
       },
 
-      // 🆕 v6.1: 상세페이지 버튼 이벤트
+      // 상세페이지 버튼 이벤트
       onDetailPageButtonsStart: (buttonsCount: number) => {
         console.log(`🔄 상세페이지 버튼 ${buttonsCount}개 준비 시작`);
       },
@@ -258,7 +311,7 @@ export function ChatInterface({
         );
       },
 
-      // 🆕 v6.1: 회원 전용 이벤트
+      // 회원 전용 이벤트
       onMemberEvent: (data: MemberSessionEvent) => {
         if (data.type === "session_created") {
           console.log("📝 회원 세션 생성:", data.sessionId);
@@ -274,26 +327,18 @@ export function ChatInterface({
 
       // Error Event
       onError: (error: ErrorEventData) => {
+        console.error("❌ SSE 에러:", error);
         setError(error.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
         toast.error(error.message || "오류가 발생했습니다");
       },
     }),
-    [
-      addMessage,
-      currentThinking,
-      currentMainResponse,
-      isAuthenticated,
-      setBookmarkData,
-      setCurrentSessionId,
-      setParallelProcessing,
-      setSessionStatus,
-    ],
+    [scrollToBottom], // 최소한의 dependency만 포함
   );
 
   /**
-   * 🆕 v6.1: 채팅 메시지 전송 및 SSE 스트리밍 시작
+   * 채팅 메시지 전송 및 SSE 스트리밍 시작
    */
   const handleSendMessage = useCallback(
     async (message: string) => {
@@ -302,7 +347,7 @@ export function ChatInterface({
         setSessionStatus("THINKING");
         setIsStreaming(true);
 
-        // 🆕 v6.1: 3단계 병렬 처리 상태 초기화
+        // 3단계 병렬 처리 상태 초기화
         setParallelProcessing({
           mainMessageComplete: false,
           detailButtons: [],
@@ -312,28 +357,39 @@ export function ChatInterface({
         setBookmarkData(null);
 
         // 사용자 메시지 추가
-        addMessage("user", { content: message });
+        const userMessage: ChatMessageItem = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: "user",
+          data: { content: message },
+          timestamp: new Date().toISOString(),
+        };
 
-        // 🆕 v6.1: 회원/비회원 차별화 채팅 요청
+        setMessages((prev) => [...prev, userMessage]);
+        setTimeout(scrollToBottom, 100);
+
+        // 회원/비회원 차별화 채팅 요청
         const request = {
           message,
-          sessionId: currentSessionId || undefined,
+          sessionId: currentSessionIdRef.current || undefined,
           context: {
             userAgent: navigator.userAgent,
             language: "ko",
           },
         };
 
+        console.log("📤 채팅 요청 전송:", request);
+
         // v6.1: 통합 채팅 요청 + SSE 스트리밍 처리
         await chatApi.startV61ChatWithStreaming(request, sseHandlers, {
-          timeout: 60000,
           onClose: () => {
+            console.log("🔌 SSE 연결 종료");
             setIsStreaming(false);
-            if (sessionStatus !== "COMPLETED") {
+            if (sessionStatusRef.current !== "COMPLETED") {
               setSessionStatus("PENDING");
             }
           },
           onError: (error: Error) => {
+            console.error("🚨 SSE 연결 에러:", error);
             setError(error.message);
             setSessionStatus("FAILED");
             setIsStreaming(false);
@@ -347,7 +403,7 @@ export function ChatInterface({
         setIsStreaming(false);
       }
     },
-    [currentSessionId, addMessage, sseHandlers, sessionStatus],
+    [sseHandlers, scrollToBottom],
   );
 
   /**
@@ -372,7 +428,7 @@ export function ChatInterface({
 
   return (
     <div className={cn("flex h-full flex-col bg-background", className)}>
-      {/* 🆕 v6.1: 사용자 상태 및 세션 정보 표시 */}
+      {/* 사용자 상태 및 세션 정보 표시 */}
       <div className="border-b bg-white/90 px-4 py-2 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -397,7 +453,7 @@ export function ChatInterface({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 🆕 v6.1: 3단계 병렬 처리 상태 표시 */}
+            {/* 3단계 병렬 처리 상태 표시 */}
             {isStreaming && (
               <div className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4 animate-spin text-primary-600" />
@@ -472,7 +528,7 @@ export function ChatInterface({
           )}
         </div>
 
-        {/* 🆕 v6.1: SSE 메타데이터 기반 북마크 버튼 */}
+        {/* SSE 메타데이터 기반 북마크 버튼 */}
         {bookmarkData?.available && isAuthenticated && (
           <div className="mt-4">
             <Card className="border-primary-200 bg-primary-50">
@@ -504,7 +560,7 @@ export function ChatInterface({
           </div>
         )}
 
-        {/* 🆕 v6.1: 상세페이지 버튼들 (병렬 처리 결과) */}
+        {/* 상세페이지 버튼들 (병렬 처리 결과) */}
         {parallelProcessing.detailButtons.length > 0 && (
           <div className="mt-4">
             <h4 className="mb-2 text-sm font-medium text-neutral-700">
@@ -559,7 +615,7 @@ export function ChatInterface({
           }
         />
 
-        {/* 🆕 v6.1: 회원/비회원 차별화 안내 */}
+        {/* 회원/비회원 차별화 안내 */}
         <div className="mt-2 text-center">
           <span className="text-xs text-neutral-500">
             {userType === "MEMBER"

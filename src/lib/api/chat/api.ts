@@ -3,6 +3,10 @@ import type {
   V61SSEEventHandlers,
   StreamingOptions,
 } from "./types";
+import {
+  fetchEventSource,
+  type EventSourceMessage,
+} from "@microsoft/fetch-event-source";
 import type {
   ChatHistoryGetParams,
   PaginatedChatSessions,
@@ -14,182 +18,148 @@ import { httpClient, ApiError } from "../common";
 import type { ApiResponse } from "../../../types/common";
 import { tokenStore } from "../../auth/tokenStore";
 
+const CHAT_API_URL = "http://localhost:8081/api/chat";
+
 /**
  * 간단한 채팅 API
  */
 export const chatApi = {
   /**
-   * 채팅 요청 (SSE 스트리밍)
-   */
-  async startChat(request: ChatRequest): Promise<Response> {
-    const isAuthenticated = tokenStore.isAuthenticated();
-
-    try {
-      const token = tokenStore.getToken();
-      const config: RequestInit = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "text/event-stream",
-          "Cache-Control": "no-cache",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-        credentials: "include",
-        body: JSON.stringify(request),
-      };
-
-      const response = await fetch("http://localhost:8081/api/chat", config);
-
-      if (!response.ok) {
-        throw new ApiError(response.status, undefined, "채팅 요청 실패");
-      }
-
-      return response;
-    } catch (error) {
-      console.error("채팅 요청 실패:", error);
-      throw error;
-    }
-  },
-
-  /**
    * v6.1 채팅 + SSE 스트리밍 처리 (통합)
+   * @microsoft/fetch-event-source를 사용하여 안정적으로 SSE 스트림을 처리
    */
   async startV61ChatWithStreaming(
     request: ChatRequest,
     handlers: V61SSEEventHandlers,
     options?: StreamingOptions,
   ): Promise<void> {
-    const response = await this.startChat(request);
-
-    if (!response.body) {
-      throw new ApiError(0, undefined, "SSE 스트림을 읽을 수 없습니다");
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const token = tokenStore.getToken();
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
 
     try {
-      let result;
-      while (!(result = await reader.read()).done) {
-        const chunk = decoder.decode(result.value, { stream: true });
-        const lines = chunk.split("\n");
+      await fetchEventSource(CHAT_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+        signal: options?.signal,
 
-        for (const line of lines) {
-          if (line.startsWith("event:")) {
-            const eventType = line.slice(6).trim();
-            continue;
+        onopen: async (response) => {
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new ApiError(
+              response.status,
+              undefined,
+              `채팅 요청 실패: ${errorText}`,
+            );
+          }
+        },
+
+        onmessage: (event: EventSourceMessage) => {
+          if (event.event === "close" || event.data === "[DONE]") {
+            return;
           }
 
-          if (line.startsWith("data:")) {
-            const dataStr = line.slice(5).trim();
-            if (dataStr) {
-              try {
-                const data = JSON.parse(dataStr);
+          if (!event.data) {
+            return;
+          }
 
-                // 이벤트 타입별 핸들러 호출
-                switch (data.type || data.event) {
-                  case "initial_metadata":
-                    handlers.onInitialMetadata?.(data.data);
-                    break;
-                  case "session_info":
-                    handlers.onSessionInfo?.(data.data);
-                    break;
-                  case "thinking":
-                    handlers.onThinking?.(data.data, data.eventType);
-                    break;
-                  case "main_message_start":
-                    handlers.onMainMessageStart?.();
-                    break;
-                  case "main_message_data":
-                    handlers.onMainMessageData?.(data.content);
-                    break;
-                  case "main_message_complete":
-                    handlers.onMainMessageComplete?.(data.data);
-                    break;
-                  case "detail_page_buttons_start":
-                    handlers.onDetailPageButtonsStart?.(data.buttonsCount);
-                    break;
-                  case "detail_page_button_ready":
-                    handlers.onDetailPageButtonReady?.(data.data);
-                    break;
-                  case "detail_page_buttons_complete":
-                    handlers.onDetailPageButtonsComplete?.(
-                      data.totalPreparationTime,
-                    );
-                    break;
-                  case "member_event":
-                    handlers.onMemberEvent?.(data.data);
-                    break;
-                  case "error":
-                    handlers.onError?.(data);
-                    break;
-                }
-              } catch (parseError) {
-                console.error("SSE 데이터 파싱 오류:", parseError);
-                handlers.onError?.({
-                  errorCode: "CLIENT_PARSE_ERROR",
-                  message:
-                    parseError instanceof Error
-                      ? parseError.message
-                      : "SSE 데이터 파싱 중 클라이언트 오류 발생",
-                });
-              }
+          try {
+            const data = JSON.parse(event.data);
+
+            // v6.1 이벤트 타입별 핸들러 호출
+            switch (data.eventType) {
+              case "initial_metadata":
+                handlers.onInitialMetadata?.(data);
+                break;
+              case "session_info":
+                handlers.onSessionInfo?.(data.sessionInfo);
+                break;
+              case "thinking_intent_analysis":
+              case "thinking_parallel_processing_start":
+              case "thinking_rag_search_planning":
+              case "thinking_rag_search_executing":
+              case "thinking_data_processing":
+              case "thinking_detail_page_preparation":
+              case "thinking_member_record_saving":
+              case "thinking_response_generation":
+                handlers.onThinking?.(data.thinkingProcess, data.eventType);
+                break;
+              case "main_message_start":
+                handlers.onMainMessageStart?.();
+                break;
+              case "main_message_data":
+                handlers.onMainMessageData?.(data.partialContent);
+                break;
+              case "main_message_complete":
+                handlers.onMainMessageComplete?.(data);
+                break;
+              case "detail_page_buttons_start":
+                handlers.onDetailPageButtonsStart?.(
+                  data.metadata?.buttonsCount,
+                );
+                break;
+              case "detail_page_button_ready":
+                handlers.onDetailPageButtonReady?.(data.detailPageButton);
+                break;
+              case "detail_page_buttons_complete":
+                handlers.onDetailPageButtonsComplete?.(
+                  data.metadata?.totalPreparationTime,
+                );
+                break;
+              case "member_session_created":
+              case "member_record_saved":
+                handlers.onMemberEvent?.(data);
+                break;
+              case "error":
+                handlers.onError?.(data);
+                break;
+              default:
+                console.warn(
+                  "Unknown SSE event type received:",
+                  data.eventType,
+                );
+                break;
             }
+          } catch (parseError) {
+            console.error(
+              "SSE 데이터 파싱 오류:",
+              parseError,
+              "원본 데이터:",
+              event.data,
+            );
+            handlers.onError?.({
+              errorCode: "CLIENT_PARSE_ERROR",
+              message:
+                parseError instanceof Error
+                  ? parseError.message
+                  : "SSE 데이터 파싱 중 클라이언트 오류 발생",
+            });
           }
-        }
-      }
-      options?.onClose?.();
+        },
+
+        onclose: () => {
+          options?.onClose?.();
+        },
+
+        onerror: (err) => {
+          options?.onError?.(
+            err instanceof Error ? err : new Error("알 수 없는 SSE 오류"),
+          );
+          // To stop retries, we must throw an error.
+          // The default behavior is to retry indefinitely.
+          throw err;
+        },
+      });
     } catch (error) {
-      console.error("SSE 스트림 처리 오류:", error);
-      options?.onError?.(error as Error);
-    } finally {
-      reader.releaseLock();
-    }
-  },
-
-  /**
-   * SSE 스트림 처리
-   */
-  async processSSEStream<T>(
-    response: Response,
-    onMessage: (data: T) => void,
-    onError?: (error: unknown) => void,
-    onClose?: () => void,
-  ): Promise<void> {
-    if (!response.body) {
-      throw new ApiError(0, undefined, "SSE 스트림을 읽을 수 없습니다");
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    try {
-      let result;
-      while (!(result = await reader.read()).done) {
-        const chunk = decoder.decode(result.value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data:")) {
-            const dataStr = line.slice(5).trim();
-            if (dataStr) {
-              try {
-                const data = JSON.parse(dataStr) as T;
-                onMessage(data);
-              } catch (parseError) {
-                console.error("SSE 데이터 파싱 오류:", parseError);
-                onError?.(parseError);
-              }
-            }
-          }
-        }
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("SSE fetch aborted by client.");
+      } else {
+        console.error("fetchEventSource 실행 중 예외 발생:", error);
       }
-      onClose?.();
-    } catch (error) {
-      console.error("SSE 스트림 처리 오류:", error);
-      onError?.(error);
-    } finally {
-      reader.releaseLock();
     }
   },
 
