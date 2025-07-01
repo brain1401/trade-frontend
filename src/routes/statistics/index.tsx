@@ -19,7 +19,6 @@ import {
   getTradeStatisticsSummary,
   getTradeBalanceChart,
 } from "@/data/mock/trade-statistics";
-import { mockExchangeRates } from "@/data/mock/exchange-rates";
 
 /**
  * 통계 라우트 정의
