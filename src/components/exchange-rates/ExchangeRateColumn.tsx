@@ -180,8 +180,7 @@ export const createColumns = ({
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>작업</DropdownMenuLabel>
+              <DropdownMenuContent align="end">  
                 <DropdownMenuItem
                   onClick={() => navigator.clipboard.writeText(currencyCode)}
                 >
