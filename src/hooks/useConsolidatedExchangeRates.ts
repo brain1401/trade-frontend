@@ -1,7 +1,83 @@
 import type { ExchangeRate } from "@/lib/api/exchange-rates/types";
 import { useMemo } from "react";
 import type { ExchangeRateCardProps } from "@/components/exchange-rates/ExchangeRateCard";
-import { getCurrencyInfo } from "@/data/exchange-rates/currency-data";
+import {
+  getCurrencyInfo,
+  PREFERRED_CURRENCY_CODES,
+} from "@/data/exchange-rates/currency-data";
+
+type GroupedRates = Map<
+  string,
+  {
+    importRate: ExchangeRateCardProps["importRate"];
+    exportRate: ExchangeRateCardProps["exportRate"];
+  }
+>;
+
+/**
+ * 환율 데이터를 통화 코드로 그룹화.
+ * @param rates - 원본 환율 데이터 배열
+ * @returns 통화 코드별로 그룹화된 Map 객체
+ */
+const groupExchangeRates = (rates: ExchangeRate[]): GroupedRates => {
+  return rates.reduce<GroupedRates>((acc, rate) => {
+    const { currencyCode, currencyName } = rate;
+    const consolidated = acc.get(currencyCode) ?? {
+      importRate: null,
+      exportRate: null,
+    };
+
+    const rateInfo = {
+      currencyName,
+      exchangeRate: rate.exchangeRate,
+      lastUpdated: rate.lastUpdated,
+    };
+
+    if (currencyName.includes("(수입)")) {
+      consolidated.importRate = rateInfo;
+    } else if (currencyName.includes("(수출)")) {
+      consolidated.exportRate = rateInfo;
+    }
+
+    if (!acc.has(currencyCode)) {
+      acc.set(currencyCode, consolidated);
+    }
+
+    return acc;
+  }, new Map());
+};
+
+/**
+ * 그룹화된 환율 데이터를 정렬하고 최종 UI 모델로 매핑.
+ * @param groupedRates - 그룹화된 환율 데이터 Map
+ * @returns 정렬된 ExchangeRateCardProps 배열
+ */
+const mapAndSortRates = (
+  groupedRates: GroupedRates,
+): ExchangeRateCardProps[] => {
+  const mapped = Array.from(groupedRates.entries()).map(
+    ([currencyCode, rates]) => {
+      const { koreanName, flagUrl } = getCurrencyInfo(currencyCode);
+      return {
+        currencyCode,
+        koreanName,
+        flagUrl,
+        importRate: rates.importRate,
+        exportRate: rates.exportRate,
+      };
+    },
+  );
+
+  return mapped.sort((a, b) => {
+    const indexA = PREFERRED_CURRENCY_CODES.indexOf(a.currencyCode);
+    const indexB = PREFERRED_CURRENCY_CODES.indexOf(b.currencyCode);
+
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    return a.currencyCode.localeCompare(b.currencyCode);
+  });
+};
 
 /**
  * 원본 환율 데이터를 UI 카드에 표시하기 적합한 형태로 통합하고 가공하는 커스텀 훅.
@@ -16,50 +92,9 @@ export function useConsolidatedExchangeRates(
   exchangeRates: ExchangeRate[] | undefined,
 ): ExchangeRateCardProps[] {
   return useMemo(() => {
-    if (!exchangeRates) return [];
+    if (!exchangeRates || exchangeRates.length === 0) return [];
 
-    // 1. 통화 코드(currencyCode)를 기준으로 수입/수출 정보를 그룹화
-    const rateMap = new Map<
-      string,
-      {
-        importRate: ExchangeRateCardProps["importRate"];
-        exportRate: ExchangeRateCardProps["exportRate"];
-      }
-    >();
-
-    exchangeRates.forEach((rate) => {
-      const { currencyCode, currencyName } = rate;
-
-      // 통화에 대한 항목을 가져오거나 새로 생성
-      let consolidated = rateMap.get(currencyCode);
-      if (!consolidated) {
-        consolidated = { importRate: null, exportRate: null };
-        rateMap.set(currencyCode, consolidated);
-      }
-
-      const rateInfo = {
-        currencyName,
-        exchangeRate: rate.exchangeRate,
-        lastUpdated: rate.lastUpdated,
-      };
-
-      if (currencyName.includes("(수입)")) {
-        consolidated.importRate = rateInfo;
-      } else if (currencyName.includes("(수출)")) {
-        consolidated.exportRate = rateInfo;
-      }
-    });
-
-    // 2. 그룹화된 데이터를 기반으로 ExchangeRateCardProps 배열 생성
-    return Array.from(rateMap.entries()).map(([currencyCode, rates]) => {
-      const { koreanName, flagUrl } = getCurrencyInfo(currencyCode);
-      return {
-        currencyCode,
-        koreanName,
-        flagUrl,
-        importRate: rates.importRate,
-        exportRate: rates.exportRate,
-      };
-    });
+    const grouped = groupExchangeRates(exchangeRates);
+    return mapAndSortRates(grouped);
   }, [exchangeRates]);
 }

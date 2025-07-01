@@ -5,6 +5,7 @@ import type {
   ApiErrorData,
 } from "../../../types/common";
 import { tokenStore } from "../../auth/tokenStore";
+import { ApiError } from "./ApiError";
 
 /**
  * 함수형 API 클라이언트 모듈
@@ -26,44 +27,12 @@ const instance: AxiosInstance = axios.create({
 // --- API 에러 처리를 위한 함수형 접근 ---
 
 /**
- * API 에러 객체 타입 정의
- */
-export type HttpClientError = Error & {
-  statusCode: number;
-  errorCode?: ApiErrorCode;
-  isAuthError: boolean;
-};
-
-/**
  * 주어진 에러가 ApiError 타입인지 확인하는 타입 가드
  * @param error 확인할 에러
  * @returns 타입 일치 여부
  */
-export const isHttpClientError = (error: unknown): error is HttpClientError => {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "statusCode" in error &&
-    "isAuthError" in error
-  );
-};
-
-/**
- * ApiError를 생성하는 팩토리 함수
- */
-const createHttpClientError = (
-  statusCode: number,
-  errorCode?: ApiErrorCode,
-  message?: string,
-): HttpClientError => {
-  const error = new Error(
-    message || "API 요청 중 오류 발생",
-  ) as HttpClientError;
-  error.name = "HttpClientError";
-  error.statusCode = statusCode;
-  error.errorCode = errorCode;
-  error.isAuthError = statusCode === 401 || statusCode === 403;
-  return error;
+export const isHttpClientError = (error: unknown): error is ApiError => {
+  return error instanceof ApiError;
 };
 
 /**
@@ -91,11 +60,7 @@ const performTokenRefresh = async (): Promise<void> => {
         console.log("✅ 자동 토큰 갱신 성공");
       }
     } else {
-      throw createHttpClientError(
-        500,
-        undefined,
-        "토큰 갱신 응답이 올바르지 않습니다",
-      );
+      throw new ApiError(500, undefined, "토큰 갱신 응답이 올바르지 않습니다");
     }
   } catch (refreshError) {
     if (import.meta.env.DEV) {
@@ -137,14 +102,10 @@ const handleAuthFailure = (): void => {
 
 const extractData = <T>(apiResponse: ApiResponse<T>): T => {
   if (apiResponse.success === "ERROR") {
-    throw createHttpClientError(
-      500,
-      undefined,
-      apiResponse.message || "API 요청 실패",
-    );
+    throw new ApiError(500, undefined, apiResponse.message || "API 요청 실패");
   }
   if (!apiResponse.data) {
-    throw createHttpClientError(500, undefined, "응답 데이터 없음");
+    throw new ApiError(500, undefined, "응답 데이터 없음");
   }
   return apiResponse.data;
 };
@@ -205,7 +166,7 @@ instance.interceptors.response.use(
     }
 
     const errorData = error.response?.data as ApiErrorData | undefined;
-    throw createHttpClientError(
+    throw new ApiError(
       error.response?.status || 0,
       errorData?.errorCode,
       errorData?.message || error.message,

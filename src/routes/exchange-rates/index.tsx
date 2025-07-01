@@ -2,9 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetExchangeRates } from "@/lib/api/exchange-rates";
 import { TrendingUp } from "lucide-react";
-import { ExchangeRateCard } from "@/components/exchange-rates/ExchangeRateCard";
 
-import { useConsolidatedExchangeRates } from "@/hooks/useConsolidatedExchangeRates";
+import ExchangeRateTable from "@/components/exchange-rates/ExchangeRateTable";
 
 /**
  * 환율 정보 라우트 정의
@@ -18,7 +17,6 @@ export const Route = createFileRoute("/exchange-rates/")({
  */
 function ExchangeRatesPage() {
   const { data: exchangeRates, isLoading, error } = useGetExchangeRates();
-  const consolidatedRates = useConsolidatedExchangeRates(exchangeRates);
 
   if (isLoading) {
     return (
@@ -52,27 +50,7 @@ function ExchangeRatesPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {/* 통합된 환율 데이터를 사용하여 ExchangeRateCard 렌더링 */}
-        {consolidatedRates.length > 0 ? (
-          consolidatedRates.map(
-            ({ currencyCode, koreanName, flagUrl, importRate, exportRate }) => (
-              <ExchangeRateCard
-                key={currencyCode}
-                currencyCode={currencyCode}
-                koreanName={koreanName}
-                flagUrl={flagUrl}
-                importRate={importRate}
-                exportRate={exportRate}
-              />
-            ),
-          )
-        ) : (
-          <div className="col-span-full text-center text-neutral-600">
-            표시할 환율 정보가 없습니다.
-          </div>
-        )}
-      </div>
+      <ExchangeRateTable />
 
       {/* 환율 정보 안내 */}
       <Card>
