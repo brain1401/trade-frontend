@@ -2,6 +2,7 @@ import { CURRENCIES } from "@/data/common";
 
 /**
  * v6.1 API 명세서 기준, 환율 정보 타입
+ * API 타입과 일치하도록 수정
  */
 export type ExchangeRate = {
   /** 통화 코드 (e.g., "USD") */
@@ -10,10 +11,10 @@ export type ExchangeRate = {
   currencyName: string;
   /** 현재 환율 */
   exchangeRate: number;
-  /** 전일 대비 등락률 */
-  changeRate: number;
-  /** 전일 대비 등락액 */
-  changeAmount: number;
+  /** 전일 대비 등락률 (데이터 없을 시 null) */
+  changeRate: number | null;
+  /** 전일 대비 등락액 (선택적) */
+  changeAmount?: number;
   /** 마지막 업데이트 시간 (ISO 8601) */
   lastUpdated: string;
 };
@@ -74,6 +75,7 @@ export type DetailedExchangeRate = ExchangeRate & {
 
 /**
  * 주요 통화의 환율 정보 Mock 데이터 (v6.1)
+ * API 타입에 맞게 수정 - null/undefined 케이스 포함
  */
 export const mockExchangeRates: ExchangeRate[] = [
   {
@@ -104,8 +106,7 @@ export const mockExchangeRates: ExchangeRate[] = [
     currencyCode: "CNY",
     currencyName: "중국 위안",
     exchangeRate: 184.75,
-    changeRate: 0.15,
-    changeAmount: 0.28,
+    changeRate: null, // 데이터 없는 경우
     lastUpdated: "2024-01-16T11:30:00Z",
   },
 ];
@@ -169,6 +170,7 @@ export const mockGlobalExchangeRates: EnhancedExchangeRate[] = [
 
 /**
  * USD 상세 환율 정보 Mock 데이터 (v6.1)
+ * API 타입에 맞게 수정
  */
 export const mockDetailedUSDExchangeRate: DetailedExchangeRate = {
   currencyCode: "USD",
