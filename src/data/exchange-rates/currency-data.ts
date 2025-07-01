@@ -305,6 +305,11 @@ export const currencyInfoMap: Record<string, CurrencyInfo> = {
 };
 
 /**
+ * 환율 카드 표시를 위한 우선순위 국가 코드 목록
+ */
+export const PREFERRED_CURRENCY_CODES = ["USD", "CNY", "JPY", "VND", "TWD"];
+
+/**
  * 알 수 없는 통화에 대한 기본값
  */
 const defaultCurrencyInfo: CurrencyInfo = {
