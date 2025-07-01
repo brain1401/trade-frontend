@@ -29,7 +29,7 @@ export type ChatRequest = {
 export type V61SSEEventHandlers = {
   onInitialMetadata?: (data: InitialMetadataEvent) => void;
   onSessionInfo?: (data: SessionInfoEvent) => void;
-  onThinking?: (data: ThinkingEventData, eventType?: string) => void;
+  onThinking?: (message: string, eventType?: string) => void;
   onMainMessageStart?: () => void;
   onMainMessageData?: (content: string) => void;
   onMainMessageComplete?: (data: MainMessageCompleteEvent) => void;
@@ -41,10 +41,21 @@ export type V61SSEEventHandlers = {
 };
 
 /**
- * 스트리밍 옵션 타입
+ * SSE 스트리밍 옵션
  */
 export type StreamingOptions = {
-  timeout?: number;
-  onClose?: () => void;
+  /**
+   * 스트림 에러 발생시 콜백
+   */
   onError?: (error: Error) => void;
+
+  /**
+   * 스트림 종료시 콜백
+   */
+  onClose?: () => void;
+
+  /**
+   * 요청 중단을 위한 AbortSignal
+   */
+  signal?: AbortSignal;
 };
