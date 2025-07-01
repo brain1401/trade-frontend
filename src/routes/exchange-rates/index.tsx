@@ -16,7 +16,7 @@ export const Route = createFileRoute("/exchange-rates/")({
  * 환율 정보 페이지 컴포넌트
  */
 function ExchangeRatesPage() {
-  const { data: exchangeRates, isLoading, error } = useGetExchangeRates();
+  const { data, isLoading, error } = useGetExchangeRates();
 
   if (isLoading) {
     return (
@@ -50,7 +50,7 @@ function ExchangeRatesPage() {
         </div>
       </div>
 
-      <ExchangeRateTable />
+      <ExchangeRateTable data={data ?? []} />
 
       {/* 환율 정보 안내 */}
       <Card>

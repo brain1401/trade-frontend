@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  type ColumnDef,
   type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -13,20 +12,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -35,21 +21,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { columns } from "./ExchangeRateColumn";
+import { createColumns } from "./ExchangeRateColumn";
 import { useConsolidatedExchangeRates } from "@/hooks/useConsolidatedExchangeRates";
-import { useGetExchangeRates } from "@/lib/api";
+import type { ExchangeRate } from "@/lib/api";
+import { ExchangeRateTableToolbar } from "./ExchangeRateTableToolbar";
+import { Button } from "../ui/button";
 
-export default function ExchangeRateTable() {
+export type SimplifiedExchangeRate = {
+  currencyCode: string;
+  koreanName: string;
+  flagUrl: string;
+  rate: number | null;
+};
+
+type Props = {
+  data: ExchangeRate[];
+};
+
+export default function ExchangeRateTable({ data }: Props) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const { data } = useGetExchangeRates();
+  const [baseAmount, setBaseAmount] = useState(32300);
+  const [baseCurrency, setBaseCurrency] = useState("JPY");
+
   const consolidatedRates = useConsolidatedExchangeRates(data);
 
+  const simplifiedData = useMemo((): SimplifiedExchangeRate[] => {
+    return consolidatedRates.map((item) => ({
+      currencyCode: item.currencyCode,
+      koreanName: item.koreanName,
+      flagUrl: item.flagUrl,
+      rate:
+        item.importRate?.exchangeRate ?? item.exportRate?.exchangeRate ?? null,
+    }));
+  }, [consolidatedRates]);
+
+  const columns = useMemo(
+    () => createColumns({ baseCurrency }),
+    [baseCurrency],
+  );
+
   const table = useReactTable({
-    data: consolidatedRates,
+    data: simplifiedData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -65,48 +81,21 @@ export default function ExchangeRateTable() {
       columnVisibility,
       rowSelection,
     },
+    meta: {
+      baseAmount,
+    },
   });
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="국가명 검색..."
-          value={
-            (table.getColumn("koreanName")?.getFilterValue() ?? "") as string
-          }
-          onChange={(event) =>
-            table.getColumn("koreanName")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+    <div className="w-full space-y-4">
+      <ExchangeRateTableToolbar
+        table={table}
+        data={data}
+        baseAmount={baseAmount}
+        setBaseAmount={setBaseAmount}
+        baseCurrency={baseCurrency}
+        setBaseCurrency={setBaseCurrency}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -128,7 +117,7 @@ export default function ExchangeRateTable() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -157,10 +146,10 @@ export default function ExchangeRateTable() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} /{" "}
+          {table.getFilteredRowModel().rows.length} 개 선택됨
         </div>
         <div className="space-x-2">
           <Button
@@ -169,7 +158,7 @@ export default function ExchangeRateTable() {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            이전
           </Button>
           <Button
             variant="outline"
@@ -177,7 +166,7 @@ export default function ExchangeRateTable() {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            다음
           </Button>
         </div>
       </div>

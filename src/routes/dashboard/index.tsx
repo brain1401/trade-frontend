@@ -358,11 +358,16 @@ function ExchangeRatesWidget() {
               </p>
               <p
                 className={`text-xs ${
-                  rate.changeAmount > 0 ? "text-danger-600" : "text-success-600"
+                  rate.changeAmount && rate.changeAmount > 0
+                    ? "text-danger-600"
+                    : rate.changeAmount && rate.changeAmount < 0
+                      ? "text-success-600"
+                      : "text-neutral-500"
                 }`}
               >
-                {rate.changeAmount > 0 ? "+" : ""}
-                {rate.changeAmount.toFixed(2)}
+                {rate.changeAmount
+                  ? `${rate.changeAmount > 0 ? "+" : ""}${rate.changeAmount.toFixed(2)}`
+                  : "변동 없음"}
               </p>
             </div>
           </div>
