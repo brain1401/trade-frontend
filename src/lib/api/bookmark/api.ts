@@ -12,7 +12,7 @@ import { httpClient } from "../common";
  * 북마크 API
  */
 export const bookmarkApi = {
-  async getBookmarks(): Promise<ApiResponse<PaginatedBookmarksV61>> {
+  async getBookmarks(): Promise<PaginatedBookmarksV61> {
     return httpClient.get(`/bookmarks`);
   },
 

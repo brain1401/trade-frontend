@@ -1,14 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bookmark, Bell, Search, MessageSquare } from "lucide-react";
 import { mockDashboardSummary } from "@/data/mock/dashboard";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Bell, Bookmark, MessageSquare, Search } from "lucide-react";
 
 /**
  * 대시보드 요약 통계 컴포넌트
- *
- * 사용자의 활동 현황을 한눈에 보여주는 통계 카드들
- * 북마크, 알림, 검색 통계 등의 핵심 지표를 표시
+ * 사용자의 활동 현황을 한눈에 보여줌
  */
-export function DashboardSummary() {
+export default function DashboardSummary() {
   const dashboardSummary = mockDashboardSummary;
 
   return (

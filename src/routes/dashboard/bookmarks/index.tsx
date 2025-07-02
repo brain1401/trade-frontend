@@ -6,7 +6,14 @@ import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import { mockBookmarks, getActiveBookmarks } from "@/data/mock/bookmarks";
-import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
+import type {
+  Bookmark as BookmarkType,
+  BookmarkV61,
+} from "@/lib/api/bookmark/types";
+import BookmarkCard from "@/components/dashboard/bookmarks/BookmarkCard";
+import { getTypeName } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { bookmarkQueries } from "@/lib/api";
 
 /**
  * 북마크 관리 라우트 정의
@@ -21,152 +28,6 @@ export const Route = createFileRoute("/dashboard/bookmarks/")({
 });
 
 /**
- * 북마크 타입별 색상 매핑
- * 각 북마크 타입에 따라 다른 시각적 구분을 제공
- */
-const getTypeColor = (type: string) => {
-  switch (type) {
-    case "HS_CODE":
-      return {
-        badge: "bg-primary-100 text-primary-800",
-        icon: "text-primary-600",
-      };
-    case "CARGO":
-      return {
-        badge: "bg-info-100 text-info-800",
-        icon: "text-info-600",
-      };
-    case "REGULATION":
-      return {
-        badge: "bg-warning-100 text-warning-800",
-        icon: "text-warning-600",
-      };
-    default:
-      return {
-        badge: "bg-neutral-100 text-neutral-800",
-        icon: "text-neutral-600",
-      };
-  }
-};
-
-/**
- * 북마크 타입 표시명 매핑
- * 내부 타입명을 사용자 친화적인 표시명으로 변환
- */
-const getTypeName = (type: string) => {
-  switch (type) {
-    case "HS_CODE":
-      return "HS Code";
-    case "CARGO":
-      return "화물추적";
-    case "REGULATION":
-      return "규제정보";
-    default:
-      return type;
-  }
-};
-
-/**
- * 개별 북마크 카드 컴포넌트
- * 북마크 상세 정보와 액션 버튼을 포함한 카드 형태로 표시
- */
-type BookmarkCardProps = {
-  bookmark: BookmarkType;
-  onToggleMonitoring?: (id: string) => void;
-  onDelete?: (id: string) => void;
-};
-
-function BookmarkCard({
-  bookmark,
-  onToggleMonitoring,
-  onDelete,
-}: BookmarkCardProps) {
-  const typeColor = getTypeColor(bookmark.type);
-  const typeName = getTypeName(bookmark.type);
-
-  return (
-    <Card className="transition-shadow hover:shadow-md">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <Bookmark className={`h-5 w-5 ${typeColor.icon}`} />
-            <CardTitle className="text-lg">{bookmark.displayName}</CardTitle>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={typeColor.badge}>{typeName}</Badge>
-            {bookmark.monitoringEnabled && (
-              <Badge
-                variant="secondary"
-                className="bg-success-100 text-xs text-success-800"
-              >
-                <Monitor className="mr-1 h-3 w-3" />
-                모니터링
-              </Badge>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="mb-4 text-neutral-600">{bookmark.description}</p>
-
-        {/* 대상 값 표시 */}
-        <div className="mb-4">
-          <Badge variant="outline" className="text-xs">
-            {bookmark.targetValue}
-          </Badge>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-neutral-500">
-            <p>
-              저장일: {new Date(bookmark.createdAt).toLocaleDateString("ko-KR")}
-            </p>
-            <p>
-              업데이트:{" "}
-              {new Date(bookmark.updatedAt).toLocaleDateString("ko-KR")}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onToggleMonitoring?.(bookmark.bookmarkId)}
-              className="flex items-center gap-1"
-            >
-              {bookmark.monitoringEnabled ? (
-                <>
-                  <MonitorOff className="h-4 w-4" />
-                  모니터링 해제
-                </>
-              ) : (
-                <>
-                  <Monitor className="h-4 w-4" />
-                  모니터링 설정
-                </>
-              )}
-            </Button>
-            <Link to="/search">
-              <Button variant="outline" size="sm">
-                <ExternalLink className="mr-1 h-4 w-4" />
-                보기
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete?.(bookmark.bookmarkId)}
-              className="text-danger-600 hover:bg-danger-50"
-            >
-              삭제
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/**
  * 북마크 관리 페이지
  *
  * 인증된 사용자만 접근 가능
@@ -174,8 +35,14 @@ function BookmarkCard({
  */
 function BookmarksPage() {
   const { user } = useAuth();
-  const bookmarks = mockBookmarks;
-  const activeBookmarks = getActiveBookmarks();
+  const { data: paginatedData } = useQuery(bookmarkQueries.list());
+
+  const bookmarks = paginatedData?.bookmarks ?? [];
+  const summary = paginatedData?.summary;
+
+  const activeBookmarks = bookmarks.filter(
+    (bookmark) => bookmark.monitoringActive,
+  );
 
   // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
   const handleToggleMonitoring = (id: string) => {
@@ -189,8 +56,8 @@ function BookmarksPage() {
   };
 
   // 타입별 북마크 분류
-  const bookmarksByCategory = bookmarks.reduce(
-    (acc: Record<string, BookmarkType[]>, bookmark: BookmarkType) => {
+  const bookmarksByCategory = bookmarks.reduce<Record<string, BookmarkV61[]>>(
+    (acc, bookmark) => {
       const category = bookmark.type;
       (acc[category] ??= []).push(bookmark);
       return acc;
@@ -220,7 +87,7 @@ function BookmarksPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">
-              {bookmarks.length}
+              {summary?.totalBookmarks ?? bookmarks.length}
             </div>
           </CardContent>
         </Card>
@@ -234,7 +101,7 @@ function BookmarksPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">
-              {activeBookmarks.length}
+              {summary?.monitoringActiveBookmarks ?? activeBookmarks.length}
             </div>
           </CardContent>
         </Card>
@@ -263,9 +130,9 @@ function BookmarksPage() {
                 {getTypeName(category)} ({categoryBookmarks.length})
               </h2>
               <div className="grid gap-4">
-                {categoryBookmarks.map((bookmark: BookmarkType) => (
+                {categoryBookmarks.map((bookmark) => (
                   <BookmarkCard
-                    key={bookmark.bookmarkId}
+                    key={bookmark.id}
                     bookmark={bookmark}
                     onToggleMonitoring={handleToggleMonitoring}
                     onDelete={handleDelete}

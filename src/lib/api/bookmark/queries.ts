@@ -13,7 +13,7 @@ export const bookmarkQueryKeys = {
 
 export const bookmarkQueries = {
   list: () =>
-    queryOptions<ApiResponse<PaginatedBookmarksV61>, ApiError>({
+    queryOptions<PaginatedBookmarksV61, ApiError>({
       queryKey: bookmarkQueryKeys.list(),
       queryFn: () => bookmarkApi.getBookmarks(),
     }),
