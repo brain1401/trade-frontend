@@ -4,7 +4,7 @@ import type {
   DashboardSummary,
   DashboardFeedsResponse as LegacyDashboardFeedsResponse,
 } from "@/types/dashboard";
-import type { Bookmark } from "@/types/bookmark";
+import type { Bookmark } from "@/lib/api/bookmark/types";
 import type { PaginationMeta } from "../../types/common";
 
 /**

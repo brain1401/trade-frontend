@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import {
   Search,
@@ -10,7 +8,6 @@ import {
   Bell,
   BarChart3,
   User,
-  Zap,
   ChevronRight,
   TrendingUp,
   AlertCircle,
@@ -22,6 +19,8 @@ import {
   getRecentFeedItems,
 } from "@/data/mock/dashboard";
 import { mockExchangeRates } from "@/data/mock/exchange-rates";
+import { useQuery } from "@tanstack/react-query";
+import { bookmarkApi, bookmarkQueries } from "@/lib/api";
 
 /**
  * 대시보드 라우트 정의 (TanStack Router 공식 방식)
@@ -385,6 +384,12 @@ function ExchangeRatesWidget() {
  */
 function DashboardPage() {
   // const { user } = useAuth();
+
+  const onClick = (data: any) => {
+    bookmarkApi.addBookmark(data);
+  };
+
+  const { data: bookmarks } = useQuery(bookmarkQueries.list());
   const dashboardSummary = mockDashboardSummary;
 
   // 카드별 뱃지 추가

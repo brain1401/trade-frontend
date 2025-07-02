@@ -1,5 +1,5 @@
 import type { ImportanceLevel, PaginationMeta } from "./common";
-import type { BookmarkType } from "./bookmark";
+import type { BookmarkType } from "../lib/api/bookmark/types";
 
 /**
  * 대시보드 API 관련 타입 정의 (API v4.0)

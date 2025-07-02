@@ -1,5 +1,6 @@
-import { useGetExchangeRates } from "@/lib/api";
+import { exchangeRatesApi, exchangeRatesQueries } from "@/lib/api";
 import { useAuth } from "@/stores/authStore";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 type UseInitReturnType = {
@@ -32,7 +33,9 @@ export default function useInit(): UseInitReturnType {
     initialize();
   }, [initialize]);
 
-  const { isLoading: isExchangeRateLoading } = useGetExchangeRates();
+  const { isLoading: isExchangeRateLoading } = useQuery(
+    exchangeRatesQueries.list(),
+  );
 
   return {
     isLoading: isAuthLoading || isExchangeRateLoading,

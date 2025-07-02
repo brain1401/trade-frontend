@@ -11,7 +11,7 @@ import type {
 import type {
   UpdateBookmarkNotificationSettingsV61,
   UpdateBookmarkNotificationResponseV61,
-} from "@/types/bookmark";
+} from "@/lib/api/bookmark/types";
 import type { ApiResponse } from "@/types/common";
 
 export const notificationApi = {
