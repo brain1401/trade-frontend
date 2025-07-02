@@ -1,9 +1,4 @@
 import type { ImportanceLevel } from "@/types/base";
-import type {
-  UpdateFeed,
-  DashboardSummary,
-  DashboardFeedsResponse as LegacyDashboardFeedsResponse,
-} from "@/types/dashboard";
 import type { Bookmark } from "@/lib/api/bookmark/types";
 import type { PaginationMeta } from "../../types/common";
 

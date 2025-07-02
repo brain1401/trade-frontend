@@ -69,14 +69,14 @@ const dashboardCards = [
     href: "/dashboard/settings" as const,
     color: "warning" as const,
   },
-  {
-    id: "trade-stats",
-    title: "무역 통계",
-    description: "개인화된 무역 통계와 트렌드를 확인할 수 있습니다.",
-    icon: BarChart3,
-    href: "/statistics" as const,
-    color: "info" as const,
-  },
+  // {
+  //   id: "trade-stats",
+  //   title: "무역 통계",
+  //   description: "개인화된 무역 통계와 트렌드를 확인할 수 있습니다.",
+  //   icon: BarChart3,
+  //   href: "/statistics" as const,
+  //   color: "info" as const,
+  // },
   {
     id: "profile",
     title: "프로필 관리",
