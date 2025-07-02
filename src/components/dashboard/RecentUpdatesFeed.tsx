@@ -1,15 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bell, AlertCircle, CheckCircle } from "lucide-react";
 import { getRecentFeedItems } from "@/data/mock/dashboard";
+import { AlertCircle, Bell, CheckCircle } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 /**
  * 최근 업데이트 피드 컴포넌트
- *
- * 사용자가 관심있어하는 항목들의 최신 변경사항을 표시
- * 중요도별로 다른 아이콘과 색상을 적용하여 시각적 구분을 제공
+ * 사용자가 관심있어하는 항목들의 최신 변경사항 표시
  */
-export function RecentUpdatesFeed() {
+export default function RecentUpdatesFeed() {
   const recentUpdates = getRecentFeedItems(5);
 
   const getImportanceIcon = (importance: string) => {
