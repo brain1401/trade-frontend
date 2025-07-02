@@ -1,36 +1,25 @@
 import type {
-  GetBookmarksParamsV61,
   PaginatedBookmarksV61,
   CreateBookmarkRequestV61,
   AddBookmarkResponseDataV61,
   UpdateBookmarkRequestV61,
   BookmarkV61,
-} from "../../../types/bookmark";
+} from "./types";
 import type { ApiResponse } from "../../../types/common";
-import { httpClient, ApiError } from "../common";
+import { httpClient } from "../common";
 
 /**
  * 북마크 API
  */
 export const bookmarkApi = {
-  async getBookmarks(
-    params?: GetBookmarksParamsV61,
-  ): Promise<ApiResponse<PaginatedBookmarksV61>> {
-    const queryParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, String(value));
-        }
-      });
-    }
-    return httpClient.get(`/bookmarks?${queryParams.toString()}`);
+  async getBookmarks(): Promise<ApiResponse<PaginatedBookmarksV61>> {
+    return httpClient.get(`/bookmarks`);
   },
 
   async addBookmark(
-    bookmarkData: CreateBookmarkRequestV61,
+    data: CreateBookmarkRequestV61,
   ): Promise<ApiResponse<AddBookmarkResponseDataV61>> {
-    return httpClient.post("/bookmarks", bookmarkData);
+    return httpClient.post("/bookmarks", data);
   },
 
   async updateBookmark(

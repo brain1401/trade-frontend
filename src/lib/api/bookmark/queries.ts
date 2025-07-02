@@ -1,8 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type {
-  GetBookmarksParamsV61,
-  PaginatedBookmarksV61,
-} from "../../../types/bookmark";
+import type { GetBookmarksParamsV61, PaginatedBookmarksV61 } from "./types";
 import { bookmarkApi } from "./api";
 import type { ApiError } from "../common/ApiError";
 import type { ApiResponse } from "@/types/common";
@@ -15,9 +12,9 @@ export const bookmarkQueryKeys = {
 };
 
 export const bookmarkQueries = {
-  list: (params?: GetBookmarksParamsV61) =>
+  list: () =>
     queryOptions<ApiResponse<PaginatedBookmarksV61>, ApiError>({
-      queryKey: bookmarkQueryKeys.list(params),
-      queryFn: () => bookmarkApi.getBookmarks(params),
+      queryKey: bookmarkQueryKeys.list(),
+      queryFn: () => bookmarkApi.getBookmarks(),
     }),
 };

@@ -1,4 +1,4 @@
-import type { Bookmark } from "@/types/bookmark";
+import type { Bookmark } from "@/lib/api/bookmark/types";
 
 /**
  * 북마크 Mock 데이터

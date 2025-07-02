@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetExchangeRates } from "@/lib/api/exchange-rates";
+import { exchangeRatesQueries } from "@/lib/api/exchange-rates";
 import { TrendingUp } from "lucide-react";
 
 import ExchangeRateTable from "@/components/exchange-rates/ExchangeRateTable";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * 환율 정보 라우트 정의
@@ -21,7 +22,7 @@ function ExchangeRatesPage() {
   // - retry: 3번 (오류 발생 시 자동 재시도)
   // - refetchOnMount: true (컴포넌트 마운트 시 자동 캐시 리벨리데이션)
   // - staleTime: 30초 (환율 특화 설정)
-  const { data, isLoading, error } = useGetExchangeRates();
+  const { data, isLoading, error } = useQuery(exchangeRatesQueries.list());
 
   // 📖 다양한 사용 예시:
   //

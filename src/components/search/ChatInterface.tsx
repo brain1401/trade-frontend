@@ -227,6 +227,9 @@ export function ChatInterface({
           currentThinkingRef.current,
         );
 
+        // 🔧 먼저 상태를 업데이트하여 thinking 렌더링을 중단
+        setSessionStatus("RESPONDING");
+
         // Thinking 메시지를 고정하고 Main Message 시작
         if (currentThinkingRef.current) {
           const newMessage: ChatMessageItem = {
@@ -237,10 +240,13 @@ export function ChatInterface({
           };
 
           setMessages((prev) => [...prev, newMessage]);
+          // 🔧 즉시 thinking 초기화
           setCurrentThinking("");
           setTimeout(scrollToBottom, 100);
+        } else {
+          // thinking이 없더라도 빈 thinking state 확실히 초기화
+          setCurrentThinking("");
         }
-        setSessionStatus("RESPONDING");
       },
 
       onMainMessageData: (content: string) => {
@@ -275,6 +281,8 @@ export function ChatInterface({
 
         setMessages((prev) => [...prev, newMessage]);
         setCurrentMainResponse("");
+        // 🔧 완료 시 thinking도 확실히 초기화
+        setCurrentThinking("");
         setTimeout(scrollToBottom, 100);
 
         // SSE 메타데이터 기반 북마크 데이터 설정
@@ -331,6 +339,9 @@ export function ChatInterface({
         setError(error.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
+        // 🔧 에러 시 모든 스트리밍 상태 초기화
+        setCurrentThinking("");
+        setCurrentMainResponse("");
         toast.error(error.message || "오류가 발생했습니다");
       },
     }),
@@ -346,6 +357,10 @@ export function ChatInterface({
         setError(null);
         setSessionStatus("THINKING");
         setIsStreaming(true);
+
+        // 🔧 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
+        setCurrentThinking("");
+        setCurrentMainResponse("");
 
         // 3단계 병렬 처리 상태 초기화
         setParallelProcessing({
@@ -384,6 +399,9 @@ export function ChatInterface({
           onClose: () => {
             console.log("🔌 SSE 연결 종료");
             setIsStreaming(false);
+            // 🔧 연결 종료 시 스트리밍 상태 초기화
+            setCurrentThinking("");
+            setCurrentMainResponse("");
             if (sessionStatusRef.current !== "COMPLETED") {
               setSessionStatus("PENDING");
             }
@@ -393,6 +411,9 @@ export function ChatInterface({
             setError(error.message);
             setSessionStatus("FAILED");
             setIsStreaming(false);
+            // 🔧 연결 에러 시 스트리밍 상태 초기화
+            setCurrentThinking("");
+            setCurrentMainResponse("");
             toast.error(error.message);
           },
         });
@@ -401,6 +422,9 @@ export function ChatInterface({
         setError(chatApi.parseErrorMessage(error));
         setSessionStatus("FAILED");
         setIsStreaming(false);
+        // 🔧 예외 발생 시 스트리밍 상태 초기화
+        setCurrentThinking("");
+        setCurrentMainResponse("");
       }
     },
     [sseHandlers, scrollToBottom],
@@ -411,6 +435,7 @@ export function ChatInterface({
    */
   const handleClearChat = useCallback(() => {
     setMessages([]);
+    // 🔧 초기화 시 모든 스트리밍 상태 확실히 초기화
     setCurrentThinking("");
     setCurrentMainResponse("");
     setBookmarkData(null);
@@ -422,6 +447,7 @@ export function ChatInterface({
     });
     setSessionStatus("PENDING");
     setError(null);
+    setCurrentSessionId(null);
   }, []);
 
   const userType = isAuthenticated ? "MEMBER" : "GUEST";
@@ -509,8 +535,8 @@ export function ChatInterface({
             />
           ))}
 
-          {/* 현재 스트리밍 중인 Thinking 메시지 */}
-          {currentThinking && (
+          {/* 🔧 세션 상태에 따른 thinking 메시지 렌더링 제어 */}
+          {currentThinking && sessionStatus === "THINKING" && (
             <ChatMessage
               type="thinking"
               data={{ content: currentThinking }}
@@ -518,8 +544,8 @@ export function ChatInterface({
             />
           )}
 
-          {/* 현재 스트리밍 중인 Main Response */}
-          {currentMainResponse && (
+          {/* 🔧 세션 상태에 따른 Main Response 렌더링 제어 */}
+          {currentMainResponse && sessionStatus === "RESPONDING" && (
             <ChatMessage
               type="ai"
               data={{ content: currentMainResponse }}

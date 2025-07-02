@@ -1,4 +1,4 @@
-import type { PaginationMeta, SortOrder } from "./common";
+import type { PaginationMeta, SortOrder } from "../../../types/common";
 
 /**
  * 북마크 API 관련 타입 정의 (API v4.0)

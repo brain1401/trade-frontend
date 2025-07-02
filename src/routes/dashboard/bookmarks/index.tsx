@@ -6,7 +6,7 @@ import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import { mockBookmarks, getActiveBookmarks } from "@/data/mock/bookmarks";
-import type { Bookmark as BookmarkType } from "@/types/bookmark";
+import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
 
 /**
  * 북마크 관리 라우트 정의
