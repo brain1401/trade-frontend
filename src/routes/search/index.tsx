@@ -64,17 +64,17 @@ function SearchPage() {
           return;
         }
 
-        await bookmarkApi.addBookmark(bookmarkData);
+        // await bookmarkApi.addBookmark(bookmarkData);
 
-        if (relatedInfo.hsCode) {
-          toast.success(
-            `HS Code ${relatedInfo.hsCode}이(가) 북마크에 추가되었습니다!`,
-          );
-        } else if (relatedInfo.trackingNumber) {
-          toast.success(
-            `화물 ${relatedInfo.trackingNumber}이(가) 북마크에 추가되었습니다!`,
-          );
-        }
+        // if (relatedInfo.hsCode) {
+        //   toast.success(
+        //     `HS Code ${relatedInfo.hsCode}이(가) 북마크에 추가되었습니다!`,
+        //   );
+        // } else if (relatedInfo.trackingNumber) {
+        //   toast.success(
+        //     `화물 ${relatedInfo.trackingNumber}이(가) 북마크에 추가되었습니다!`,
+        //   );
+        // }
       } catch (error) {
         console.error("북마크 추가 실패:", error);
         toast.error("북마크 추가에 실패했습니다.");

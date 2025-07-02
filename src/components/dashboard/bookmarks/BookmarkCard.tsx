@@ -1,11 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type {
-  BookmarkType,
-  BookmarkV61,
-  PaginatedBookmarksV61,
-} from "@/lib/api/bookmark/types";
+import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
+
 import { getTypeColor, getTypeName } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
@@ -15,9 +12,9 @@ import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
  * 북마크 상세 정보와 액션 버튼을 포함한 카드 형태로 표시
  */
 type BookmarkCardProps = {
-  bookmark: BookmarkV61;
-  onToggleMonitoring?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  bookmark: BookmarkType;
+  onToggleMonitoring?: (id: number) => void;
+  onDelete?: (id: number) => void;
 };
 
 export default function BookmarkCard({
@@ -51,7 +48,7 @@ export default function BookmarkCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="mb-4 text-neutral-600">{bookmark.description}</p>
+        <p className="mb-4 text-neutral-600">{bookmark.displayName}</p>
 
         {/* 대상 값 표시 */}
         <div className="mb-4">

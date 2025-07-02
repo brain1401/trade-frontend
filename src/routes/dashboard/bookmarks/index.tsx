@@ -2,18 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
+import {  Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
-import { mockBookmarks, getActiveBookmarks } from "@/data/mock/bookmarks";
-import type {
-  Bookmark as BookmarkType,
-  BookmarkV61,
-} from "@/lib/api/bookmark/types";
 import BookmarkCard from "@/components/dashboard/bookmarks/BookmarkCard";
 import { getTypeName } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { bookmarkQueries } from "@/lib/api";
+import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
 
 /**
  * 북마크 관리 라우트 정의
@@ -37,26 +33,25 @@ function BookmarksPage() {
   const { user } = useAuth();
   const { data: paginatedData } = useQuery(bookmarkQueries.list());
 
-  const bookmarks = paginatedData?.bookmarks ?? [];
-  const summary = paginatedData?.summary;
+  const bookmarks = paginatedData?.content ?? [];
 
   const activeBookmarks = bookmarks.filter(
     (bookmark) => bookmark.monitoringActive,
   );
 
   // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
-  const handleToggleMonitoring = (id: string) => {
+  const handleToggleMonitoring = (id: number) => {
     console.log(`모니터링 토글: ${id}`);
     // TODO: 실제 구현 시 상태 업데이트 로직 추가
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     console.log(`북마크 삭제: ${id}`);
     // TODO: 실제 구현 시 삭제 로직 추가
   };
 
   // 타입별 북마크 분류
-  const bookmarksByCategory = bookmarks.reduce<Record<string, BookmarkV61[]>>(
+  const bookmarksByCategory = bookmarks.reduce<Record<string, BookmarkType[]>>(
     (acc, bookmark) => {
       const category = bookmark.type;
       (acc[category] ??= []).push(bookmark);
@@ -86,9 +81,7 @@ function BookmarksPage() {
             <Bookmark className="h-4 w-4 text-primary-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-neutral-900">
-              {summary?.totalBookmarks ?? bookmarks.length}
-            </div>
+          카드 내용
           </CardContent>
         </Card>
 
@@ -100,9 +93,7 @@ function BookmarksPage() {
             <Monitor className="h-4 w-4 text-success-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-neutral-900">
-              {summary?.monitoringActiveBookmarks ?? activeBookmarks.length}
-            </div>
+            카드 내용2
           </CardContent>
         </Card>
 
@@ -150,7 +141,7 @@ function BookmarksPage() {
               <p className="text-neutral-600">아직 저장된 북마크가 없습니다.</p>
               <p className="mt-2 text-sm text-neutral-500">
                 관심 있는 정보를 북마크로 저장해보세요.
-              </p>
+              </p>  
               <Link to="/search">
                 <Button className="mt-4">검색하러 가기</Button>
               </Link>

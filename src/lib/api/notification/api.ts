@@ -8,10 +8,6 @@ import type {
   SmsSettingsUpdateRequest,
   SmsSettingsResponse,
 } from "./types";
-import type {
-  UpdateBookmarkNotificationSettingsV61,
-  UpdateBookmarkNotificationResponseV61,
-} from "@/lib/api/bookmark/types";
 import type { ApiResponse } from "@/types/common";
 
 export const notificationApi = {
@@ -83,16 +79,16 @@ export const notificationApi = {
     );
   },
 
-  /**
-   * 북마크 알림 설정 업데이트
-   */
-  updateBookmarkNotification(
-    bookmarkId: string,
-    settings: UpdateBookmarkNotificationSettingsV61,
-  ): Promise<ApiResponse<UpdateBookmarkNotificationResponseV61>> {
-    return rawHttpClient.put<
-      UpdateBookmarkNotificationResponseV61,
-      UpdateBookmarkNotificationSettingsV61
-    >(`/bookmarks/${bookmarkId}/notifications`, settings);
-  },
+  // /**
+  //  * 북마크 알림 설정 업데이트
+  //  */
+  // updateBookmarkNotification(
+  //   bookmarkId: string,
+  //   settings: UpdateBookmarkNotificationSettingsV61,
+  // ): Promise<ApiResponse<UpdateBookmarkNotificationResponseV61>> {
+  //   return rawHttpClient.put<
+  //     UpdateBookmarkNotificationResponseV61,
+  //     UpdateBookmarkNotificationSettingsV61
+  //   >(`/bookmarks/${bookmarkId}/notifications`, settings);
+  // },
 };
