@@ -1,5 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { DollarSign, Newspaper, LayoutDashboard, LogIn } from "lucide-react";
+import {
+  DollarSign,
+  Newspaper,
+  LayoutDashboard,
+  LogIn,
+  BarChart,
+} from "lucide-react";
 
 import UserAvatar from "../common/Avatar";
 import AppLogo from "../common/AppLogo";
@@ -13,6 +19,13 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip.tsx";
 
+type MenuItem = {
+  title: string;
+  icon: React.ElementType;
+  url: string;
+  requiresAuth: boolean;
+};
+
 /**
  * 메인 사이드바 컴포넌트
  * 앱 로고, 주요 네비게이션 메뉴, 사용자 프로필/로그인 버튼을 포함
@@ -22,7 +35,7 @@ export default function SideBar() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       title: "환율",
       icon: DollarSign,
@@ -34,6 +47,12 @@ export default function SideBar() {
       icon: Newspaper,
       url: "/news",
       requiresAuth: false, // 로그인 없이도 접근 가능
+    },
+    {
+      title: "무역 통계",
+      icon: BarChart,
+      url: "/statistics",
+      requiresAuth: false, // 로그인 필요
     },
     {
       title: "대시보드",
