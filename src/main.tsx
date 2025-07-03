@@ -62,24 +62,6 @@ function InnerApp() {
     ],
   );
 
-  // 앱 초기화 중일 때 로딩 화면 표시
-  if (isLoading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-card">
-        <div className="space-y-4 text-center">
-          <div className="mx-auto size-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
-          <p className="text-sm text-neutral-600">
-            앱을 초기화하고 있습니다...
-          </p>
-          {import.meta.env.DEV && (
-            <p className="text-xs text-neutral-400">
-              (개발 모드) 데이터 로딩 및 인증 상태 확인 중...
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   // 인증 초기화 완료 후 라우터 렌더링
   return (
