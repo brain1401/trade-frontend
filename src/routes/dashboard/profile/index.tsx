@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
+import { useState } from "react";
+import { PasswordChangeModal } from "./PasswordChangeModal";
 
 /**
  * 프로필 관리 라우트 정의
@@ -96,6 +98,8 @@ function ProfileSummary({ user }: { user: User | null }) {
 function ProfilePage() {
   const { user } = useAuth();
 
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -175,9 +179,17 @@ function ProfilePage() {
                   보안을 위해 정기적으로 변경하세요
                 </p>
               </div>
-              <Button variant="outline" size="sm" disabled>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
                 변경
               </Button>
+              <PasswordChangeModal
+                isOpen={isPasswordModalOpen}
+                onOpenChange={setIsPasswordModalOpen}
+              />
             </div>
             <div className="flex items-center justify-between">
               <div>

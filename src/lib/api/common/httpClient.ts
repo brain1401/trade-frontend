@@ -190,7 +190,7 @@ const createMethod =
     );
 
 const createMethodWithBody =
-  (method: "post" | "put") =>
+  (method: "post" | "put" | "patch") =>
   <TResponse, TRequest = unknown>(
     endpoint: string,
     data?: TRequest,
@@ -205,7 +205,7 @@ const createRawMethod =
     instance[method]<ApiResponse<TResponse>>(endpoint).then((res) => res.data);
 
 const createRawMethodWithBody =
-  (method: "post" | "put") =>
+  (method: "post" | "put" | "patch") =>
   <TResponse, TRequest = unknown>(
     endpoint: string,
     data?: TRequest,
@@ -218,6 +218,7 @@ export const httpClient = {
   get: createMethod("get"),
   post: createMethodWithBody("post"),
   put: createMethodWithBody("put"),
+  patch: createMethodWithBody("patch"),
   delete: createMethod("delete"),
 };
 
@@ -225,5 +226,6 @@ export const rawHttpClient = {
   get: createRawMethod("get"),
   post: createRawMethodWithBody("post"),
   put: createRawMethodWithBody("put"),
+  patch: createMethodWithBody("patch"),
   delete: createRawMethod("delete"),
 };
