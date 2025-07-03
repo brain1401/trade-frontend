@@ -81,7 +81,9 @@ function BookmarksPage() {
             <Bookmark className="h-4 w-4 text-primary-600" />
           </CardHeader>
           <CardContent>
-          카드 내용
+            <div className="text-2xl font-bold text-neutral-900">
+              {bookmarks.length}
+            </div>        
           </CardContent>
         </Card>
 
@@ -93,11 +95,17 @@ function BookmarksPage() {
             <Monitor className="h-4 w-4 text-success-600" />
           </CardHeader>
           <CardContent>
-            카드 내용2
+            <div className="text-2xl font-bold text-neutral-900">
+              {activeBookmarks.length}
+            </div>
+            <p className="text-xs text-neutral-500">
+              모니터링 비활성화:{" "}
+              {bookmarks.length - activeBookmarks.length}개
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-neutral-600">
               카테고리
@@ -109,7 +117,7 @@ function BookmarksPage() {
               {Object.keys(bookmarksByCategory).length}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* 북마크 목록 */}

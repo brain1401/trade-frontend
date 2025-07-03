@@ -57,28 +57,30 @@ function ProfileSummary({ user }: { user: User | null }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            가입 기간
+            계정 타입
           </CardTitle>
           <Calendar className="h-4 w-4 text-info-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {daysSinceMember}일
+            {/* {daysSinceMember}일 */}
+            표준 계정
           </div>
-          <p className="text-xs text-neutral-500">{memberSince} 가입</p>
+          <p className="text-xs text-neutral-500">추후 유료서비스 출시 예정</p>
+          {/* <p className="text-xs text-neutral-500">{memberSince} 가입</p> */}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600">
-            이메일 인증
+            휴대폰 인증
           </CardTitle>
           <Mail className="h-4 w-4 text-primary-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">완료</div>
-          <p className="text-xs text-success-600">인증됨</p>
+          <p className="text-xs text-success-600">인증 완료</p>
         </CardContent>
       </Card>
     </div>
@@ -210,9 +212,9 @@ function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">로그인 위치</Label>
-                <p className="text-sm text-neutral-600">대한민국, 서울</p>
+                <p className="text-sm text-neutral-600">대한민국</p>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label className="text-sm font-medium">계정 타입</Label>
                 <Badge
                   variant="secondary"
@@ -220,13 +222,13 @@ function ProfilePage() {
                 >
                   표준 사용자
                 </Badge>
-              </div>
-              <div className="space-y-2">
+              </div> */}
+              {/* <div className="space-y-2">
                 <Label className="text-sm font-medium">데이터 사용량</Label>
                 <p className="text-sm text-neutral-600">
                   북마크 4개, 검색 47회
                 </p>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>

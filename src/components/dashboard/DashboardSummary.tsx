@@ -1,13 +1,29 @@
-import { mockDashboardSummary } from "@/data/mock/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Bell, Bookmark, MessageSquare, Search } from "lucide-react";
+import { Bell, Book, Bookmark, MessageSquare, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { bookmarkQueries } from "@/lib/api";
+import { dashboardQueries } from "@/lib/api/dashboard/queries";
+
+
 
 /**
  * 대시보드 요약 통계 컴포넌트
  * 사용자의 활동 현황을 한눈에 보여줌
  */
 export default function DashboardSummary() {
-  const dashboardSummary = mockDashboardSummary;
+  const { data: paginatedData } = useQuery(bookmarkQueries.list());
+  const bookmarks = paginatedData?.content ?? [];
+  const activeBookmarks = bookmarks.filter((bookmark) => bookmark.monitoringActive);
+
+const { data: dashboardSummaryResponse } = useQuery(dashboardQueries.data());
+
+// ...existing code...
+const totalSessions = dashboardSummaryResponse?.chatHistory?.totalSessions ?? 0;
+const recentSessions30d = dashboardSummaryResponse?.chatHistory?.recentSessions30d ?? 0;
+const totalMessages = dashboardSummaryResponse?.chatHistory?.totalMessages ?? 0;
+// ...existing code...
+
+    
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
@@ -20,10 +36,10 @@ export default function DashboardSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.bookmarks.total}
+            {bookmarks.length}
           </div>
           <p className="text-xs text-neutral-500">
-            활성 모니터링: {dashboardSummary.bookmarks.monitoringActive}개
+            활성 모니터링: {activeBookmarks.length}개
           </p>
         </CardContent>
       </Card>
@@ -37,11 +53,11 @@ export default function DashboardSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.notifications.unreadFeeds}
+            {dashboardSummaryResponse?.notifications.unreadFeeds}
           </div>
-          <p className="text-xs text-neutral-500">
-            오늘 발송: SMS {dashboardSummary.notifications.dailySms}건
-          </p>
+          {/* <p className="text-xs text-neutral-500">
+            오늘 발송: SMS {dashboardSummaryResponse?.notifications.}건
+          </p> */}
         </CardContent>
       </Card>
 
@@ -54,10 +70,10 @@ export default function DashboardSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.chatHistory.totalSessions}
+            {totalSessions}
           </div>
           <p className="text-xs text-neutral-500">
-            최근 30일: {dashboardSummary.chatHistory.sessionsLast30Days}개
+            최근 30일: {recentSessions30d}건
           </p>
         </CardContent>
       </Card>
@@ -71,10 +87,10 @@ export default function DashboardSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {dashboardSummary.chatHistory.totalMessages}
+            {totalMessages}
           </div>
           <p className="text-xs text-neutral-500">
-            최근 30일: {dashboardSummary.chatHistory.messagesLast30Days}개
+            전체 채팅 세션: {totalSessions}건
           </p>
         </CardContent>
       </Card>
