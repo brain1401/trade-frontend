@@ -29,13 +29,13 @@ import {
  * // <AlertCircle className="h-4 w-4" />
  * ```
  */
-export const getNewsImportanceIcon = (importance: string) => {
+export const getNewsImportanceIcon = (importance: number) => {
   switch (importance) {
-    case "HIGH":
+    case 1:
       return <AlertCircle className="h-4 w-4" />;
-    case "MEDIUM":
+    case 2:
       return <TrendingUp className="h-4 w-4" />;
-    case "LOW":
+    case 3:
       return <FileText className="h-4 w-4" />;
     default:
       return <Newspaper className="h-4 w-4" />;

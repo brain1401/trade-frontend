@@ -95,6 +95,22 @@ export const formatNumber = (
 };
 
 /**
+ * 숫자를 억 단위(Billions)의 미국 달러 형식으로 포매팅하는 함수
+ *
+ * @param value - 포매팅할 숫자 값
+ * @returns 포매팅된 문자열 (예: "1.2B", "-0.5B")
+ *
+ * @example
+ * ```typescript
+ * formatUsdInBillions(1234567890);   // "1.2B"
+ * formatUsdInBillions(-500000000);  // "-0.5B"
+ * ```
+ */
+export const formatUsdInBillions = (value: number): string => {
+  return `${(value / 1_000_000_000).toFixed(1)}B`;
+};
+
+/**
  * 백분율을 포매팅하는 함수
  *
  * @param value - 포매팅할 숫자 값 (0-1 사이의 소수 또는 0-100 사이의 정수)
