@@ -8,6 +8,7 @@
 export * from "./bookmark";
 export * from "./chat";
 export * from "./common";
+export * from "./dashboard";
 export * from "./exchange-rates";
 export * from "./news";
 export * from "./notification";

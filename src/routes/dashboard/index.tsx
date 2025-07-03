@@ -143,7 +143,7 @@ function DashboardPage() {
         {/* 오른쪽 컬럼 - 업데이트와 환율 정보 */}
         <div className="space-y-6">
           <RecentUpdatesFeed />
-          <ExchangeRatesWidget />
+          {/* <ExchangeRatesWidget /> */}
         </div>
       </div>
     </div>

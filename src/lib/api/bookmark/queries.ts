@@ -43,3 +43,5 @@ export const bookmarkQueries = {
       queryFn: () => bookmarkApi.getBookmark(id),
     }),
 };
+
+

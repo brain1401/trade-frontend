@@ -94,21 +94,52 @@ function BookmarksPage() {
 
       {/* 요약 통계 */}
       <div className="mb-6 grid gap-4 md:grid-cols-3">
-        {cardData.map((card) => (
-          <Card key={card.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-600">
-                {card.title}
-              </CardTitle>
-              {card.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-neutral-900">
-                {card.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600">
+              총 북마크
+            </CardTitle>
+            <Bookmark className="h-4 w-4 text-primary-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-neutral-900">
+              {bookmarks.length}
+            </div>        
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600">
+              활성 모니터링
+            </CardTitle>
+            <Monitor className="h-4 w-4 text-success-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-neutral-900">
+              {activeBookmarks.length}
+            </div>
+            <p className="text-xs text-neutral-500">
+              모니터링 비활성화:{" "}
+              {bookmarks.length - activeBookmarks.length}개
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600">
+              카테고리
+            </CardTitle>
+            <Badge className="h-4 w-4 text-info-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-neutral-900">
+              {Object.keys(bookmarksByCategory).length}
+            </div>
+          </CardContent>
+        </Card> */}
+
       </div>
 
       {/* 북마크 목록 */}
