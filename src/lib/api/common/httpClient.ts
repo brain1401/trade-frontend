@@ -1,4 +1,8 @@
-import axios, { type AxiosInstance, type AxiosError } from "axios";
+import axios, {
+  type AxiosInstance,
+  type AxiosError,
+  type AxiosRequestConfig,
+} from "axios";
 import type {
   ApiResponse,
   ApiErrorCode,
@@ -177,8 +181,11 @@ instance.interceptors.response.use(
 // 고차 함수를 사용한 메서드 팩토리
 const createMethod =
   (method: "get" | "delete") =>
-  <TResponse>(endpoint: string): Promise<TResponse> =>
-    instance[method]<ApiResponse<TResponse>>(endpoint).then((res) =>
+  <TResponse>(
+    endpoint: string,
+    config?: AxiosRequestConfig,
+  ): Promise<TResponse> =>
+    instance[method]<ApiResponse<TResponse>>(endpoint, config).then((res) =>
       extractData(res.data),
     );
 

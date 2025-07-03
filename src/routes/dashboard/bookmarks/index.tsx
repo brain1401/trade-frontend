@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {  Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
+import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import BookmarkCard from "@/components/dashboard/bookmarks/BookmarkCard";
@@ -54,11 +54,32 @@ function BookmarksPage() {
   const bookmarksByCategory = bookmarks.reduce<Record<string, BookmarkType[]>>(
     (acc, bookmark) => {
       const category = bookmark.type;
-      (acc[category] ??= []).push(bookmark);
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(bookmark);
       return acc;
     },
     {},
   );
+
+  const cardData = [
+    {
+      title: "총 북마크",
+      value: bookmarks.length,
+      icon: <Bookmark className="h-4 w-4 text-primary-600" />,
+    },
+    {
+      title: "활성 모니터링",
+      value: activeBookmarks.length,
+      icon: <Monitor className="h-4 w-4 text-success-600" />,
+    },
+    {
+      title: "카테고리",
+      value: Object.keys(bookmarksByCategory).length,
+      icon: <Badge className="h-4 w-4 text-info-600" />,
+    },
+  ];
 
   return (
     <div className="container mx-auto py-8">
@@ -118,6 +139,7 @@ function BookmarksPage() {
             </div>
           </CardContent>
         </Card> */}
+
       </div>
 
       {/* 북마크 목록 */}
@@ -128,7 +150,7 @@ function BookmarksPage() {
               <h2 className="mb-4 text-xl font-semibold text-neutral-900">
                 {getTypeName(category)} ({categoryBookmarks.length})
               </h2>
-              <div className="grid gap-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {categoryBookmarks.map((bookmark) => (
                   <BookmarkCard
                     key={bookmark.id}
@@ -149,7 +171,7 @@ function BookmarksPage() {
               <p className="text-neutral-600">아직 저장된 북마크가 없습니다.</p>
               <p className="mt-2 text-sm text-neutral-500">
                 관심 있는 정보를 북마크로 저장해보세요.
-              </p>  
+              </p>
               <Link to="/search">
                 <Button className="mt-4">검색하러 가기</Button>
               </Link>
