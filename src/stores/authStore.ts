@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { authService, tokenStore } from "@/lib/auth";
 import type { User } from "@/types/auth";
+import { router } from "@/main";
 
 /**
  * v6.1 인증 스토어 상태
@@ -199,6 +200,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (import.meta.env.DEV) {
         console.log("🚪 클라이언트 로그아웃 상태 정리 완료");
       }
+
+      await router.navigate({
+        to: "/auth/login",
+        replace: true,
+      });
     }
   },
 

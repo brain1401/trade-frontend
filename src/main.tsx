@@ -14,7 +14,7 @@ import reportWebVitals from "./reportWebVitals.ts";
 import useInit from "./hooks/useInit.ts";
 
 // 새로운 라우터 인스턴스 생성
-const router = createRouter({
+export const router = createRouter({
   routeTree,
   context: {
     ...TanStackQueryProvider.getContext(),
@@ -61,7 +61,6 @@ function InnerApp() {
       auth.tokenExpiresAt,
     ],
   );
-
 
   // 인증 초기화 완료 후 라우터 렌더링
   return (

@@ -68,24 +68,6 @@ export default function BookmarkCard({
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onToggleMonitoring?.(bookmark.id)}
-              className="flex items-center gap-1"
-            >
-              {bookmark.monitoringActive ? (
-                <>
-                  <MonitorOff className="h-4 w-4" />
-                  모니터링 해제
-                </>
-              ) : (
-                <>
-                  <Monitor className="h-4 w-4" />
-                  모니터링 설정
-                </>
-              )}
-            </Button>
             <Link to="/search">
               <Button variant="outline" size="sm">
                 <ExternalLink className="mr-1 h-4 w-4" />

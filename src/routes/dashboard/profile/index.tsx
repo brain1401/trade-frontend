@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import {
   User as UserIcon,
   Shield,
   Settings,
   Mail,
   Calendar,
+  Phone,
 } from "lucide-react";
 import type { User } from "../../../types/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,10 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/stores/authStore";
+import { useAuth, useAuthStore } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import { useState } from "react";
 import { PasswordChangeModal } from "./PasswordChangeModal";
+import { PhoneVerificationModal } from "./PhoneVerificationModal";
+import { toast } from "sonner";
+import { authService } from "@/lib/auth";
 
 /**
  * 프로필 관리 라우트 정의
@@ -33,7 +38,13 @@ export const Route = createFileRoute("/dashboard/profile/")({
  * 프로필 요약 통계 컴포넌트
  * 사용자 계정의 기본 정보를 요약하여 표시
  */
-function ProfileSummary({ user }: { user: User | null }) {
+function ProfileSummary({
+  user,
+  onOpenVerificationModal,
+}: {
+  user: User | null;
+  onOpenVerificationModal: () => void;
+}) {
   // 가입일로부터 경과 일수 계산 (임시 데이터)
   const memberSince = "2023-06-15";
   const daysSinceMember = Math.floor(
@@ -78,11 +89,36 @@ function ProfileSummary({ user }: { user: User | null }) {
           <CardTitle className="text-sm font-medium text-neutral-600">
             휴대폰 인증
           </CardTitle>
-          <Mail className="h-4 w-4 text-primary-600" />
+          {/* 아이콘을 Mail에서 Phone으로 변경하여 의미를 명확하게 합니다. */}
+          <Phone
+            className={`h-4 w-4 ${user?.phoneVerified ? "text-success-600" : "text-neutral-500"}`}
+          />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-neutral-900">완료</div>
-          <p className="text-xs text-success-600">인증 완료</p>
+          {user?.phoneVerified ? (
+            // 인증 완료 상태 UI
+            <>
+              <div className="text-2xl font-bold text-neutral-900">
+                인증 완료
+              </div>
+              <p className="text-xs text-success-600">
+                휴대폰 본인인증이 완료되었습니다.
+              </p>
+            </>
+          ) : (
+            // 미인증 상태 UI
+            <>
+              <div className="text-2xl font-bold text-warning-600">미인증</div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 text-xs"
+                onClick={onOpenVerificationModal}
+              >
+                인증하기
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -99,7 +135,18 @@ function ProfilePage() {
   const { user } = useAuth();
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isVerificationModalOpen, setVerificationModalOpen] = useState(false);
 
+  // 인증 성공 시 최신 사용자 정보를 다시 불러와 상태를 업데이트하는 함수
+  const handleVerificationSuccess = async () => {
+    try {
+      const updatedUser = await authService.getCurrentUser();
+      useAuthStore.getState().setUser(updatedUser); // Zustand 스토어 직접 업데이트
+      toast.success("사용자 정보가 업데이트되었습니다.");
+    } catch (error) {
+      toast.error("사용자 정보 업데이트에 실패했습니다.");
+    }
+  };
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -112,7 +159,10 @@ function ProfilePage() {
       </div>
 
       {/* 프로필 요약 통계 */}
-      <ProfileSummary user={user} />
+      <ProfileSummary
+        user={user}
+        onOpenVerificationModal={() => setVerificationModalOpen(true)}
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -141,17 +191,8 @@ function ProfilePage() {
                   readOnly
                   className="bg-neutral-50"
                 />
-                <Badge
-                  variant="secondary"
-                  className="bg-success-100 text-success-800"
-                >
-                  인증됨
-                </Badge>
               </div>
             </div>
-            <Button variant="outline" disabled>
-              정보 수정
-            </Button>
           </CardContent>
         </Card>
 
@@ -163,15 +204,6 @@ function ProfilePage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">알림 설정</p>
-                <p className="text-sm text-neutral-500">규제 변경 알림 받기</p>
-              </div>
-              <Button variant="outline" size="sm" disabled>
-                설정
-              </Button>
-            </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">비밀번호 변경</p>
@@ -190,15 +222,22 @@ function ProfilePage() {
                 isOpen={isPasswordModalOpen}
                 onOpenChange={setIsPasswordModalOpen}
               />
+              <PhoneVerificationModal
+                isOpen={isVerificationModalOpen}
+                onOpenChange={setVerificationModalOpen}
+                onSuccess={handleVerificationSuccess}
+              />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">2단계 인증</p>
-                <p className="text-sm text-neutral-500">추가 보안 설정</p>
+                <p className="font-medium">이름 변경</p>
+                <p className="text-sm text-neutral-500">
+                  이름은 언제든지 변경 가능합니다.
+                </p>
               </div>
-              <Badge variant="outline" className="text-xs">
-                미설정
-              </Badge>
+              <Button variant="outline" size="sm">
+                변경
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -241,6 +280,28 @@ function ProfilePage() {
                   북마크 4개, 검색 47회
                 </p>
               </div> */}
+            </div>
+          </CardContent>
+        </Card>
+        {/* 계정 관리 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              <CardTitle>계정 관리</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">계정 삭제</p>
+                <p className="text-sm text-neutral-500">
+                  계정과 모든 데이터가 영구적으로 삭제됩니다
+                </p>
+              </div>
+              <Button variant="destructive" size="sm">
+                계정 삭제
+              </Button>
             </div>
           </CardContent>
         </Card>

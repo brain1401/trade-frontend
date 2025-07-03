@@ -123,21 +123,6 @@ function SettingsSummary() {
           <p className="text-xs text-neutral-500">북마크 활성화</p>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600">
-            미읽은 알림
-          </CardTitle>
-          <AlertCircle className="h-4 w-4 text-warning-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-neutral-900">
-            {unreadNotifications.length}
-          </div>
-          <p className="text-xs text-neutral-500">확인 필요</p>
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -176,11 +161,9 @@ function SettingsPage() {
     <div className="container mx-auto py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
-          설정
+          알림 설정
         </h1>
-        <p className="mt-2 text-neutral-600">
-          개인 설정과 환경을 관리할 수 있습니다.
-        </p>
+        <p className="mt-2 text-neutral-600">알림 설정을 관리할 수 있습니다.</p>
       </div>
 
       {/* 설정 요약 통계 */}
@@ -192,15 +175,15 @@ function SettingsPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
-              <CardTitle>전체 알림 설정</CardTitle>
+              <CardTitle>알림 설정</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-base font-medium">모든 SMS 알림</Label>
+                <Label className="text-base font-medium">SMS 알림</Label>
                 <p className="text-sm text-neutral-500">
-                  모든 북마크의 SMS 알림을 한번에 관리합니다
+                  북마크의 SMS 알림을 허용합니다
                 </p>
               </div>
               <Switch
@@ -213,11 +196,9 @@ function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-base font-medium">
-                  모든 이메일 알림
-                </Label>
+                <Label className="text-base font-medium">이메일 알림</Label>
                 <p className="text-sm text-neutral-500">
-                  모든 북마크의 이메일 알림을 한번에 관리합니다
+                  북마크의 이메일 알림을 허용합니다
                 </p>
               </div>
               <Switch
@@ -230,7 +211,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 카테고리별 알림 설정 */}
+        {/* 카테고리별 알림 설정 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -254,7 +235,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 보안 설정 */}
+         보안 설정 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -289,7 +270,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 데이터 설정 */}
+         데이터 설정 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -330,30 +311,7 @@ function SettingsPage() {
               </Button>
             </div>
           </CardContent>
-        </Card>
-
-        {/* 계정 관리 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              <CardTitle>계정 관리</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">계정 삭제</p>
-                <p className="text-sm text-neutral-500">
-                  계정과 모든 데이터가 영구적으로 삭제됩니다
-                </p>
-              </div>
-              <Button variant="destructive" size="sm">
-                계정 삭제
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

@@ -11,7 +11,6 @@ export default function RecentUpdatesFeed() {
   const { data: recentUpdatesResponse } = feedQueries.recentUpdates();
   const recentUpdates = recentUpdatesResponse?.content ?? [];
 
-
   const getImportanceIcon = (importance: string) => {
     switch (importance) {
       case "HIGH":
@@ -54,34 +53,36 @@ export default function RecentUpdatesFeed() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-primary-600" />
-          최근 업데이트
+          업데이트 피드
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {recentUpdates.map((update) => (
-          <div
-            key={update.id}
-            className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 transition-colors hover:bg-neutral-50"
-          >
-            {getImportanceIcon(update.importance)}
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-neutral-900">
-                  {update.title}
-                </h4>
-                {getImportanceBadge(update.importance)}
-              </div>
-              <p className="text-xs text-neutral-600">{update.content}</p>
-              <div className="flex items-center gap-2 text-xs text-neutral-500">
-                <span>{update.sourceUrl ? "공식 발표" : "업데이트"}</span>
-                <span>•</span>
-                <span>
-                  {new Date(update.createdAt).toLocaleDateString("ko-KR")}
-                </span>
+        {recentUpdates
+          .filter((update) => !update.isRead)
+          .map((update) => (
+            <div
+              key={update.id}
+              className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 transition-colors hover:bg-neutral-50"
+            >
+              {getImportanceIcon(update.importance)}
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium text-neutral-900">
+                    {update.title}
+                  </h4>
+                  {getImportanceBadge(update.importance)}
+                </div>
+                <p className="text-xs text-neutral-600">{update.content}</p>
+                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                  <span>{update.sourceUrl ? "공식 발표" : "업데이트"}</span>
+                  <span>•</span>
+                  <span>
+                    {new Date(update.createdAt).toLocaleDateString("ko-KR")}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </CardContent>
     </Card>
   );
