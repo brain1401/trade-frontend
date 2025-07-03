@@ -246,3 +246,24 @@ export type SortOrder = "asc" | "desc";
  * 🆕 v4.0 신규: 일반적인 필터 상태
  */
 export type FilterStatus = "ALL" | "ACTIVE" | "INACTIVE";
+
+/** 페이지네이션 정보 */
+export type Pagination = {
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  empty: boolean;
+};
+
+/** 북마크 아이템 */
+export type Bookmark = {
+  id: number;
+  title: string;
+  url: string;
+  createdAt: string;
+  updatedAt: string;
+};

@@ -108,7 +108,14 @@ export const productApi = {
 
 ### 3단계: 쿼리 옵션 정의 (`src/lib/api/product/queries.ts`)
 
-TanStack Query가 사용할 `queryKey`와 `queryFn`을 `queryOptions`를 사용해 정의합니다. 이 단계가 API 로직을 재사용 가능하게 만드는 핵심입니다.
+TanStack Query가 사용할 `queryKey`와 `queryFn`을 `queryOptions`를 사용해 정의합니다. 이 단계가 API 로직을 재사용 가능하고 직관적으로 만드는 핵심입니다.
+
+우리 프로젝트는 **리소스의 복수/단수형을 사용**하여 `queryKey`를 만드는 것을 표준 패턴으로 삼습니다.
+
+-   **목록 (Collection)**: 리소스의 **복수형** 이름을 사용합니다. (예: `['products']`)
+-   **개별 항목 (Document)**: 리소스의 **단수형** 이름과 고유 ID를 사용합니다. (예: `['product', 'prod-123']`)
+
+이 패턴은 TanStack Query 공식 문서에서도 사용되는 방식으로, 매우 직관적이고 코드를 간결하게 유지해줍니다.
 
 -   `queryKey`: 쿼리 데이터를 캐싱하기 위한 고유한 키입니다.
 -   `queryFn`: 해당 쿼리가 호출될 때 실행될 비동기 함수입니다. (2단계에서 만든 `productApi.getProducts` 호출)
@@ -119,19 +126,28 @@ import { queryOptions } from "@tanstack/react-query";
 import { productApi } from "./api";
 import type { GetProductsParams } from "./types";
 
+// **[핵심]** queryKey를 관리하는 객체입니다.
+// 리소스의 복수형(예: 'products')은 목록을, 단수형(예: 'product')은 개별 항목을 나타냅니다.
 export const productQueryKeys = {
+  /** products 리소스 전체에 대한 최상위 키. 목록 무효화에 사용. */
   all: () => ["products"] as const,
-  lists: () => [...productQueryKeys.all(), "list"] as const,
+  /** 필터링된 products 목록을 위한 키 */
   list: (params: GetProductsParams = {}) =>
-    [...productQueryKeys.lists(), params] as const,
+    [...productQueryKeys.all(), params] as const,
+  /** 단일 product의 상세 정보를 위한 키 */
+  detail: (id: string) => ["product", id] as const, // `product` (단수형) 사용
 };
 
+// **[핵심]** queryOptions를 생성하는 팩토리 객체입니다.
+// 컴포넌트에서는 이 객체의 메서드만 사용하게 됩니다.
 export const productQueries = {
   list: (params?: GetProductsParams) =>
     queryOptions({
       queryKey: productQueryKeys.list(params),
       queryFn: () => productApi.getProducts(params),
     }),
+  // 상세 정보를 가져오는 쿼리가 필요하다면 여기에 detail 팩토리를 추가합니다.
+  // detail: (id: string) => queryOptions({ ... })
 };
 ```
 
@@ -177,7 +193,7 @@ export function ProductList() {
 
   if (isError) {
     // error 객체는 ApiError 타입일 가능성이 높음
-    return <div>오류가 발생했습니다: {error.message}</div>;
+    return <ErrorMessage message="데이터를 불러오는데 실패했습니다." />;
   }
 
   return (
@@ -220,6 +236,8 @@ export function ProductAdder() {
   const mutation = useMutation({
     mutationFn: (newProduct: AddProductRequest) => productApi.addProduct(newProduct),
     onSuccess: () => {
+      // 'products'로 시작하는 모든 쿼리를 무효화합니다.
+      // 이를 통해 상품 목록이 자동으로 새로고침됩니다.
       queryClient.invalidateQueries({ queryKey: productQueryKeys.all() });
     },
   });
