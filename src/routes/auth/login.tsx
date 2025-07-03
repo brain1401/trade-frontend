@@ -439,6 +439,13 @@ function LoginPage() {
               >
                 회원가입
               </Link>
+              <span className="mx-2 text-neutral-300">|</span>
+              <Link
+                to="/auth/find-password"
+                className="font-medium text-primary-600 hover:text-primary-500"
+              >
+                비밀번호 찾기
+              </Link>
             </div>
           </CardFooter>
         </Card>

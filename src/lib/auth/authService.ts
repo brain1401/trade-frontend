@@ -4,6 +4,12 @@ import type {
   RegisterRequest,
   User,
   OAuthProvider,
+  FindPasswordRequest,
+  FindPasswordResponse,
+  SendPasswordCodeRequest,
+  VerifyPasswordCodeRequest,
+  VerifyPasswordCodeResponse,
+  ResetPasswordRequest,
 } from "../../types/auth";
 import { httpClient, rawHttpClient } from "../api/common/httpClient";
 import { tokenStore } from "./tokenStore";
@@ -211,6 +217,40 @@ class AuthService {
       return error;
     }
     return "알 수 없는 오류가 발생했습니다";
+  }
+
+  /**
+   * [1단계] 이메일로 사용자 정보(마스킹된 휴대폰 번호) 조회
+   */
+  async findPassword(data: FindPasswordRequest): Promise<FindPasswordResponse> {
+    return httpClient.post<FindPasswordResponse>("/auth/password/find", data);
+  }
+
+  /**
+   * [2단계] 인증 코드 발송 요청
+   */
+  async sendPasswordCode(data: SendPasswordCodeRequest): Promise<void> {
+    return httpClient.post<void>("/auth/password/send-code", data);
+  }
+
+  /**
+   * [3단계] 인증 코드 검증 및 리셋 토큰 발급
+   */
+  async verifyPasswordCode(
+    data: VerifyPasswordCodeRequest,
+  ): Promise<VerifyPasswordCodeResponse> {
+    return httpClient.post<VerifyPasswordCodeResponse>(
+      "/auth/password/verify-code",
+      data,
+    );
+  }
+
+  /**
+   * [4단계] 리셋 토큰을 이용한 비밀번호 재설정
+   */
+  async resetPassword(data: ResetPasswordRequest): Promise<void> {
+    // PATCH 메서드 사용
+    return httpClient.patch<void>("/auth/password/reset", data);
   }
 }
 

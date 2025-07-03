@@ -205,3 +205,31 @@ export const AUTH_SECURITY_POLICIES = {
     path: "/auth/refresh", // Refresh 엔드포인트에서만 전송
   },
 } as const;
+
+// [1단계] 이메일 찾기
+export type FindPasswordRequest = {
+  email: string;
+};
+export type FindPasswordResponse = {
+  maskedPhoneNumber: string;
+};
+
+// [2단계] 인증 코드 발송
+export type SendPasswordCodeRequest = {
+  email: string;
+};
+
+// [3단계] 코드 검증
+export type VerifyPasswordCodeRequest = {
+  email: string;
+  code: string;
+};
+export type VerifyPasswordCodeResponse = {
+  resetToken: string;
+};
+
+// [4단계] 비밀번호 재설정
+export type ResetPasswordRequest = {
+  resetToken: string;
+  newPassword?: string;
+};
