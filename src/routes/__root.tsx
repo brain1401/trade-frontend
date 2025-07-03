@@ -25,7 +25,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootLayout() {
   // 인증 상태에 관계없이 항상 사이드바와 함께 표시
   return (
-    <div className="font-pretendard flex h-screen w-full bg-neutral-50">
+    <div className="flex h-screen w-full bg-neutral-50 font-nanum_gothic">
       <SideBar />
       <main className="flex-1 overflow-y-auto">
         <Outlet />
