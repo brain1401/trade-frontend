@@ -58,7 +58,7 @@ export const requireAuth = (
       to: redirectTo,
       search: {
         redirect: location.href,
-      },
+      } as Record<string, string>,
       replace: true,
     });
   }
