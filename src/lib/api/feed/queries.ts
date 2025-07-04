@@ -1,22 +1,47 @@
-import { feedApi } from './api';  
-import type { ApiError } from '../common/ApiError';
-import { useQuery } from '@tanstack/react-query';
-import type { RecentUpdatesFeedData } from './types';
+import { feedApi } from "./api";
+import type { ApiError } from "../common/ApiError";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import type { RecentUpdatesFeedData } from "./types";
 
 export const feedQueryKeys = {
-  all: () => ['feed'] as const,
-  recentUpdates: () => [...feedQueryKeys.all(), 'recent-updates'] as const,
+  all: () => ["feed"] as const,
+  recentUpdates: () => [...feedQueryKeys.all(), "recent-updates"] as const,
 };
 
 export const feedQueries = {
   recentUpdates: () =>
-    useQuery<RecentUpdatesFeedData, ApiError>({
+    useInfiniteQuery({
       queryKey: feedQueryKeys.recentUpdates(),
-      queryFn: () => feedApi.getRecentUpdatesFeed(),
-      retry: false,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: false,
+
+      queryFn: ({ pageParam }) => {
+        const pageNumber = typeof pageParam === "number" ? pageParam : 0;
+        return feedApi.getRecentUpdatesFeed({ pageParam: pageNumber });
+      },
+
+      initialPageParam: 0,
+
+      getNextPageParam: (lastPage) => {
+        if (lastPage.last) {
+          return undefined;
+        }
+        return lastPage.number + 1;
+      },
       staleTime: 1000 * 60 * 5, // 5분
     }),
-};
 
+  useMarkFeedAsRead: () => {
+    const queryClient = useQueryClient();
+    return useMutation<void, ApiError, number>({
+      mutationFn: (feedId: number) => feedApi.markFeedAsRead(feedId),
+      onSuccess: () => {
+        return queryClient.invalidateQueries({
+          queryKey: feedQueryKeys.recentUpdates(),
+        });
+      },
+    });
+  },
+};

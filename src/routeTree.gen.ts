@@ -16,6 +16,7 @@ import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as FaqIndexRouteImport } from './routes/faq/index'
 import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as FeedFeedIdRouteImport } from './routes/feed/$feedId'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthFindPasswordRouteImport } from './routes/auth/find-password'
@@ -59,6 +60,11 @@ const ExchangeRatesIndexRoute = ExchangeRatesIndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedFeedIdRoute = FeedFeedIdRouteImport.update({
+  id: '/feed/$feedId',
+  path: '/feed/$feedId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/faq': typeof FaqIndexRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
   '/faq': typeof FaqIndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/exchange-rates/': typeof ExchangeRatesIndexRoute
   '/faq/': typeof FaqIndexRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
     | '/faq'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
     | '/faq'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/feed/$feedId'
     | '/dashboard/'
     | '/exchange-rates/'
     | '/faq/'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   AuthFindPasswordRoute: typeof AuthFindPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  FeedFeedIdRoute: typeof FeedFeedIdRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
   FaqIndexRoute: typeof FaqIndexRoute
@@ -288,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed/$feedId': {
+      id: '/feed/$feedId'
+      path: '/feed/$feedId'
+      fullPath: '/feed/$feedId'
+      preLoaderRoute: typeof FeedFeedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/signup': {
@@ -362,6 +382,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthFindPasswordRoute: AuthFindPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
+  FeedFeedIdRoute: FeedFeedIdRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,
   FaqIndexRoute: FaqIndexRoute,
