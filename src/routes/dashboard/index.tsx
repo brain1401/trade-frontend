@@ -47,10 +47,10 @@ export const Route = createFileRoute("/dashboard/")({
 const dashboardCards = [
   {
     id: "recent-search",
-    title: "최근 검색",
-    description: "최근 검색한 HS코드와 상품정보를 확인할 수 있습니다.",
+    title: "최근 대화",
+    description: "최근 대화를 확인할 수 있습니다.",
     icon: Search,
-    href: "/search" as const,
+    href: "/dashboard/history" as const,
     color: "primary" as const,
   },
   {

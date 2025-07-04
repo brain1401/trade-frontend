@@ -3,3 +3,7 @@ export type UpdatePasswordRequest = {
   newPassword?: string;
   newPasswordConfirm?: string;
 };
+
+export type UpdateNameRequest = {
+  name: string;
+};

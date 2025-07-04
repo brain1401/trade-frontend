@@ -11,4 +11,20 @@ export const usersApi = {
   updateProfile(data: UpdatePasswordRequest): Promise<User> {
     return httpClient.patch<User>("/users/profile", data);
   },
+
+  /**
+   * 사용자 이름 업데이트
+   * @param data - 새로운 이름 정보
+   * @returns 업데이트된 사용자 정보
+   */
+  updateUserName(data: { name: string }): Promise<User> {
+    return httpClient.patch<User>("/users/profile", data);
+  },
+
+  /**
+   * 계정 삭제(탈퇴)
+   */
+  leaveAccount(): Promise<void> {
+    return httpClient.delete<void>("/users/leave");
+  },
 };

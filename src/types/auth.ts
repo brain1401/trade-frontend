@@ -217,12 +217,16 @@ export type FindPasswordResponse = {
 // [2단계] 인증 코드 발송
 export type SendPasswordCodeRequest = {
   email: string;
+  method: "phone" | "email";
+  name?: string;
+  phoneNumber?: string;
 };
 
 // [3단계] 코드 검증
 export type VerifyPasswordCodeRequest = {
   email: string;
   code: string;
+  method: "phone" | "email";
 };
 export type VerifyPasswordCodeResponse = {
   resetToken: string;
