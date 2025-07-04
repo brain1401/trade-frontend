@@ -1,14 +1,14 @@
 import type { Top } from "@/lib/api/statistics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingDown } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
-type TopImportItemsProps = {
+type TopExportItemsProps = {
   title: string;
   data: Top[];
 };
 
-function ImportItem({ item, index }: { item: Top; index: number }) {
+function ExportItem({ item, index }: { item: Top; index: number }) {
   const translatedName = useTranslation(item.itemName);
 
   return (
@@ -17,7 +17,7 @@ function ImportItem({ item, index }: { item: Top; index: number }) {
         {" "}
         <div className="flex min-w-0 items-start gap-2">
           {" "}
-          <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-info-100 text-xs font-medium text-info-800">
+          <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-100 text-xs font-medium text-success-800">
             {index + 1}
           </span>
           <span className="font-medium break-words text-neutral-800">
@@ -34,19 +34,19 @@ function ImportItem({ item, index }: { item: Top; index: number }) {
   );
 }
 
-export function TopImportItems({ title, data }: TopImportItemsProps) {
+export function TopExportItems({ title, data }: TopExportItemsProps) {
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrendingDown className="h-5 w-5 text-info-600" />
+          <TrendingUp className="h-5 w-5 text-success-600" />
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-grow flex-col justify-around">
+      <CardContent className="flex flex-grow flex-col space-y-4">
         {data.length > 0 ? (
           data.map((item, index) => (
-            <ImportItem key={index} item={item} index={index} />
+            <ExportItem key={index} item={item} index={index} />
           ))
         ) : (
           <p className="text-sm text-neutral-500">데이터가 없습니다.</p>
