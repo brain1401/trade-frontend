@@ -17,12 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth, useAuthStore } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import { useState } from "react";
-import { PasswordChangeModal } from "./PasswordChangeModal";
-import { PhoneVerificationModal } from "./PhoneVerificationModal";
+import { PasswordChangeModal } from "../../../components/profile/PasswordChangeModal";
+import { PhoneVerificationModal } from "../../../components/profile/PhoneVerificationModal";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
-import { NameChangeModal } from "./NameChangeModal";
-import { AccountDeletionModal } from "./AccountDeletionModal";
+import { NameChangeModal } from "../../../components/profile/NameChangeModal";
+import { AccountDeletionModal } from "../../../components/profile/AccountDeletionModal";
 
 /**
  * 프로필 관리 라우트 정의
