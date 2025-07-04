@@ -138,7 +138,7 @@ function ProfilePage() {
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
-  const [isVerificationModalOpen, setVerificationModalOpen] = useState(false);
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [isDeletionModalOpen, setIsDeletionModalOpen] = useState(false);
 
   // 인증 성공 시 최신 사용자 정보를 다시 불러와 상태를 업데이트하는 함수
@@ -165,7 +165,7 @@ function ProfilePage() {
       {/* 프로필 요약 통계 */}
       <ProfileSummary
         user={user}
-        onOpenVerificationModal={() => setVerificationModalOpen(true)}
+        onOpenVerificationModal={() => setIsVerificationModalOpen(true)}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -233,7 +233,7 @@ function ProfilePage() {
               />
               <PhoneVerificationModal
                 isOpen={isVerificationModalOpen}
-                onOpenChange={setVerificationModalOpen}
+                onOpenChange={setIsVerificationModalOpen}
                 onSuccess={handleVerificationSuccess}
               />
               <AccountDeletionModal
