@@ -12,3 +12,4 @@ export * from "./dashboard";
 export * from "./exchange-rates";
 export * from "./news";
 export * from "./notification";
+export * from "./statistics";
