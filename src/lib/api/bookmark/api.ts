@@ -1,5 +1,4 @@
 import type { Bookmark, BookmarkData, BookmarkListRequest } from "./types";
-import type { ApiResponse } from "../../../types/common";
 import { httpClient } from "../common";
 
 /**

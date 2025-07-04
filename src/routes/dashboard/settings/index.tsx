@@ -12,6 +12,10 @@ import {
 } from "@/data/mock/notifications";
 import type { NotificationSettings } from "@/types/notification";
 
+import type { DashboardNotification } from "@/lib/api/dashboardnotification";
+import { dashboardNotificationQueries } from "@/lib/api/dashboardnotification/queries";
+import { useQuery } from "@tanstack/react-query";
+
 /**
  * 설정 관리 라우트 정의
  *
@@ -87,9 +91,7 @@ function BookmarkNotificationSetting({
  * 설정 요약 통계 컴포넌트
  */
 function SettingsSummary() {
-  const settings = mockNotificationSettings;
-  const unreadNotifications = mockNotifications.filter((n) => !n.isRead);
-
+  const {data: setting} = useQuery(dashboardNotificationQueries.settings());
   return (
     <div className="mb-8 grid gap-4 md:grid-cols-3">
       <Card>
@@ -101,8 +103,8 @@ function SettingsSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {settings.notificationStats.smsEnabledBookmarks}/
-            {settings.notificationStats.totalBookmarks}
+            {/* {setting?.emailNotificationEnabled}
+            {setting?.notificationFrequency} */}
           </div>
           <p className="text-xs text-neutral-500">북마크 활성화</p>
         </CardContent>
@@ -117,8 +119,8 @@ function SettingsSummary() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-neutral-900">
-            {settings.notificationStats.emailEnabledBookmarks}/
-            {settings.notificationStats.totalBookmarks}
+            {/* {settings.notificationStats.emailEnabledBookmarks}/
+            {settings.notificationStats.totalBookmarks} */}
           </div>
           <p className="text-xs text-neutral-500">북마크 활성화</p>
         </CardContent>
@@ -134,7 +136,7 @@ function SettingsSummary() {
  * 개인 설정 및 환경 설정 관리 기능 제공
  */
 function SettingsPage() {
-  const notificationSettings = mockNotificationSettings;
+  const {data: setting, isLoading, error} = useQuery(dashboardNotificationQueries.settings());
 
   // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
   const handleToggleSms = (bookmarkId: string) => {
@@ -156,6 +158,7 @@ function SettingsPage() {
     console.log(`전체 이메일 알림 토글`);
     // TODO: 실제 구현 시 전체 설정 업데이트 로직 추가
   };
+  
 
   return (
     <div className="container mx-auto py-8">
@@ -188,7 +191,7 @@ function SettingsPage() {
               </div>
               <Switch
                 checked={
-                  notificationSettings.globalSettings.smsNotificationEnabled
+                  setting?.smsNotificationEnabled
                 }
                 onCheckedChange={handleToggleGlobalSms}
               />
@@ -203,7 +206,7 @@ function SettingsPage() {
               </div>
               <Switch
                 checked={
-                  notificationSettings.globalSettings.emailNotificationEnabled
+                  setting?.emailNotificationEnabled
                 }
                 onCheckedChange={handleToggleGlobalEmail}
               />
