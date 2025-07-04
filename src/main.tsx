@@ -62,6 +62,11 @@ function InnerApp() {
     ],
   );
 
+  if (isLoading) {
+    // 초기화 중일 때 로딩 스피너나 스플래시 화면을 보여줄 수 있음
+    return <div>Loading...</div>;
+  }
+
   // 인증 초기화 완료 후 라우터 렌더링
   return (
     <RouterProvider
