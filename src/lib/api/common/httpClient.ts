@@ -180,7 +180,7 @@ instance.interceptors.response.use(
 
 // 고차 함수를 사용한 메서드 팩토리
 const createMethod =
-  (method: "get" | "delete") =>
+  (method: "get") =>
   <TResponse>(
     endpoint: string,
     config?: AxiosRequestConfig,
@@ -198,6 +198,16 @@ const createMethodWithBody =
     instance[method]<ApiResponse<TResponse>>(endpoint, data).then((res) =>
       extractData(res.data),
     );
+
+const createDeleteMethod =
+  (method: "delete") =>
+  (endpoint: string, config?: AxiosRequestConfig): Promise<void> =>
+    instance[method]<ApiResponse<null>>(endpoint, config).then((res) => {
+      // 응답 본문(data)을 확인하지 않고, 성공 상태만 체크합니다.
+      if (res.data.success === "ERROR") {
+        throw new ApiError(500, undefined, res.data.message || "API 요청 실패");
+      }
+    });
 
 const createRawMethod =
   (method: "get" | "delete") =>
@@ -219,7 +229,7 @@ export const httpClient = {
   post: createMethodWithBody("post"),
   put: createMethodWithBody("put"),
   patch: createMethodWithBody("patch"),
-  delete: createMethod("delete"),
+  delete: createDeleteMethod("delete"),
 };
 
 export const rawHttpClient = {

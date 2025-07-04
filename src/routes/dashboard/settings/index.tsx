@@ -1,20 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Bell, Shield, Database, AlertCircle } from "lucide-react";
+import { Bell, Database } from "lucide-react";
 import { requireAuth } from "@/lib/utils/authGuard";
-import {
-  mockNotificationSettings,
-  mockNotifications,
-} from "@/data/mock/notifications";
-import type { NotificationSettings } from "@/types/notification";
-
-import type { DashboardNotification } from "@/lib/api/dashboardnotification";
 import { dashboardNotificationQueries } from "@/lib/api/dashboardnotification/queries";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { dashboardNotificationApi } from "@/lib/api/dashboardnotification/api";
+import type { DashboardNotification } from "@/lib/api/dashboardnotification";
+import { useAuth } from "@/stores/authStore";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 /**
  * 설정 관리 라우트 정의
@@ -29,69 +26,10 @@ export const Route = createFileRoute("/dashboard/settings/")({
 });
 
 /**
- * 북마크 알림 설정 컴포넌트
- * 각 북마크별 SMS/이메일 설정을 관리
- */
-type BookmarkNotificationSettingProps = {
-  setting: NotificationSettings["bookmarkSettings"][0];
-  onToggleSms?: (bookmarkId: string) => void;
-  onToggleEmail?: (bookmarkId: string) => void;
-};
-
-function BookmarkNotificationSetting({
-  setting,
-  onToggleSms,
-  onToggleEmail,
-}: BookmarkNotificationSettingProps) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Label className="text-base font-medium">
-              {setting.displayName}
-            </Label>
-          </div>
-          <p className="text-sm text-neutral-500">
-            {setting.type === "HS_CODE"
-              ? `HS Code: ${setting.displayName}`
-              : `화물번호: ${setting.displayName}`}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-3 pl-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4 text-neutral-500" />
-            <Label className="text-sm">SMS 알림</Label>
-          </div>
-          <Switch
-            checked={setting.smsNotificationEnabled}
-            onCheckedChange={() => onToggleSms?.(setting.bookmarkId)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Database className="h-4 w-4 text-neutral-500" />
-            <Label className="text-sm">이메일 알림</Label>
-          </div>
-          <Switch
-            checked={setting.emailNotificationEnabled}
-            onCheckedChange={() => onToggleEmail?.(setting.bookmarkId)}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
  * 설정 요약 통계 컴포넌트
  */
 function SettingsSummary() {
-  const {data: setting} = useQuery(dashboardNotificationQueries.settings());
+  const { data: setting } = useQuery(dashboardNotificationQueries.settings());
   return (
     <div className="mb-8 grid gap-4 md:grid-cols-3">
       <Card>
@@ -136,29 +74,63 @@ function SettingsSummary() {
  * 개인 설정 및 환경 설정 관리 기능 제공
  */
 function SettingsPage() {
-  const {data: setting, isLoading, error} = useQuery(dashboardNotificationQueries.settings());
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
-  const handleToggleSms = (bookmarkId: string) => {
-    console.log(`SMS 알림 토글: ${bookmarkId}`);
-    // TODO: 실제 구현 시 상태 업데이트 로직 추가
+  // 1. 서버에서 알림 설정 데이터를 가져옵니다.
+  const { data: serverSettings, isLoading } = useQuery(
+    dashboardNotificationQueries.settings(),
+  );
+
+  // 2. 컴포넌트 내부 상태(State)에서 설정을 관리합니다.
+  const [settings, setSettings] = useState<DashboardNotification | null>(null);
+
+  useEffect(() => {
+    if (serverSettings) {
+      setSettings(serverSettings);
+    }
+  }, [serverSettings]);
+
+  // 3. 설정을 업데이트하는 Mutation을 정의합니다.
+  const updateSettingsMutation = useMutation({
+    mutationFn: (newSettings: DashboardNotification) =>
+      dashboardNotificationApi.updateDashboardNotificationSettings(newSettings),
+    onSuccess: (data) => {
+      // 성공 시 서버 상태(캐시)와 UI 상태를 함께 업데이트합니다.
+      queryClient.setQueryData(
+        dashboardNotificationQueries.settings().queryKey,
+        data,
+      );
+      setSettings(data);
+      toast.success("알림 설정이 성공적으로 저장되었습니다.");
+    },
+    onError: (error) => {
+      toast.error(`설정 저장에 실패했습니다: ${error.message}`);
+      // 실패 시, 서버 데이터로 UI를 되돌립니다.
+      setSettings(serverSettings ?? null);
+    },
+  });
+
+  // 4. 토글 스위치 핸들러
+  const handleToggle = (key: keyof DashboardNotification, value: boolean) => {
+    if (!settings) return;
+
+    // 새로운 설정 객체 생성
+    const newSettings = {
+      ...settings,
+      [key]: value,
+    };
+
+    // UI 즉시 업데이트
+    setSettings(newSettings);
+
+    // API 요청
+    updateSettingsMutation.mutate(newSettings);
   };
 
-  const handleToggleEmail = (bookmarkId: string) => {
-    console.log(`이메일 알림 토글: ${bookmarkId}`);
-    // TODO: 실제 구현 시 상태 업데이트 로직 추가
-  };
-
-  const handleToggleGlobalSms = () => {
-    console.log(`전체 SMS 알림 토글`);
-    // TODO: 실제 구현 시 전체 설정 업데이트 로직 추가
-  };
-
-  const handleToggleGlobalEmail = () => {
-    console.log(`전체 이메일 알림 토글`);
-    // TODO: 실제 구현 시 전체 설정 업데이트 로직 추가
-  };
-  
+  if (isLoading) {
+    return <div>로딩 중...</div>;
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -169,153 +141,54 @@ function SettingsPage() {
         <p className="mt-2 text-neutral-600">알림 설정을 관리할 수 있습니다.</p>
       </div>
 
-      {/* 설정 요약 통계 */}
-      <SettingsSummary />
-
-      <div className="grid gap-6">
-        {/* 전체 알림 설정 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              <CardTitle>알림 설정</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base font-medium">SMS 알림</Label>
-                <p className="text-sm text-neutral-500">
-                  북마크의 SMS 알림을 허용합니다
-                </p>
-              </div>
-              <Switch
-                checked={
-                  setting?.smsNotificationEnabled
-                }
-                onCheckedChange={handleToggleGlobalSms}
-              />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base font-medium">이메일 알림</Label>
-                <p className="text-sm text-neutral-500">
-                  북마크의 이메일 알림을 허용합니다
-                </p>
-              </div>
-              <Switch
-                checked={
-                  setting?.emailNotificationEnabled
-                }
-                onCheckedChange={handleToggleGlobalEmail}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 카테고리별 알림 설정 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              <CardTitle>북마크별 알림 설정</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {notificationSettings.bookmarkSettings.map((setting, index) => (
-              <div key={setting.bookmarkId}>
-                <BookmarkNotificationSetting
-                  setting={setting}
-                  onToggleSms={handleToggleSms}
-                  onToggleEmail={handleToggleEmail}
-                />
-                {index < notificationSettings.bookmarkSettings.length - 1 && (
-                  <Separator className="mt-6" />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            <CardTitle>전체 알림 설정</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium">SMS 알림</Label>
+              <p className="text-sm text-neutral-500">
+                북마크의 SMS 알림을 허용합니다
+                {!user?.phoneVerified && (
+                  <span className="ml-2 text-xs text-yellow-600">
+                    (휴대폰 인증 필요)
+                  </span>
                 )}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-         보안 설정 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              <CardTitle>보안 설정</CardTitle>
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">2단계 인증</Label>
-                <p className="text-sm text-neutral-500">
-                  계정 보안을 강화하기 위한 2단계 인증을 활성화합니다
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                설정
-              </Button>
+            <Switch
+              checked={settings?.smsNotificationEnabled ?? false}
+              onCheckedChange={(value) =>
+                handleToggle("smsNotificationEnabled", value)
+              }
+              disabled={
+                !user?.phoneVerified || updateSettingsMutation.isPending
+              }
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium">이메일 알림</Label>
+              <p className="text-sm text-neutral-500">
+                북마크의 이메일 알림을 허용합니다
+              </p>
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">로그인 세션 관리</Label>
-                <p className="text-sm text-neutral-500">
-                  다른 기기에서의 로그인 세션을 관리합니다
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                관리
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-         데이터 설정 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              <CardTitle>데이터 설정</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">검색 히스토리 저장</Label>
-                <p className="text-sm text-neutral-500">
-                  검색 기록을 저장하여 개인화된 서비스를 제공합니다
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">사용 통계 수집</Label>
-                <p className="text-sm text-neutral-500">
-                  서비스 개선을 위한 익명 사용 통계를 수집합니다
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">데이터 내보내기</Label>
-                <p className="text-sm text-neutral-500">
-                  개인 데이터를 내보내기할 수 있습니다
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                내보내기
-              </Button>
-            </div>
-          </CardContent>
-        </Card> */}
-      </div>
+            <Switch
+              checked={settings?.emailNotificationEnabled ?? false}
+              onCheckedChange={(value) =>
+                handleToggle("emailNotificationEnabled", value)
+              }
+              disabled={updateSettingsMutation.isPending}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

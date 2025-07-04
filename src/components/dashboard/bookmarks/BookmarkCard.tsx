@@ -5,7 +5,14 @@ import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
 
 import { getTypeColor, getTypeName } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
+import {
+  Bookmark,
+  Edit,
+  ExternalLink,
+  Monitor,
+  MonitorOff,
+  Trash2,
+} from "lucide-react";
 
 /**
  * 개별 북마크 카드 컴포넌트
@@ -13,13 +20,13 @@ import { Bookmark, ExternalLink, Monitor, MonitorOff } from "lucide-react";
  */
 type BookmarkCardProps = {
   bookmark: BookmarkType;
-  onToggleMonitoring?: (id: number) => void;
-  onDelete?: (id: number) => void;
+  onEdit: (bookmark: BookmarkType) => void;
+  onDelete: (bookmark: BookmarkType) => void;
 };
 
 export default function BookmarkCard({
   bookmark,
-  onToggleMonitoring,
+  onEdit,
   onDelete,
 }: BookmarkCardProps) {
   const color = getTypeColor(bookmark.type);
@@ -68,18 +75,22 @@ export default function BookmarkCard({
             </p>
           </div>
           <div className="flex gap-2">
-            <Link to="/search">
-              <Button variant="outline" size="sm">
-                <ExternalLink className="mr-1 h-4 w-4" />
-                보기
-              </Button>
-            </Link>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete?.(bookmark.id)}
-              className="text-danger-600 hover:bg-danger-50"
+              onClick={() => onEdit(bookmark)}
             >
+              <Edit className="mr-1 h-4 w-4" />
+              수정
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(bookmark)}
+              className="text-danger-600 hover:border-danger-600 hover:bg-danger-50 hover:text-danger-600"
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
               삭제
             </Button>
           </div>

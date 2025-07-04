@@ -7,10 +7,18 @@ import { useAuth } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import BookmarkCard from "@/components/dashboard/bookmarks/BookmarkCard";
 import { getTypeName } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { bookmarkQueries } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  bookmarkApi,
+  bookmarkQueries,
+  type UpdateBookmarkRequest,
+} from "@/lib/api";
 import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
+import { useState } from "react";
+import { toast } from "sonner";
 
+import { EditBookmarkModal } from "@/components/dashboard/bookmarks/EditBookmarkModal";
+import { DeleteConfirmationModal } from "@/components/dashboard/bookmarks/DeleteConfirmationModal";
 /**
  * 북마크 관리 라우트 정의
  *
@@ -30,24 +38,76 @@ export const Route = createFileRoute("/dashboard/bookmarks/")({
  * 저장된 북마크 목록 조회 및 관리 기능 제공
  */
 function BookmarksPage() {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { data: paginatedData } = useQuery(bookmarkQueries.list());
-
   const bookmarks = paginatedData?.content ?? [];
+
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedBookmark, setSelectedBookmark] = useState<BookmarkType | null>(
+    null,
+  );
+
+  // 북마크 삭제 뮤테이션
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => bookmarkApi.deleteBookmark(id),
+    onSuccess: () => {
+      toast.success("북마크가 삭제되었습니다.");
+      queryClient.invalidateQueries({
+        queryKey: bookmarkQueries.list().queryKey,
+      });
+      setDeleteModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`삭제 실패: ${error.message}`);
+    },
+  });
+
+  // 북마크 수정 뮤테이션
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateBookmarkRequest }) =>
+      bookmarkApi.updateBookmark(id, data),
+    onSuccess: () => {
+      toast.success("북마크가 수정되었습니다.");
+      queryClient.invalidateQueries({
+        queryKey: bookmarkQueries.list().queryKey,
+      });
+      setEditModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`수정 실패: ${error.message}`);
+    },
+  });
 
   const activeBookmarks = bookmarks.filter(
     (bookmark) => bookmark.monitoringActive,
   );
 
-  // 임시 핸들러 함수들 (실제로는 상태 관리를 통해 구현)
-  const handleToggleMonitoring = (id: number) => {
-    console.log(`모니터링 토글: ${id}`);
-    // TODO: 실제 구현 시 상태 업데이트 로직 추가
+  // 수정 버튼 클릭 핸들러
+  const handleEditClick = (bookmark: BookmarkType) => {
+    setSelectedBookmark(bookmark);
+    setEditModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    console.log(`북마크 삭제: ${id}`);
-    // TODO: 실제 구현 시 삭제 로직 추가
+  // 삭제 버튼 클릭 핸들러
+  const handleDeleteClick = (bookmark: BookmarkType) => {
+    setSelectedBookmark(bookmark);
+    setDeleteModalOpen(true);
+  };
+
+  // 최종 수정 확인 핸들러
+  const handleEditConfirm = (data: UpdateBookmarkRequest) => {
+    if (selectedBookmark) {
+      updateMutation.mutate({ id: selectedBookmark.id, data });
+    }
+  };
+
+  // 최종 삭제 확인 핸들러
+  const handleDeleteConfirm = () => {
+    if (selectedBookmark) {
+      deleteMutation.mutate(selectedBookmark.id);
+    }
   };
 
   // 타입별 북마크 분류
@@ -104,7 +164,7 @@ function BookmarksPage() {
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">
               {bookmarks.length}
-            </div>        
+            </div>
           </CardContent>
         </Card>
 
@@ -120,26 +180,10 @@ function BookmarksPage() {
               {activeBookmarks.length}
             </div>
             <p className="text-xs text-neutral-500">
-              모니터링 비활성화:{" "}
-              {bookmarks.length - activeBookmarks.length}개
+              모니터링 비활성화: {bookmarks.length - activeBookmarks.length}개
             </p>
           </CardContent>
         </Card>
-
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600">
-              카테고리
-            </CardTitle>
-            <Badge className="h-4 w-4 text-info-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-neutral-900">
-              {Object.keys(bookmarksByCategory).length}
-            </div>
-          </CardContent>
-        </Card> */}
-
       </div>
 
       {/* 북마크 목록 */}
@@ -155,8 +199,8 @@ function BookmarksPage() {
                   <BookmarkCard
                     key={bookmark.id}
                     bookmark={bookmark}
-                    onToggleMonitoring={handleToggleMonitoring}
-                    onDelete={handleDelete}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
                   />
                 ))}
               </div>
@@ -179,6 +223,19 @@ function BookmarksPage() {
           </Card>
         )}
       </div>
+      {/* 모달 컴포넌트 렌더링 */}
+      <EditBookmarkModal
+        bookmark={selectedBookmark}
+        open={isEditModalOpen}
+        onOpenChange={setEditModalOpen}
+        onConfirm={handleEditConfirm}
+        isLoading={updateMutation.isPending}
+      />
+      <DeleteConfirmationModal
+        open={isDeleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

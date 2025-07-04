@@ -1,6 +1,12 @@
 import type { Bookmark, BookmarkData, BookmarkListRequest } from "./types";
 import { httpClient } from "../common";
 
+export type UpdateBookmarkRequest = {
+  displayName: string;
+  smsNotificationEnabled: boolean;
+  emailNotificationEnabled: boolean;
+};
+
 /**
  * 북마크 API
  */
@@ -23,22 +29,23 @@ export const bookmarkApi = {
     return httpClient.get<Bookmark>(`/bookmarks/${id}`);
   },
 
-  // 필요한 body의 데이터 타입을 작성해서 넣어야 함.
+  /**
+   * 북마크 수정 (추가)
+   * @param id 수정할 북마크 ID
+   * @param data 수정할 북마크 데이터
+   */
+  async updateBookmark(
+    id: number,
+    data: UpdateBookmarkRequest,
+  ): Promise<Bookmark> {
+    return httpClient.put<Bookmark>(`/bookmarks/${id}`, data);
+  },
 
-  // async addBookmark(
-  //   data,
-  // ): Promise<ApiResponse<AddBookmarkResponseDataV61>> {
-  //   return httpClient.post("/bookmarks", data);
-  // },
-
-  // async updateBookmark(
-  //   bookmarkId: string,
-  //   updateData: UpdateBookmarkRequestV61,
-  // ): Promise<ApiResponse<BookmarkV61>> {
-  //   return httpClient.put(`/bookmarks/${bookmarkId}`, updateData);
-  // },
-
-  // async deleteBookmark(bookmarkId: string): Promise<void> {
-  //   await httpClient.delete(`/bookmarks/${bookmarkId}`);
-  // },
+  /**
+   * 북마크 삭제 (추가)
+   * @param id 삭제할 북마크 ID
+   */
+  async deleteBookmark(id: number): Promise<void> {
+    return httpClient.delete(`/bookmarks/${id}`);
+  },
 };

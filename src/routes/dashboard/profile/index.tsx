@@ -241,21 +241,6 @@ function ProfilePage() {
                 onOpenChange={setIsDeletionModalOpen}
               />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">이름 변경</p>
-                <p className="text-sm text-neutral-500">
-                  이름은 언제든지 변경 가능합니다.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsNameModalOpen(true)}
-              >
-                변경
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
