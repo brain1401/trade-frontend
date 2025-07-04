@@ -22,7 +22,9 @@ import { Route as AuthFindPasswordRouteImport } from './routes/auth/find-passwor
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as DashboardProfileIndexRouteImport } from './routes/dashboard/profile/index'
+import { Route as DashboardHistoryIndexRouteImport } from './routes/dashboard/history/index'
 import { Route as DashboardBookmarksIndexRouteImport } from './routes/dashboard/bookmarks/index'
+import { Route as DashboardHistorySessionIdRouteImport } from './routes/dashboard/history/$sessionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -89,11 +91,22 @@ const DashboardProfileIndexRoute = DashboardProfileIndexRouteImport.update({
   path: '/dashboard/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardHistoryIndexRoute = DashboardHistoryIndexRouteImport.update({
+  id: '/dashboard/history/',
+  path: '/dashboard/history/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardBookmarksIndexRoute = DashboardBookmarksIndexRouteImport.update({
   id: '/dashboard/bookmarks/',
   path: '/dashboard/bookmarks/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardHistorySessionIdRoute =
+  DashboardHistorySessionIdRouteImport.update({
+    id: '/dashboard/history/$sessionId',
+    path: '/dashboard/history/$sessionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,7 +120,9 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
+  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
+  '/dashboard/history': typeof DashboardHistoryIndexRoute
   '/dashboard/profile': typeof DashboardProfileIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
 }
@@ -123,7 +138,9 @@ export interface FileRoutesByTo {
   '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
+  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
+  '/dashboard/history': typeof DashboardHistoryIndexRoute
   '/dashboard/profile': typeof DashboardProfileIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
 }
@@ -140,7 +157,9 @@ export interface FileRoutesById {
   '/news/': typeof NewsIndexRoute
   '/search/': typeof SearchIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
+  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks/': typeof DashboardBookmarksIndexRoute
+  '/dashboard/history/': typeof DashboardHistoryIndexRoute
   '/dashboard/profile/': typeof DashboardProfileIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
 }
@@ -158,7 +177,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/search'
     | '/statistics'
+    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks'
+    | '/dashboard/history'
     | '/dashboard/profile'
     | '/dashboard/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -174,7 +195,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/search'
     | '/statistics'
+    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks'
+    | '/dashboard/history'
     | '/dashboard/profile'
     | '/dashboard/settings'
   id:
@@ -190,7 +213,9 @@ export interface FileRouteTypes {
     | '/news/'
     | '/search/'
     | '/statistics/'
+    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks/'
+    | '/dashboard/history/'
     | '/dashboard/profile/'
     | '/dashboard/settings/'
   fileRoutesById: FileRoutesById
@@ -207,7 +232,9 @@ export interface RootRouteChildren {
   NewsIndexRoute: typeof NewsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   StatisticsIndexRoute: typeof StatisticsIndexRoute
+  DashboardHistorySessionIdRoute: typeof DashboardHistorySessionIdRoute
   DashboardBookmarksIndexRoute: typeof DashboardBookmarksIndexRoute
+  DashboardHistoryIndexRoute: typeof DashboardHistoryIndexRoute
   DashboardProfileIndexRoute: typeof DashboardProfileIndexRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
@@ -305,11 +332,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/history/': {
+      id: '/dashboard/history/'
+      path: '/dashboard/history'
+      fullPath: '/dashboard/history'
+      preLoaderRoute: typeof DashboardHistoryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/bookmarks/': {
       id: '/dashboard/bookmarks/'
       path: '/dashboard/bookmarks'
       fullPath: '/dashboard/bookmarks'
       preLoaderRoute: typeof DashboardBookmarksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/history/$sessionId': {
+      id: '/dashboard/history/$sessionId'
+      path: '/dashboard/history/$sessionId'
+      fullPath: '/dashboard/history/$sessionId'
+      preLoaderRoute: typeof DashboardHistorySessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -327,7 +368,9 @@ const rootRouteChildren: RootRouteChildren = {
   NewsIndexRoute: NewsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   StatisticsIndexRoute: StatisticsIndexRoute,
+  DashboardHistorySessionIdRoute: DashboardHistorySessionIdRoute,
   DashboardBookmarksIndexRoute: DashboardBookmarksIndexRoute,
+  DashboardHistoryIndexRoute: DashboardHistoryIndexRoute,
   DashboardProfileIndexRoute: DashboardProfileIndexRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
 }

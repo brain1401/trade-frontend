@@ -12,34 +12,26 @@ import type { ApiResponse } from "@/types/common";
 
 export const chatHistoryQueryKeys = {
   all: () => ["chatHistory"] as const,
-
   lists: () => [...chatHistoryQueryKeys.all(), "list"] as const,
-  list: (params?: ChatHistoryGetParams) =>
-    [...chatHistoryQueryKeys.lists(), params ?? {}] as const,
-
+  list: () => [...chatHistoryQueryKeys.lists()] as const,
   details: () => [...chatHistoryQueryKeys.all(), "detail"] as const,
   detail: (sessionId: string) =>
     [...chatHistoryQueryKeys.details(), sessionId] as const,
-
-  searches: () => [...chatHistoryQueryKeys.all(), "search"] as const,
-  search: (params: ChatHistorySearchParams) =>
-    [...chatHistoryQueryKeys.searches(), params] as const,
 };
 
 export const chatHistoryQueries = {
-  list: (params?: ChatHistoryGetParams) =>
-    queryOptions<ApiResponse<PaginatedChatSessions>, ApiError>({
-      queryKey: chatHistoryQueryKeys.list(params),
-      queryFn: () => chatHistoryApi.getChatSessions(params),
+  /** 채팅 세션 목록 조회를 위한 쿼리 옵션 */
+  list: () =>
+    queryOptions<PaginatedChatSessions, ApiError>({
+      queryKey: chatHistoryQueryKeys.list(),
+      queryFn: () => chatHistoryApi.getChatSessions(),
     }),
+
+  /** 특정 채팅 세션 상세 조회를 위한 쿼리 옵션 */
   detail: (sessionId: string) =>
-    queryOptions<ApiResponse<ChatSessionDetail>, ApiError>({
+    queryOptions<ChatSessionDetail, ApiError>({
       queryKey: chatHistoryQueryKeys.detail(sessionId),
       queryFn: () => chatHistoryApi.getChatSession(sessionId),
-    }),
-  search: (params: ChatHistorySearchParams) =>
-    queryOptions<ApiResponse<PaginatedChatSearchResults>, ApiError>({
-      queryKey: chatHistoryQueryKeys.search(params),
-      queryFn: () => chatHistoryApi.searchChatHistory(params),
+      enabled: !!sessionId, // sessionId가 있을 때만 쿼리 실행
     }),
 };

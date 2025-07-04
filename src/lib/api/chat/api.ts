@@ -183,18 +183,20 @@ export const chatApi = {
  * 채팅 기록 API
  */
 export const chatHistoryApi = {
-  async getChatSessions(
-    params?: ChatHistoryGetParams,
-  ): Promise<ApiResponse<PaginatedChatSessions>> {
-    const queryParams = new URLSearchParams(
-      Object.entries(params || {}).map(([key, value]) => [key, String(value)]),
-    );
-    return httpClient.get(`/chat/history?${queryParams.toString()}`);
+  /**
+   * 전체 채팅 세션 목록을 조회
+   * @returns 페이지네이션된 채팅 세션 목록
+   */
+  getChatSessions(): Promise<PaginatedChatSessions> {
+    return httpClient.get("/chat/history");
   },
 
-  async getChatSession(
-    sessionId: string,
-  ): Promise<ApiResponse<ChatSessionDetail>> {
+  /**
+   * 특정 채팅 세션의 상세 내역을 조회
+   * @param sessionId 조회할 세션의 ID
+   * @returns 채팅 세션 상세 정보
+   */
+  getChatSession(sessionId: string): Promise<ChatSessionDetail> {
     return httpClient.get(`/chat/history/${sessionId}`);
   },
 

@@ -365,20 +365,6 @@ export type ChatHistoryGetParams = {
 };
 
 /**
- * 채팅 세션 요약 정보
- */
-export type ChatSessionSummary = {
-  sessionId: string;
-  sessionTitle: string;
-  messageCount: number;
-  createdAt: string;
-  updatedAt: string;
-  firstMessage: string;
-  lastMessage: string;
-  partitionYear: number;
-};
-
-/**
  * 채팅 기록 통계
  */
 export type ChatHistorySummary = {
@@ -387,15 +373,6 @@ export type ChatHistorySummary = {
   sessionsLast30Days: number;
   oldestSessionDate: string;
   newestSessionDate: string;
-};
-
-/**
- * 채팅 세션 목록 API 응답 데이터 (GET /api/chat/history)
- */
-export type PaginatedChatSessions = {
-  sessions: ChatSessionSummary[];
-  pagination: import("./common").PaginationMeta;
-  summary: ChatHistorySummary;
 };
 
 /**
@@ -419,20 +396,6 @@ export type SSEBookmarkData = {
 };
 
 /**
- * 채팅 메시지 상세 정보
- */
-export type ChatMessage = {
-  messageId: number;
-  messageType: "USER" | "AI";
-  content: string;
-  createdAt: string;
-  aiModel?: string;
-  thinkingProcess?: string;
-  hsCodeAnalysis?: HSCodeAnalysis;
-  sseBookmarkData?: SSEBookmarkData;
-};
-
-/**
  * 채팅 세션 관련 데이터
  */
 export type ChatRelatedData = {
@@ -449,15 +412,6 @@ export type ChatRelatedData = {
     ragSearches: number;
     webSearches: number;
   };
-};
-
-/**
- * 개별 채팅 세션 상세 API 응답 데이터 (GET /api/chat/history/{sessionId})
- */
-export type ChatSessionDetail = {
-  session: ChatSessionSummary;
-  messages: ChatMessage[];
-  relatedData: ChatRelatedData;
 };
 
 /**
@@ -499,4 +453,44 @@ export type PaginatedChatSearchResults = {
   searchResults: ChatSearchResult[];
   pagination: import("./common").PaginationMeta;
   searchInfo: ChatSearchInfo;
+};
+
+/**
+ * 채팅 세션 목록 조회 API 응답 데이터 (GET /api/chat/history)
+ */
+export type PaginatedChatSessions = {
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  content: ChatSessionSummary[];
+  number: number;
+};
+
+/**
+ * 채팅 세션 요약 정보
+ */
+export type ChatSessionSummary = {
+  sessionId: string;
+  sessionTitle: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/**
+ * 개별 채팅 세션 상세 API 응답 데이터 (GET /api/chat/history/{sessionId})
+ */
+export type ChatSessionDetail = {
+  sessionInfo: ChatSessionSummary;
+  messages: ChatMessage[];
+};
+
+/**
+ * 채팅 메시지 상세 정보
+ */
+export type ChatMessage = {
+  messageId: number;
+  messageType: "USER" | "AI";
+  content: string;
+  createdAt: string;
 };
