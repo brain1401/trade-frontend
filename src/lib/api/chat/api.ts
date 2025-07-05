@@ -34,6 +34,7 @@ export const chatApi = {
     options?: StreamingOptions,
   ): Promise<void> {
     const token = tokenStore.getToken();
+    console.log("현재 엑세스 토큰 token : ", token);
     const headers = {
       "Content-Type": "application/json",
       Accept: "text/event-stream",
@@ -188,7 +189,7 @@ export const chatHistoryApi = {
    * @returns 페이지네이션된 채팅 세션 목록
    */
   getChatSessions(): Promise<PaginatedChatSessions> {
-    return httpClient.get("/chat/history");
+    return httpClient.get("/chat/sessions");
   },
 
   /**
@@ -197,7 +198,7 @@ export const chatHistoryApi = {
    * @returns 채팅 세션 상세 정보
    */
   getChatSession(sessionId: string): Promise<ChatSessionDetail> {
-    return httpClient.get(`/chat/history/${sessionId}`);
+    return httpClient.get(`/chat/sessions/${sessionId}`);
   },
 
   async searchChatHistory(
