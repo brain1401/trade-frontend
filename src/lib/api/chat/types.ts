@@ -24,7 +24,97 @@ export type ChatRequest = {
 };
 
 /**
- * v6.1 SSE 이벤트 핸들러 타입
+ * 실제 서버 SSE 이벤트 타입 (명세서 기반)
+ */
+export type SSEEventData = {
+  type:
+    | "session_id"
+    | "hscode_result"
+    | "token"
+    | "complete"
+    | "finish"
+    | "error";
+  data: any;
+};
+
+/**
+ * 세션 ID 이벤트 데이터
+ */
+export type SessionIdEvent = {
+  type: "session_id";
+  data: {
+    session_id: string;
+  };
+};
+
+/**
+ * HSCode 검색 결과 이벤트 데이터
+ */
+export type HSCodeResultEvent = {
+  type: "hscode_result";
+  data: {
+    results: any[]; // HSCode 결과 구조
+    message?: string;
+  };
+};
+
+/**
+ * 토큰 이벤트 데이터
+ */
+export type TokenEvent = {
+  type: "token";
+  data: {
+    content: string;
+  };
+};
+
+/**
+ * 완료 이벤트 데이터
+ */
+export type CompleteEvent = {
+  type: "complete";
+  data: {
+    message: string;
+    token_count: number;
+    source: string;
+  };
+};
+
+/**
+ * 스트림 종료 이벤트 데이터
+ */
+export type FinishEvent = {
+  type: "finish";
+  data: {
+    message: string;
+  };
+};
+
+/**
+ * 오류 이벤트 데이터
+ */
+export type ErrorEvent = {
+  type: "error";
+  data: {
+    error: string;
+    message: string;
+  };
+};
+
+/**
+ * 실제 서버 응답에 맞는 SSE 이벤트 핸들러 타입
+ */
+export type SSEEventHandlers = {
+  onSessionId?: (data: SessionIdEvent["data"]) => void;
+  onHSCodeResult?: (data: HSCodeResultEvent["data"]) => void;
+  onToken?: (data: TokenEvent["data"]) => void;
+  onComplete?: (data: CompleteEvent["data"]) => void;
+  onFinish?: (data: FinishEvent["data"]) => void;
+  onError?: (data: ErrorEvent["data"]) => void;
+};
+
+/**
+ * v6.1 SSE 이벤트 핸들러 타입 (기존 호환성 유지)
  */
 export type V61SSEEventHandlers = {
   onInitialMetadata?: (data: InitialMetadataEvent) => void;

@@ -10,20 +10,10 @@ import {
   type ChatMessageType,
 } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
-import { chatApi, type V61SSEEventHandlers } from "@/lib/api";
+import { chatApi, type SSEEventHandlers } from "@/lib/api";
 import { useAuth } from "@/stores/authStore";
 import { toast } from "sonner";
-import type {
-  ChatSessionStatus,
-  InitialMetadataEvent,
-  SessionInfoEvent,
-  ThinkingEventData,
-  MainMessageCompleteEvent,
-  DetailPageButtonEvent,
-  MemberSessionEvent,
-  RelatedInfo,
-  ErrorEventData,
-} from "@/types/chat";
+import type { ChatSessionStatus, RelatedInfo } from "@/types/chat";
 
 /**
  * 채팅 메시지 아이템 (UI용)
@@ -52,7 +42,7 @@ export type ChatInterfaceProps = {
  */
 type ParallelProcessingState = {
   mainMessageComplete: boolean;
-  detailButtons: DetailPageButtonEvent[];
+  detailButtons: any[];
   memberRecordSaved: boolean;
   allProcessingComplete: boolean;
 };
@@ -176,176 +166,100 @@ export function ChatInterface({
   /**
    * 상세페이지 버튼 클릭 핸들러
    */
-  const handleDetailPageButton = useCallback(
-    (button: DetailPageButtonEvent) => {
-      window.location.href = button.url;
-    },
-    [],
-  );
+  const handleDetailPageButton = useCallback((button: any) => {
+    window.location.href = button.url;
+  }, []);
 
   /**
-   * 🔧 v6.1 SSE 이벤트 핸들러들 (ref 기반으로 stale closure 완전 해결)
+   * 🔧 v6.1 SSE 이벤트 핸들러들 (실제 서버 응답에 맞게 수정)
    */
-  const sseHandlers: V61SSEEventHandlers = useMemo(
+  const sseHandlers: SSEEventHandlers = useMemo(
     () => ({
-      // 초기 메타데이터 (회원/비회원 차별화)
-      onInitialMetadata: (data: InitialMetadataEvent) => {
-        console.log("🔍 초기 메타데이터 수신:", data);
-        if (data.sessionId) {
-          setCurrentSessionId(data.sessionId);
-        }
+      // 세션 ID 수신
+      onSessionId: (data) => {
+        console.log("🔍 새 세션 ID:", data.session_id);
+        setCurrentSessionId(data.session_id);
       },
 
-      onSessionInfo: (data: SessionInfoEvent) => {
-        console.log("👤 세션 정보 수신:", data);
-        setCurrentSessionId(data.sessionId || null);
-
-        // 사용자 유형 알림
-        if (data.userType === "MEMBER") {
-          toast.success(data.message, { duration: 3000 });
-        } else {
-          toast.info(data.message, { duration: 5000 });
-        }
-      },
-
-      // Thinking Events
-      onThinking: (message: string, eventType?: string) => {
-        console.log("💭 Thinking 수신:", message, eventType);
-        setCurrentThinking(message);
-        setSessionStatus("THINKING");
-
-        // 병렬 처리 시작 감지
-        if (eventType === "thinking_parallel_processing_start") {
-          toast.info("3단계 병렬 처리를 시작합니다", { duration: 2000 });
-        }
-      },
-
-      // Main Message Events
-      onMainMessageStart: () => {
-        console.log(
-          "🚀 Main Message 시작 - Thinking:",
-          currentThinkingRef.current,
-        );
-
-        // 🔧 먼저 상태를 업데이트하여 thinking 렌더링을 중단
-        setSessionStatus("RESPONDING");
-
-        // Thinking 메시지를 고정하고 Main Message 시작
-        if (currentThinkingRef.current) {
+      // HSCode 검색 결과 수신
+      onHSCodeResult: (data) => {
+        console.log("📊 HSCode 검색 결과:", data);
+        // HSCode 결과를 메시지로 추가
+        if (data.results && data.results.length > 0) {
           const newMessage: ChatMessageItem = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            type: "thinking",
-            data: { content: currentThinkingRef.current },
+            type: "ai",
+            data: {
+              content: `HSCode 검색 결과: ${data.results.length}개 항목 발견`,
+              relatedInfo: data.results[0]
+                ? { hsCode: data.results[0].code }
+                : undefined,
+            },
             timestamp: new Date().toISOString(),
           };
-
           setMessages((prev) => [...prev, newMessage]);
-          // 🔧 즉시 thinking 초기화
-          setCurrentThinking("");
           setTimeout(scrollToBottom, 100);
-        } else {
-          // thinking이 없더라도 빈 thinking state 확실히 초기화
-          setCurrentThinking("");
         }
       },
 
-      onMainMessageData: (content: string) => {
-        setCurrentMainResponse((prev) => prev + content);
+      // 토큰 스트리밍 (실시간 응답 생성)
+      onToken: (data) => {
+        console.log("💬 토큰 수신:", data.content);
+        setCurrentMainResponse((prev) => prev + data.content);
+        setSessionStatus("RESPONDING");
       },
 
-      onMainMessageComplete: (data: MainMessageCompleteEvent) => {
-        console.log("✅ Main Message 완료:", data);
+      // 응답 완료
+      onComplete: (data) => {
+        console.log("✅ 응답 완료:", data);
 
-        // 🔧 스트리밍되지 않은 경우를 위한 fallback: 서버 응답에서 직접 콘텐츠 추출
-        const rawData = data as any; // 임시로 any 타입 사용하여 서버 응답 접근
-        const finalContent =
-          rawData.fullContent || currentMainResponseRef.current || "";
-        console.log("📝 최종 콘텐츠:", {
-          rawData,
-          fullContent: rawData.fullContent,
-          currentResponse: currentMainResponseRef.current,
-          finalContent,
-        });
+        // 누적된 응답이 있으면 최종 메시지로 추가
+        const finalContent = currentMainResponseRef.current || data.message;
 
-        // 최종 AI 메시지 추가
-        const newMessage: ChatMessageItem = {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: "ai",
-          data: {
-            content: finalContent,
-            relatedInfo: data.relatedInfo,
-            sources: data.sources,
-          },
-          timestamp: new Date().toISOString(),
-        };
-
-        setMessages((prev) => [...prev, newMessage]);
-        setCurrentMainResponse("");
-        // 🔧 완료 시 thinking도 확실히 초기화
-        setCurrentThinking("");
-        setTimeout(scrollToBottom, 100);
-
-        // SSE 메타데이터 기반 북마크 데이터 설정
-        if (data.bookmarkData?.available && isAuthenticatedRef.current) {
-          setBookmarkData(data.bookmarkData);
+        if (finalContent) {
+          const newMessage: ChatMessageItem = {
+            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            type: "ai",
+            data: {
+              content: finalContent,
+              sources: data.source
+                ? [{ title: data.source, url: "", type: "OTHER" as const }]
+                : undefined,
+            },
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, newMessage]);
+          setCurrentMainResponse("");
+          setTimeout(scrollToBottom, 100);
         }
-
-        // 병렬 처리 상태 업데이트
-        setParallelProcessing((prev) => ({
-          ...prev,
-          mainMessageComplete: true,
-        }));
 
         setSessionStatus("COMPLETED");
+        toast.success(`응답 완료 (토큰: ${data.token_count})`);
       },
 
-      // 상세페이지 버튼 이벤트
-      onDetailPageButtonsStart: (buttonsCount: number) => {
-        console.log(`🔄 상세페이지 버튼 ${buttonsCount}개 준비 시작`);
-      },
-
-      onDetailPageButtonReady: (button: DetailPageButtonEvent) => {
-        setParallelProcessing((prev) => ({
-          ...prev,
-          detailButtons: [...prev.detailButtons, button].sort(
-            (a, b) => a.priority - b.priority,
-          ),
-        }));
-      },
-
-      onDetailPageButtonsComplete: (totalPreparationTime: number) => {
-        console.log(
-          `✅ 모든 상세페이지 버튼 준비 완료 (${totalPreparationTime}초)`,
-        );
-      },
-
-      // 회원 전용 이벤트
-      onMemberEvent: (data: MemberSessionEvent) => {
-        if (data.type === "session_created") {
-          console.log("📝 회원 세션 생성:", data.sessionId);
-          setCurrentSessionId(data.sessionId);
-        } else {
-          console.log("💾 회원 기록 저장 완료:", data);
-          setParallelProcessing((prev) => ({
-            ...prev,
-            memberRecordSaved: true,
-          }));
+      // 스트림 종료
+      onFinish: (data) => {
+        console.log("🔚 스트림 종료:", data.message);
+        setIsStreaming(false);
+        setCurrentThinking("");
+        setCurrentMainResponse("");
+        if (sessionStatusRef.current !== "COMPLETED") {
+          setSessionStatus("PENDING");
         }
       },
 
-      // Error Event
-      onError: (error: ErrorEventData) => {
-        console.error("❌ SSE 에러:", error);
-        setError(error.message || "채팅 처리 중 오류가 발생했습니다");
+      // 에러 처리
+      onError: (data) => {
+        console.error("❌ SSE 에러:", data);
+        setError(data.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        // 🔧 에러 시 모든 스트리밍 상태 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
-        toast.error(error.message || "오류가 발생했습니다");
+        toast.error(data.message || "오류가 발생했습니다");
       },
     }),
-    [scrollToBottom], // 최소한의 dependency만 포함
+    [scrollToBottom],
   );
 
   /**
@@ -358,7 +272,7 @@ export function ChatInterface({
         setSessionStatus("THINKING");
         setIsStreaming(true);
 
-        // 🔧 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
+        // 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
 
@@ -394,12 +308,11 @@ export function ChatInterface({
 
         console.log("📤 채팅 요청 전송:", request);
 
-        // v6.1: 통합 채팅 요청 + SSE 스트리밍 처리
-        await chatApi.startV61ChatWithStreaming(request, sseHandlers, {
+        // 새로운 API 사용: 실제 서버 응답에 맞는 SSE 처리
+        await chatApi.startChatWithStreaming(request, sseHandlers, {
           onClose: () => {
             console.log("🔌 SSE 연결 종료");
             setIsStreaming(false);
-            // 🔧 연결 종료 시 스트리밍 상태 초기화
             setCurrentThinking("");
             setCurrentMainResponse("");
             if (sessionStatusRef.current !== "COMPLETED") {
@@ -411,18 +324,16 @@ export function ChatInterface({
             setError(error.message);
             setSessionStatus("FAILED");
             setIsStreaming(false);
-            // 🔧 연결 에러 시 스트리밍 상태 초기화
             setCurrentThinking("");
             setCurrentMainResponse("");
             toast.error(error.message);
           },
         });
       } catch (error) {
-        console.error("v6.1 채팅 처리 실패:", error);
+        console.error("채팅 처리 실패:", error);
         setError(chatApi.parseErrorMessage(error));
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        // 🔧 예외 발생 시 스트리밍 상태 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
       }
