@@ -20,16 +20,19 @@ export const exchangeRatesQueries = {
     queryOptions<ExchangeRates, ApiError>({
       queryKey: exchangeRatesQueryKeys.list(params),
       queryFn: () => exchangeRatesApi.getExchangeRates(params),
-      // 전역 설정 사용 (retry: 3, refetchOnMount: true)
-      // 필요시 개별 쿼리에서 옵션 오버라이드 가능:
-      // refetchOnMount: false, // 이 쿼리만 마운트 시 refetch 비활성화
-      staleTime: 1000 * 30, // 30초 (환율은 자주 변동하므로 더 짧게)
+
+      refetchOnWindowFocus: false, // 윈도우 포커스 시 refetch 비활성화
+      refetchOnReconnect: false, // 네트워크 재연결 시 refetch 비활성화
+      refetchInterval: false, // 주기적 refetch 비활성화
+      refetchOnMount: true, // 페이지 진입(컴포넌트 마운트) 시에만 refetch
     }),
   detail: (code: string) =>
     queryOptions<DetailedExchangeRate, ApiError>({
       queryKey: exchangeRatesQueryKeys.detail(code),
       queryFn: () => exchangeRatesApi.getExchangeRateByCode(code),
-      // 전역 설정 사용
-      staleTime: 1000 * 30, // 30초
+      refetchOnWindowFocus: false, // 윈도우 포커스 시 refetch 비활성화
+      refetchOnReconnect: false, // 네트워크 재연결 시 refetch 비활성화
+      refetchInterval: false, // 주기적 refetch 비활성화
+      refetchOnMount: true, // 페이지 진입(컴포넌트 마운트) 시에만 refetch
     }),
 };
