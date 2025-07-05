@@ -149,3 +149,213 @@ export type StreamingOptions = {
    */
   signal?: AbortSignal;
 };
+
+/**
+ * Claude API 표준 SSE 이벤트 타입
+ */
+export type ClaudeSSEEventType =
+  | "message_start"
+  | "content_block_start"
+  | "content_block_delta"
+  | "content_block_stop"
+  | "message_delta"
+  | "message_stop"
+  | "ping"
+  | "error";
+
+/**
+ * Claude API 표준 콘텐츠 블록 타입
+ */
+export type ClaudeContentBlockType = "text" | "thinking" | "tool_use";
+
+/**
+ * Claude API 표준 델타 타입
+ */
+export type ClaudeDeltaType =
+  | "text_delta"
+  | "thinking_delta"
+  | "input_json_delta";
+
+/**
+ * Claude API 표준 메시지 시작 이벤트
+ */
+export type ClaudeMessageStartEvent = {
+  type: "message_start";
+  message: {
+    id: string;
+    type: "message";
+    role: "assistant";
+    model: string;
+    parent_uuid?: string;
+    uuid?: string;
+    content: any[];
+    stop_reason: string | null;
+    stop_sequence: string | null;
+  };
+};
+
+/**
+ * Claude API 표준 콘텐츠 블록 시작 이벤트
+ */
+export type ClaudeContentBlockStartEvent = {
+  type: "content_block_start";
+  index: number;
+  content_block: {
+    type: ClaudeContentBlockType;
+    text?: string;
+    thinking?: string;
+    start_timestamp?: string;
+    stop_timestamp?: string | null;
+    summaries?: any[];
+    cut_off?: boolean;
+  };
+};
+
+/**
+ * Claude API 표준 콘텐츠 블록 델타 이벤트
+ */
+export type ClaudeContentBlockDeltaEvent = {
+  type: "content_block_delta";
+  index: number;
+  delta: {
+    type: ClaudeDeltaType;
+    text?: string;
+    thinking?: string;
+    partial_json?: string;
+    summary?: {
+      summary: string;
+    };
+  };
+};
+
+/**
+ * Claude API 표준 콘텐츠 블록 종료 이벤트
+ */
+export type ClaudeContentBlockStopEvent = {
+  type: "content_block_stop";
+  index: number;
+  stop_timestamp?: string;
+};
+
+/**
+ * Claude API 표준 메시지 델타 이벤트
+ */
+export type ClaudeMessageDeltaEvent = {
+  type: "message_delta";
+  delta: {
+    stop_reason: string | null;
+    stop_sequence: string | null;
+  };
+};
+
+/**
+ * Claude API 표준 메시지 종료 이벤트
+ */
+export type ClaudeMessageStopEvent = {
+  type: "message_stop";
+};
+
+/**
+ * Claude API 표준 핑 이벤트
+ */
+export type ClaudePingEvent = {
+  type: "ping";
+};
+
+/**
+ * Claude API 표준 에러 이벤트
+ */
+export type ClaudeErrorEvent = {
+  type: "error";
+  error: {
+    type: string;
+    message: string;
+  };
+};
+
+/**
+ * Claude API 표준 메시지 한도 이벤트
+ */
+export type ClaudeMessageLimitEvent = {
+  type: "message_limit";
+  message_limit: {
+    type: string;
+    resetsAt: string | null;
+    remaining: number | null;
+    perModelLimit: any | null;
+  };
+};
+
+/**
+ * Claude API 표준 SSE 이벤트 데이터 통합 타입
+ */
+export type ClaudeSSEEventData =
+  | ClaudeMessageStartEvent
+  | ClaudeContentBlockStartEvent
+  | ClaudeContentBlockDeltaEvent
+  | ClaudeContentBlockStopEvent
+  | ClaudeMessageDeltaEvent
+  | ClaudeMessageStopEvent
+  | ClaudePingEvent
+  | ClaudeErrorEvent
+  | ClaudeMessageLimitEvent;
+
+/**
+ * Claude API 표준 SSE 이벤트 핸들러
+ */
+export type ClaudeSSEEventHandlers = {
+  /**
+   * 메시지 시작 핸들러
+   */
+  onMessageStart?: (event: ClaudeMessageStartEvent) => void;
+
+  /**
+   * 콘텐츠 블록 시작 핸들러
+   */
+  onContentBlockStart?: (event: ClaudeContentBlockStartEvent) => void;
+
+  /**
+   * 텍스트 델타 핸들러 (실시간 텍스트 스트리밍)
+   */
+  onTextDelta?: (text: string, index: number) => void;
+
+  /**
+   * 생각 델타 핸들러 (실시간 생각 스트리밍)
+   */
+  onThinkingDelta?: (thinking: string, index: number) => void;
+
+  /**
+   * 콘텐츠 블록 델타 핸들러 (원본 이벤트)
+   */
+  onContentBlockDelta?: (event: ClaudeContentBlockDeltaEvent) => void;
+
+  /**
+   * 콘텐츠 블록 종료 핸들러
+   */
+  onContentBlockStop?: (event: ClaudeContentBlockStopEvent) => void;
+
+  /**
+   * 메시지 델타 핸들러
+   */
+  onMessageDelta?: (event: ClaudeMessageDeltaEvent) => void;
+
+  /**
+   * 메시지 종료 핸들러
+   */
+  onMessageStop?: (event: ClaudeMessageStopEvent) => void;
+
+  /**
+   * 핑 이벤트 핸들러
+   */
+  onPing?: (event: ClaudePingEvent) => void;
+
+  /**
+   * 에러 핸들러
+   */
+  onError?: (event: ClaudeErrorEvent) => void;
+
+  /**
+   * 메시지 한도 핸들러
+   */
+  onMessageLimit?: (event: ClaudeMessageLimitEvent) => void;
+};
