@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { authService } from "@/lib/auth";
 import { NameChangeModal } from "../../../components/profile/NameChangeModal";
 import { AccountDeletionModal } from "../../../components/profile/AccountDeletionModal";
+import { format } from "date-fns";
 
 /**
  * 프로필 관리 라우트 정의
@@ -259,8 +260,12 @@ function ProfilePage() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium">마지막 로그인</Label>
                 <p className="text-sm text-neutral-600">
-                  {new Date().toLocaleDateString("ko-KR")}{" "}
-                  {new Date().toLocaleTimeString("ko-KR")}
+                  {user?.lastLoggedInAt
+                    ? format(
+                        new Date(user.lastLoggedInAt),
+                        "yyyy-MM-dd HH:mm:ss.SSS",
+                      )
+                    : "기록 없음"}
                 </p>
               </div>
               <div className="space-y-2">

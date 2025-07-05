@@ -15,6 +15,9 @@ export type User = {
   phoneVerified?: boolean;
   /** 🆕 Remember me 설정 상태 (v6.1 신규) */
   rememberMe?: boolean;
+  /** 마지막 로그인 */
+  lastLoggedInAt?: string;
+  updateAt?: string;
 };
 
 /**
