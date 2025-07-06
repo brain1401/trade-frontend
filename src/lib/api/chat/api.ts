@@ -522,8 +522,8 @@ export const chatHistoryApi = {
    * 전체 채팅 세션 목록을 조회
    * @returns 페이지네이션된 채팅 세션 목록
    */
-  getChatSessions(): Promise<PaginatedChatSessions> {
-    return httpClient.get("/chat/sessions");
+  getChatHistories(): Promise<PaginatedChatSessions> {
+    return httpClient.get("/chat/histories");
   },
 
   /**
@@ -531,8 +531,8 @@ export const chatHistoryApi = {
    * @param sessionId 조회할 세션의 ID
    * @returns 채팅 세션 상세 정보
    */
-  getChatSession(sessionId: string): Promise<ChatSessionDetail> {
-    return httpClient.get(`/chat/sessions/${sessionId}`);
+  getChatHistory(sessionId: string): Promise<ChatSessionDetail> {
+    return httpClient.get(`/chat/history/${sessionId}`);
   },
 
   async searchChatHistory(
@@ -541,7 +541,7 @@ export const chatHistoryApi = {
     const queryParams = new URLSearchParams(
       Object.entries(params).map(([key, value]) => [key, String(value)]),
     );
-    return httpClient.get(`/chat/history/search?${queryParams.toString()}`);
+    return httpClient.get(`/chat/histories/search?${queryParams.toString()}`);
   },
 };
 
