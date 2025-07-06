@@ -1,18 +1,30 @@
-import { RefreshCw, Trash2, AlertCircle, Bookmark } from "lucide-react";
-import { useMemo, useCallback, useState, useRef } from "react";
+import {
+  RefreshCw,
+  Trash2,
+  AlertCircle,
+  Bookmark,
+  ExternalLink,
+} from "lucide-react";
+import { useMemo, useCallback, useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { chatApi, type ClaudeSSEEventHandlers } from "@/lib/api/chat";
+import { processStreamingText } from "@/lib/utils/webSearchParser";
+import { chatApi, type V2SSEEventHandlers } from "@/lib/api/chat";
 import { useAuth } from "@/stores/authStore";
 import type {
   ChatSessionStatus,
   RelatedInfo,
   SourceReference,
 } from "@/types/chat";
+import type {
+  URLInfo,
+  ThinkingInfo,
+  WebSearchResult,
+} from "@/lib/api/chat/types";
 
 import { ChatInput } from "./ChatInput";
 import {
@@ -20,6 +32,7 @@ import {
   type ChatMessageType,
   type ChatMessageData,
 } from "./ChatMessage";
+import { WebSearchResults } from "./WebSearchResults";
 
 /**
  * 채팅 메시지 아이템 (UI용)
@@ -44,20 +57,33 @@ export type ChatInterfaceProps = {
 };
 
 /**
- * 🆕 v6.1: 3단계 병렬 처리 상태
+ * 🆕 v2.0: 병렬 처리 상태
  */
 type ParallelProcessingState = {
-  mainMessageComplete: boolean;
-  detailButtons: any[];
-  memberRecordSaved: boolean;
-  allProcessingComplete: boolean;
+  stage: string;
+  content: string;
+  progress: number;
+  timestamp: string;
 };
 
 /**
- * 🆕 v6.1: ChatGPT 스타일 회원/비회원 차별화 통합 채팅 인터페이스
+ * 🆕 v2.0: 상세 버튼 상태
+ */
+type DetailButtonsState = {
+  isStarted: boolean;
+  expectedCount: number;
+  readyButtons: URLInfo[];
+  isComplete: boolean;
+  error?: string;
+};
+
+/**
+ * 🆕 v2.1: ChatGPT 스타일 SSE 이벤트 처리 채팅 인터페이스
  *
- * v6.1의 핵심 컴포넌트로, 회원/비회원 차별화된 채팅을 처리하고
- * SSE 메타데이터 기반 북마크와 3단계 병렬 처리를 지원한다.
+ * v2.1의 핵심 변화:
+ * - 웹 검색 결과 완전 분리 (chat_web_search_results 이벤트)
+ * - 순수 텍스트 스트리밍 (chat_content_delta는 JSON 없음)
+ * - 표준화된 이벤트 매핑 적용
  */
 export function ChatInterface({
   onBookmark,
@@ -76,46 +102,50 @@ export function ChatInterface({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionUuid, setSessionUuid] = useState<string | null>(null);
 
-  // 현재 스트리밍 중인 메시지들
-  const [currentThinking, setCurrentThinking] = useState<string>("");
+  // 현재 스트리밍 중인 메시지
   const [currentMainResponse, setCurrentMainResponse] = useState<string>("");
 
-  // 3단계 병렬 처리 상태
+  // 🆕 v2.1: URL과 thinking 정보를 위한 별도 상태
+  const [urlInfoList, setUrlInfoList] = useState<URLInfo[]>([]);
+  const [thinkingInfoList, setThinkingInfoList] = useState<ThinkingInfo[]>([]);
+
+  // 🆕 v2.1: 병렬 처리 및 상세 버튼 상태
   const [parallelProcessing, setParallelProcessing] =
-    useState<ParallelProcessingState>({
-      mainMessageComplete: false,
-      detailButtons: [],
-      memberRecordSaved: false,
-      allProcessingComplete: false,
-    });
+    useState<ParallelProcessingState | null>(null);
+  const [detailButtons, setDetailButtons] = useState<DetailButtonsState>({
+    isStarted: false,
+    expectedCount: 0,
+    readyButtons: [],
+    isComplete: false,
+  });
 
-  // SSE 메타데이터 기반 북마크 데이터
-  const [bookmarkData, setBookmarkData] = useState<{
-    available: boolean;
-    hsCode?: string;
-    productName?: string;
-    confidence?: number;
-  } | null>(null);
+  // 🆕 v2.1: 웹 검색 결과 상태 (완전 분리됨)
+  const [webSearchResults, setWebSearchResults] = useState<WebSearchResult[]>(
+    [],
+  );
 
-  // 🔧 모든 상태의 최신 값을 유지하는 ref들
-  const isAuthenticatedRef = useRef(isAuthenticated);
-  const messagesRef = useRef(messages);
-  const sessionStatusRef = useRef(sessionStatus);
-  const currentThinkingRef = useRef(currentThinking);
-  const currentMainResponseRef = useRef(currentMainResponse);
-  const parallelProcessingRef = useRef(parallelProcessing);
-  const currentSessionIdRef = useRef(currentSessionId);
-  const sessionUuidRef = useRef(sessionUuid);
+  // ref로 상태 관리 (useEffect/useCallback 내부에서 최신 값 참조)
+  const sessionStatusRef = useRef<ChatSessionStatus>("PENDING");
+  const sessionUuidRef = useRef<string | null>(null);
+  const currentMainResponseRef = useRef<string>("");
+  const isStreamingRef = useRef<boolean>(false); // 🆕 추가
 
-  // ref 값들을 최신 상태로 동기화
-  isAuthenticatedRef.current = isAuthenticated;
-  messagesRef.current = messages;
-  sessionStatusRef.current = sessionStatus;
-  currentThinkingRef.current = currentThinking;
-  currentMainResponseRef.current = currentMainResponse;
-  parallelProcessingRef.current = parallelProcessing;
-  currentSessionIdRef.current = currentSessionId;
-  sessionUuidRef.current = sessionUuid;
+  // ref와 state 동기화
+  useEffect(() => {
+    sessionStatusRef.current = sessionStatus;
+  }, [sessionStatus]);
+
+  useEffect(() => {
+    sessionUuidRef.current = sessionUuid;
+  }, [sessionUuid]);
+
+  useEffect(() => {
+    currentMainResponseRef.current = currentMainResponse;
+  }, [currentMainResponse]);
+
+  useEffect(() => {
+    isStreamingRef.current = isStreaming;
+  }, [isStreaming]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -145,147 +175,238 @@ export function ChatInterface({
   );
 
   /**
-   * SSE 메타데이터 기반 북마크 생성
+   * URL 버튼 클릭 핸들러
    */
-  const handleCreateBookmark = useCallback(async () => {
-    if (
-      !bookmarkData?.available ||
-      !bookmarkData.hsCode ||
-      !isAuthenticatedRef.current
-    ) {
-      toast.error("북마크를 생성할 수 없습니다.");
-      return;
-    }
-
-    const relatedInfo: RelatedInfo = {
-      hsCode: bookmarkData.hsCode,
-      category: bookmarkData.productName,
-    };
-
-    try {
-      await onBookmark?.(relatedInfo);
-      toast.success(`${bookmarkData.productName} 북마크가 생성되었습니다!`);
-      setBookmarkData(null);
-    } catch (error) {
-      console.error("북마크 생성 실패:", error);
-      toast.error("북마크 생성에 실패했습니다.");
-    }
-  }, [bookmarkData, onBookmark]);
-
-  /**
-   * 상세페이지 버튼 클릭 핸들러
-   */
-  const handleDetailPageButton = useCallback((button: any) => {
-    window.location.href = button.url;
+  const handleUrlButtonClick = useCallback((urlInfo: URLInfo) => {
+    window.open(urlInfo.url, "_blank");
   }, []);
 
   /**
-   * 🔧 Claude API 표준 SSE 이벤트 핸들러들
+   * 🔧 v2.1 표준화된 SSE 이벤트 핸들러들
+   * 웹 검색 결과 분리 및 순수 텍스트 스트리밍 지원
    */
-  const sseHandlers: ClaudeSSEEventHandlers = useMemo(
+  const v2SSEHandlers: V2SSEEventHandlers = useMemo(
     () => ({
-      // 세션 UUID 핸들러
-      onSessionUuid: (event) => {
-        console.log("🆔 세션 UUID 수신:", event.session_uuid);
+      // 세션 정보 핸들러
+      onChatSessionInfo: (event) => {
+        console.log("🆔 세션 정보 수신:", event.session_uuid);
         setSessionUuid(event.session_uuid);
       },
 
       // 메시지 시작 핸들러
-      onMessageStart: (event) => {
+      onChatMessageStart: (event) => {
         console.log("🔍 메시지 시작:", event.message.id);
         setCurrentSessionId(event.message.id);
+        setSessionStatus("RESPONDING");
       },
 
-      // 콘텐츠 블록 시작 핸들러
-      onContentBlockStart: (event) => {
-        console.log(
-          `📊 콘텐츠 블록 시작 [${event.index}]:`,
-          event.content_block.type,
+      // 🆕 v2.1: 메타데이터 이벤트 핸들러 (새 세션 시)
+      onChatMetadataStart: () => {
+        console.log("📋 메타데이터 시작 (새 세션)");
+        // 필요시 UI 상태 업데이트
+      },
+
+      onChatMetadataStop: () => {
+        console.log("📋 메타데이터 종료 (새 세션)");
+        // 필요시 UI 상태 업데이트
+      },
+
+      // 콘텐츠 시작 핸들러
+      onChatContentStart: () => {
+        console.log("📊 콘텐츠 시작");
+        setSessionStatus("RESPONDING");
+      },
+
+      // 🚀 v2.2: 근본적으로 개선된 텍스트 델타 핸들러 (웹 검색 데이터 완전 분리)
+      onChatContentDelta: (event) => {
+        console.log("💬 텍스트 델타 이벤트:", {
+          textLength: event.delta.text.length || 0,
+          isStreaming: isStreamingRef.current,
+          preview:
+            event.delta.text.substring(0, 100) +
+            (event.delta.text.length > 100 ? "..." : ""),
+        });
+
+        if (event.delta.text) {
+          // 🚀 v2.2: 웹 검색 데이터 감지 및 완전 분리
+          const processResult = processStreamingText(event.delta.text);
+
+          console.log("🔍 v2.2 스트리밍 텍스트 처리:", {
+            originalLength: event.delta.text.length,
+            hasWebSearchData: processResult.hasWebSearchData,
+            shouldIgnore: processResult.shouldIgnore,
+            cleanTextLength: processResult.cleanText.length,
+          });
+
+          // 웹 검색 데이터만 있고 의미있는 텍스트가 없으면 이 델타를 완전히 무시
+          if (processResult.shouldIgnore) {
+            console.log("⚠️ 웹 검색 데이터만 포함된 델타 무시");
+            return;
+          }
+
+          // 웹 검색 데이터가 감지되었지만 유용한 텍스트가 있는 경우
+          if (processResult.hasWebSearchData) {
+            console.log("🧹 웹 검색 데이터 제거 완료:", {
+              originalLength: event.delta.text.length,
+              cleanLength: processResult.cleanText.length,
+              removed: event.delta.text.length - processResult.cleanText.length,
+            });
+          }
+
+          // 정리된 텍스트만 스트림에 추가
+          const textToAdd = processResult.cleanText;
+
+          if (textToAdd && textToAdd.trim()) {
+            setCurrentMainResponse((prev) => {
+              const newResponse = prev + textToAdd;
+              console.log("📝 응답 텍스트 누적:", {
+                previousLength: prev.length,
+                addedLength: textToAdd.length,
+                totalLength: newResponse.length,
+              });
+              return newResponse;
+            });
+
+            // 스트리밍 상태가 활성화되지 않았다면 활성화
+            if (!isStreamingRef.current) {
+              console.log("🚀 스트리밍 시작");
+              setIsStreaming(true);
+            }
+          }
+        }
+      },
+
+      // 🆕 v2.1: 웹 검색 결과 핸들러 (완전 분리됨)
+      onChatWebSearchResults: (event) => {
+        console.log("🔍 웹 검색 결과 수신:", event.total_count, "개");
+
+        // 구조화된 웹 검색 결과를 상태에 저장
+        const searchResults: WebSearchResult[] = event.results.map(
+          (result) => ({
+            title: result.title,
+            url: result.url,
+            type: result.type,
+            // content는 암호화되어 있으므로 표시하지 않음
+            encrypted_content: result.content,
+            page_age: result.page_age,
+          }),
         );
-        // 콘텐츠 블록 타입에 상관없이 처리 준비
-        setSessionStatus("RESPONDING");
+
+        setWebSearchResults(searchResults);
+        console.log("🔍 파싱된 웹 검색 결과:", searchResults);
       },
 
-      // 텍스트 델타 핸들러 (실시간 텍스트 스트리밍)
-      onTextDelta: (text, index) => {
-        console.log(`💬 텍스트 델타 [${index}]:`, text);
-        setCurrentMainResponse((prev) => prev + text);
-        setSessionStatus("RESPONDING");
+      // 콘텐츠 종료 핸들러
+      onChatContentStop: () => {
+        console.log("✅ 콘텐츠 종료");
       },
 
-      // 생각 델타 핸들러 (실시간 생각 스트리밍)
-      onThinkingDelta: (thinking, index) => {
-        console.log(`🤔 생각 델타 [${index}]:`, thinking);
-        setCurrentThinking((prev) => prev + thinking);
-        // thinking이 와도 RESPONDING 상태 유지 (thinking과 text가 함께 올 수 있음)
-        if (sessionStatusRef.current === "PENDING") {
-          setSessionStatus("RESPONDING");
-        }
+      // 병렬 처리 상태 핸들러
+      onParallelProcessing: (event) => {
+        console.log("🔄 병렬 처리:", event.stage, event.progress);
+        setParallelProcessing(event);
       },
 
-      // 콘텐츠 블록 종료 핸들러
-      onContentBlockStop: (event) => {
-        console.log(`✅ 콘텐츠 블록 종료 [${event.index}]`);
+      // 상세 버튼 준비 시작
+      onDetailButtonsStart: (event) => {
+        console.log("🔘 상세 버튼 준비 시작:", event.buttonsCount);
+        setDetailButtons({
+          isStarted: true,
+          expectedCount: event.buttonsCount,
+          readyButtons: [],
+          isComplete: false,
+        });
       },
 
-      // 메시지 델타 핸들러
-      onMessageDelta: (event) => {
-        console.log("📝 메시지 델타:", event.delta.stop_reason);
-        if (event.delta.stop_reason === "end_turn") {
-          setSessionStatus("COMPLETED");
-        }
+      // 개별 버튼 준비 완료
+      onDetailButtonReady: (event) => {
+        console.log("✅ 버튼 준비 완료:", event.buttonType);
+        setDetailButtons((prev) => ({
+          ...prev,
+          readyButtons: [
+            ...prev.readyButtons,
+            {
+              url: event.url,
+              title: event.title,
+              description: event.description,
+              buttonType: event.buttonType,
+              metadata: event.metadata,
+            },
+          ],
+        }));
+      },
+
+      // 모든 버튼 준비 완료
+      onDetailButtonsComplete: (event) => {
+        console.log("🎉 모든 버튼 준비 완료:", event.buttonsGenerated);
+        setDetailButtons((prev) => ({
+          ...prev,
+          isComplete: true,
+        }));
+      },
+
+      // 버튼 준비 에러
+      onDetailButtonsError: (event) => {
+        console.log("❌ 버튼 준비 에러:", event.errorCode);
+        setDetailButtons((prev) => ({
+          ...prev,
+          error: event.errorMessage,
+        }));
+      },
+
+      // 🆕 v2.1: Heartbeat 핸들러 (연결 유지)
+      onHeartbeat: (event) => {
+        console.log("💓 연결 유지:", event.session_uuid);
+        // 필요시 연결 상태 UI 업데이트
       },
 
       // 메시지 종료 핸들러
-      onMessageStop: (event) => {
+      onChatMessageStop: () => {
         console.log("🔚 메시지 스트림 종료");
 
-        // 누적된 응답들을 최종 메시지로 추가
-        const finalThinking = currentThinkingRef.current;
+        // 누적된 응답을 최종 메시지로 추가
         const finalContent = currentMainResponseRef.current;
 
-        // 스트리밍 상태 먼저 해제 (실시간 표시 중단)
-        setIsStreaming(false);
-        setCurrentThinking("");
-        setCurrentMainResponse("");
-
-        // 최종 메시지들 추가
-        const newMessages: ChatMessageItem[] = [];
-
-        if (finalThinking && finalThinking.trim()) {
-          newMessages.push({
-            id: `msg_${Date.now()}_thinking_${Math.random().toString(36).substr(2, 9)}`,
-            type: "thinking",
-            data: {
-              content: finalThinking,
-            },
-            timestamp: new Date().toISOString(),
-          });
-        }
-
+        // 최종 메시지가 있는 경우 먼저 메시지 추가
         if (finalContent && finalContent.trim()) {
-          newMessages.push({
+          const newMessage: ChatMessageItem = {
             id: `msg_${Date.now()}_content_${Math.random().toString(36).substr(2, 9)}`,
             type: "ai",
             data: {
-              content: finalContent,
+              content: finalContent, // 🔧 v2.1: 이미 깨끗한 순수 텍스트
             },
             timestamp: new Date().toISOString(),
+          };
+
+          // 새 메시지 추가와 동시에 스트리밍 상태 정리
+          setMessages((prev) => [...prev, newMessage]);
+
+          // 다음 프레임에서 스트리밍 상태 정리 (깜빡임 방지)
+          requestAnimationFrame(() => {
+            setIsStreaming(false);
+            setCurrentMainResponse("");
+            setSessionStatus("PENDING");
           });
-        }
 
-        // 한 번에 모든 메시지 추가
-        if (newMessages.length > 0) {
-          setMessages((prev) => [...prev, ...newMessages]);
           setTimeout(scrollToBottom, 100);
+        } else {
+          // 응답이 없는 경우에만 즉시 상태 정리
+          setIsStreaming(false);
+          setCurrentMainResponse("");
+          setSessionStatus("PENDING");
         }
-
-        setSessionStatus("PENDING");
       },
 
-      // 핑 이벤트 핸들러
-      onPing: (event) => {
-        console.log("🏓 핑 이벤트 수신");
+      // URL 정보 업데이트 핸들러
+      onUrlInfoUpdate: (urlInfo) => {
+        console.log("🔗 URL 정보 업데이트:", urlInfo.title, urlInfo.url);
+        setUrlInfoList((prev) => [...prev, urlInfo]);
+      },
+
+      // Thinking 정보 업데이트 핸들러
+      onThinkingInfoUpdate: (thinkingInfo) => {
+        console.log("🤔 Thinking 정보 업데이트:", thinkingInfo.stage);
+        setThinkingInfoList((prev) => [...prev, thinkingInfo]);
       },
 
       // 에러 핸들러
@@ -294,7 +415,6 @@ export function ChatInterface({
         setError(event.error.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        setCurrentThinking("");
         setCurrentMainResponse("");
         toast.error(event.error.message || "오류가 발생했습니다");
       },
@@ -303,7 +423,7 @@ export function ChatInterface({
   );
 
   /**
-   * 채팅 메시지 전송 및 SSE 스트리밍 시작
+   * 채팅 메시지 전송 및 v2.1 SSE 스트리밍 시작
    */
   const handleSendMessage = useCallback(
     async (message: string) => {
@@ -313,17 +433,19 @@ export function ChatInterface({
         setIsStreaming(true);
 
         // 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
-        setCurrentThinking("");
         setCurrentMainResponse("");
 
-        // 3단계 병렬 처리 상태 초기화
-        setParallelProcessing({
-          mainMessageComplete: false,
-          detailButtons: [],
-          memberRecordSaved: false,
-          allProcessingComplete: false,
+        // v2.1: 별도 상태들 초기화
+        setUrlInfoList([]);
+        setThinkingInfoList([]);
+        setWebSearchResults([]); // 🔧 v2.1: 웹 검색 결과 초기화
+        setParallelProcessing(null);
+        setDetailButtons({
+          isStarted: false,
+          expectedCount: 0,
+          readyButtons: [],
+          isComplete: false,
         });
-        setBookmarkData(null);
 
         // 사용자 메시지 추가
         const userMessage: ChatMessageItem = {
@@ -336,45 +458,42 @@ export function ChatInterface({
         setMessages((prev) => [...prev, userMessage]);
         setTimeout(scrollToBottom, 100);
 
-        // 회원/비회원 차별화 채팅 요청
+        // v2.1 표준화된 채팅 요청
         const request = {
           message,
           session_uuid: sessionUuidRef.current || undefined,
         };
 
-        console.log("📤 채팅 요청 전송:", request);
+        console.log("📤 v2.1 채팅 요청 전송:", request);
 
-        // 새로운 API 사용: 실제 서버 응답에 맞는 SSE 처리
-        await chatApi.startClaudeStandardStreaming(request, sseHandlers, {
+        // v2.1 표준화된 SSE 처리
+        await chatApi.startV2StandardStreaming(request, v2SSEHandlers, {
           onClose: () => {
-            console.log("🔌 SSE 연결 종료");
+            console.log("🔌 v2.1 SSE 연결 종료");
             setIsStreaming(false);
-            setCurrentThinking("");
             setCurrentMainResponse("");
             if (sessionStatusRef.current !== "COMPLETED") {
               setSessionStatus("PENDING");
             }
           },
           onError: (error: Error) => {
-            console.error("🚨 SSE 연결 에러:", error);
+            console.error("🚨 v2.1 SSE 연결 에러:", error);
             setError(error.message);
             setSessionStatus("FAILED");
             setIsStreaming(false);
-            setCurrentThinking("");
             setCurrentMainResponse("");
             toast.error(error.message);
           },
         });
       } catch (error) {
-        console.error("채팅 처리 실패:", error);
+        console.error("v2.1 채팅 처리 실패:", error);
         setError(chatApi.parseErrorMessage(error));
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        setCurrentThinking("");
         setCurrentMainResponse("");
       }
     },
-    [sseHandlers, scrollToBottom],
+    [v2SSEHandlers, scrollToBottom],
   );
 
   /**
@@ -382,15 +501,17 @@ export function ChatInterface({
    */
   const handleClearChat = useCallback(() => {
     setMessages([]);
-    // 🔧 초기화 시 모든 스트리밍 상태 확실히 초기화
-    setCurrentThinking("");
+    // 🔧 v2.1: 모든 상태 초기화
     setCurrentMainResponse("");
-    setBookmarkData(null);
-    setParallelProcessing({
-      mainMessageComplete: false,
-      detailButtons: [],
-      memberRecordSaved: false,
-      allProcessingComplete: false,
+    setUrlInfoList([]);
+    setThinkingInfoList([]);
+    setWebSearchResults([]); // 🔧 v2.1: 웹 검색 결과 초기화
+    setParallelProcessing(null);
+    setDetailButtons({
+      isStarted: false,
+      expectedCount: 0,
+      readyButtons: [],
+      isComplete: false,
     });
     setSessionStatus("PENDING");
     setError(null);
@@ -427,13 +548,14 @@ export function ChatInterface({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 3단계 병렬 처리 상태 표시 */}
+            {/* 병렬 처리 상태 표시 */}
             {isStreaming && (
               <div className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4 animate-spin text-primary-600" />
                 <span className="text-sm text-neutral-600">
                   {sessionStatus === "THINKING" && "분석 중..."}
                   {sessionStatus === "RESPONDING" && "응답 생성 중..."}
+                  {parallelProcessing && ` (${parallelProcessing.stage})`}
                 </span>
               </div>
             )}
@@ -457,7 +579,7 @@ export function ChatInterface({
             <Card className="max-w-md">
               <CardContent className="p-6 text-center">
                 <h3 className="mb-2 text-lg font-semibold">
-                  AI 무역 정보 플랫폼
+                  AI 무역 정보 플랫폼 (v2.0)
                 </h3>
                 <p className="mb-4 text-sm text-muted-foreground">
                   {welcomeMessage}
@@ -483,134 +605,120 @@ export function ChatInterface({
             />
           ))}
 
-          {/* 🔧 실시간 스트리밍 중인 thinking 표시 */}
-          {currentThinking && isStreaming && (
-            <ChatMessage
-              type="thinking"
-              data={{ content: currentThinking }}
-              timestamp={new Date().toISOString()}
-            />
-          )}
-
           {/* 🔧 실시간 스트리밍 중인 내용 표시 */}
           {isStreaming && (
-            <>
-              {/* thinking 표시 */}
-              {currentThinking && (
-                <ChatMessage
-                  type="thinking"
-                  data={{ content: currentThinking }}
-                  timestamp={new Date().toISOString()}
-                />
-              )}
-
-              {/* text 표시 */}
-              {currentMainResponse && (
-                <ChatMessage
-                  type="ai"
-                  data={{ content: currentMainResponse }}
-                  timestamp={new Date().toISOString()}
-                />
-              )}
-            </>
+            <ChatMessage
+              type="ai"
+              data={{ content: currentMainResponse || "" }}
+              timestamp={new Date().toISOString()}
+              isLoading={
+                !currentMainResponse || currentMainResponse.length === 0
+              }
+            />
           )}
         </div>
 
-        {/* SSE 메타데이터 기반 북마크 버튼 */}
-        {bookmarkData?.available && isAuthenticated && (
-          <div className="mt-4">
-            <Card className="border-primary-200 bg-primary-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium text-primary-900">
-                      북마크 추가 가능
-                    </h4>
-                    <p className="text-sm text-primary-700">
-                      {bookmarkData.productName} (HS Code: {bookmarkData.hsCode}
-                      )
-                    </p>
-                    <p className="text-xs text-primary-600">
-                      분류 신뢰도:{" "}
-                      {((bookmarkData.confidence || 0) * 100).toFixed(1)}%
-                    </p>
-                  </div>
+        {/* 🆕 v2.0: 별도 URL 정보 UI */}
+        {urlInfoList.length > 0 && (
+          <Card className="mt-4 border-blue-200 bg-blue-50/50">
+            <CardContent className="p-4">
+              <h4 className="mb-3 text-sm font-medium text-blue-800">
+                🔗 관련 상세 페이지
+              </h4>
+              <div className="grid gap-2">
+                {urlInfoList.map((urlInfo, index) => (
                   <Button
-                    onClick={handleCreateBookmark}
-                    className="bg-primary-600 hover:bg-primary-700"
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleUrlButtonClick(urlInfo)}
+                    className="h-auto justify-start py-2 text-left"
                   >
-                    <Bookmark className="mr-2 h-4 w-4" />
-                    북마크 추가
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* 상세페이지 버튼들 (병렬 처리 결과) */}
-        {parallelProcessing.detailButtons.length > 0 && (
-          <div className="mt-4">
-            <h4 className="mb-2 text-sm font-medium text-neutral-700">
-              관련 상세 정보
-            </h4>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {parallelProcessing.detailButtons.map((button) => (
-                <Button
-                  key={button.buttonType}
-                  variant="outline"
-                  className="justify-start text-left"
-                  onClick={() => handleDetailPageButton(button)}
-                >
-                  <div>
-                    <div className="font-medium">{button.title}</div>
-                    <div className="text-xs text-neutral-600">
-                      {button.description}
+                    <ExternalLink className="mr-2 h-3 w-3 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">{urlInfo.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {urlInfo.description}
+                      </div>
                     </div>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 🆕 v2.0: 별도 Thinking 정보 UI */}
+        {thinkingInfoList.length > 0 && (
+          <Card className="mt-4 border-amber-200 bg-amber-50/50">
+            <CardContent className="p-4">
+              <h4 className="mb-3 text-sm font-medium text-amber-800">
+                🤔 AI 분석 과정
+              </h4>
+              <div className="space-y-2">
+                {thinkingInfoList.slice(-3).map((thinkingInfo, index) => (
+                  <div key={index} className="text-sm">
+                    <Badge variant="outline" className="mr-2 text-xs">
+                      {thinkingInfo.stage}
+                    </Badge>
+                    <span className="text-amber-700">
+                      {thinkingInfo.content}
+                    </span>
                   </div>
-                </Button>
-              ))}
-            </div>
-          </div>
+                ))}
+                {thinkingInfoList.length > 3 && (
+                  <div className="text-xs text-amber-600">
+                    +{thinkingInfoList.length - 3}개 더
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        {/* 에러 표시 */}
-        {error && (
-          <div className="mt-4">
-            <Card className="border-destructive">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* 🆕 웹 검색 결과 UI */}
+        {webSearchResults.length > 0 && (
+          <WebSearchResults
+            results={webSearchResults}
+            className="mt-4"
+            maxResults={6}
+          />
         )}
 
+        {/* 스크롤 기준점 */}
         <div ref={messagesEndRef} />
       </div>
 
       {/* 입력 영역 */}
-      <div className="border-t bg-white/90 p-4 backdrop-blur-sm">
+      <div className="border-t bg-white px-4 py-4">
         <ChatInput
           onSendMessage={handleSendMessage}
-          disabled={isStreaming}
-          placeholder={
-            isStreaming
-              ? "메시지 처리 중..."
-              : `${userType === "MEMBER" ? "회원님, " : ""}무역 관련 질문을 입력해주세요...`
-          }
+          isLoading={isStreaming}
+          disabled={sessionStatus === "FAILED"}
         />
 
-        {/* 회원/비회원 차별화 안내 */}
-        <div className="mt-2 text-center">
-          <span className="text-xs text-neutral-500">
-            {userType === "MEMBER"
-              ? "회원님의 모든 대화가 자동으로 저장됩니다"
-              : "로그인하시면 대화 기록과 북마크 기능을 이용할 수 있습니다"}
-          </span>
-        </div>
+        {/* 에러 표시 */}
+        {error && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+            <AlertCircle className="h-4 w-4" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* 병렬 처리 진행상황 */}
+        {parallelProcessing && (
+          <div className="mt-2 text-xs text-neutral-600">
+            📊 {parallelProcessing.content} ({parallelProcessing.progress}%)
+          </div>
+        )}
+
+        {/* 상세 버튼 준비 상황 */}
+        {detailButtons.isStarted && !detailButtons.isComplete && (
+          <div className="mt-2 text-xs text-blue-600">
+            🔘 상세 페이지 준비 중... ({detailButtons.readyButtons.length}/
+            {detailButtons.expectedCount})
+          </div>
+        )}
       </div>
     </div>
   );

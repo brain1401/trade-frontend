@@ -25,6 +25,6 @@ export const usersApi = {
    * 계정 삭제(탈퇴)
    */
   leaveAccount(): Promise<void> {
-    return httpClient.delete<void>("/users/leave");
+    return httpClient.delete("/users/leave");
   },
 };
