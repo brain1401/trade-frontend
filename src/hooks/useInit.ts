@@ -33,11 +33,9 @@ export default function useInit(): UseInitReturnType {
     initialize();
   }, [initialize]);
 
-  const { isLoading: isExchangeRateLoading } = useQuery(
-    exchangeRatesQueries.list(),
-  );
+  useQuery(exchangeRatesQueries.list());
 
   return {
-    isLoading: isAuthLoading || isExchangeRateLoading,
+    isLoading: isAuthLoading,
   };
 }
