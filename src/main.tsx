@@ -40,27 +40,7 @@ declare module "@tanstack/react-router" {
 
 // auth 컨텍스트를 주입하는 내부 컴포넌트
 function InnerApp() {
-  const { isLoading } = useInit();
-
-  const auth = useAuth();
-
-  // auth 컨텍스트를 메모이제이션하여 불필요한 재렌더링 방지
-  const authContext = useMemo(
-    () => ({
-      isAuthenticated: auth.isAuthenticated,
-      isLoading: auth.isLoading,
-      user: auth.user,
-      rememberMe: auth.rememberMe,
-      tokenExpiresAt: auth.tokenExpiresAt,
-    }),
-    [
-      auth.isAuthenticated,
-      auth.isLoading,
-      auth.user,
-      auth.rememberMe,
-      auth.tokenExpiresAt,
-    ],
-  );
+  const { isLoading, authContext } = useInit();
 
   // 앱 초기화 중일 때 로딩 화면 표시
   if (isLoading) {

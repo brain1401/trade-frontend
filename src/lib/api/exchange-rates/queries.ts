@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { exchangeRatesApi } from "./api";
 import type { ExchangeRates, DetailedExchangeRate } from "./types";
-import { ApiError } from "../common/ApiError";
+import type { ApiError } from "../common/ApiError";
 
 export const exchangeRatesQueryKeys = {
   all: () => ["exchangeRates"] as const,
@@ -24,7 +24,7 @@ export const exchangeRatesQueries = {
       refetchOnWindowFocus: false, // 윈도우 포커스 시 refetch 비활성화
       refetchOnReconnect: false, // 네트워크 재연결 시 refetch 비활성화
       refetchInterval: false, // 주기적 refetch 비활성화
-      refetchOnMount: true, // 페이지 진입(컴포넌트 마운트) 시에만 refetch
+      refetchOnMount: false, // 페이지 진입(컴포넌트 마운트) 시에만 refetch
     }),
   detail: (code: string) =>
     queryOptions<DetailedExchangeRate, ApiError>({
