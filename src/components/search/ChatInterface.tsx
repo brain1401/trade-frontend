@@ -1,29 +1,25 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { RefreshCw, Trash2, AlertCircle, Bookmark } from "lucide-react";
+import { useMemo, useCallback, useState, useRef } from "react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { RefreshCw, AlertCircle, Trash2, Bookmark } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
-import {
-  ChatMessage,
-  type ChatMessageData,
-  type ChatMessageType,
-} from "./ChatMessage";
-import { ChatInput } from "./ChatInput";
-import { chatApi, type V61SSEEventHandlers } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { chatApi, type ClaudeSSEEventHandlers } from "@/lib/api/chat";
 import { useAuth } from "@/stores/authStore";
-import { toast } from "sonner";
 import type {
   ChatSessionStatus,
-  InitialMetadataEvent,
-  SessionInfoEvent,
-  ThinkingEventData,
-  MainMessageCompleteEvent,
-  DetailPageButtonEvent,
-  MemberSessionEvent,
   RelatedInfo,
-  ErrorEventData,
+  SourceReference,
 } from "@/types/chat";
+
+import { ChatInput } from "./ChatInput";
+import {
+  ChatMessage,
+  type ChatMessageType,
+  type ChatMessageData,
+} from "./ChatMessage";
 
 /**
  * 채팅 메시지 아이템 (UI용)
@@ -52,7 +48,7 @@ export type ChatInterfaceProps = {
  */
 type ParallelProcessingState = {
   mainMessageComplete: boolean;
-  detailButtons: DetailPageButtonEvent[];
+  detailButtons: any[];
   memberRecordSaved: boolean;
   allProcessingComplete: boolean;
 };
@@ -78,6 +74,7 @@ export function ChatInterface({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionUuid, setSessionUuid] = useState<string | null>(null);
 
   // 현재 스트리밍 중인 메시지들
   const [currentThinking, setCurrentThinking] = useState<string>("");
@@ -108,6 +105,7 @@ export function ChatInterface({
   const currentMainResponseRef = useRef(currentMainResponse);
   const parallelProcessingRef = useRef(parallelProcessing);
   const currentSessionIdRef = useRef(currentSessionId);
+  const sessionUuidRef = useRef(sessionUuid);
 
   // ref 값들을 최신 상태로 동기화
   isAuthenticatedRef.current = isAuthenticated;
@@ -117,6 +115,7 @@ export function ChatInterface({
   currentMainResponseRef.current = currentMainResponse;
   parallelProcessingRef.current = parallelProcessing;
   currentSessionIdRef.current = currentSessionId;
+  sessionUuidRef.current = sessionUuid;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -176,176 +175,131 @@ export function ChatInterface({
   /**
    * 상세페이지 버튼 클릭 핸들러
    */
-  const handleDetailPageButton = useCallback(
-    (button: DetailPageButtonEvent) => {
-      window.location.href = button.url;
-    },
-    [],
-  );
+  const handleDetailPageButton = useCallback((button: any) => {
+    window.location.href = button.url;
+  }, []);
 
   /**
-   * 🔧 v6.1 SSE 이벤트 핸들러들 (ref 기반으로 stale closure 완전 해결)
+   * 🔧 Claude API 표준 SSE 이벤트 핸들러들
    */
-  const sseHandlers: V61SSEEventHandlers = useMemo(
+  const sseHandlers: ClaudeSSEEventHandlers = useMemo(
     () => ({
-      // 초기 메타데이터 (회원/비회원 차별화)
-      onInitialMetadata: (data: InitialMetadataEvent) => {
-        console.log("🔍 초기 메타데이터 수신:", data);
-        if (data.sessionId) {
-          setCurrentSessionId(data.sessionId);
-        }
+      // 세션 UUID 핸들러
+      onSessionUuid: (event) => {
+        console.log("🆔 세션 UUID 수신:", event.session_uuid);
+        setSessionUuid(event.session_uuid);
       },
 
-      onSessionInfo: (data: SessionInfoEvent) => {
-        console.log("👤 세션 정보 수신:", data);
-        setCurrentSessionId(data.sessionId || null);
-
-        // 사용자 유형 알림
-        if (data.userType === "MEMBER") {
-          toast.success(data.message, { duration: 3000 });
-        } else {
-          toast.info(data.message, { duration: 5000 });
-        }
+      // 메시지 시작 핸들러
+      onMessageStart: (event) => {
+        console.log("🔍 메시지 시작:", event.message.id);
+        setCurrentSessionId(event.message.id);
       },
 
-      // Thinking Events
-      onThinking: (message: string, eventType?: string) => {
-        console.log("💭 Thinking 수신:", message, eventType);
-        setCurrentThinking(message);
-        setSessionStatus("THINKING");
-
-        // 병렬 처리 시작 감지
-        if (eventType === "thinking_parallel_processing_start") {
-          toast.info("3단계 병렬 처리를 시작합니다", { duration: 2000 });
-        }
-      },
-
-      // Main Message Events
-      onMainMessageStart: () => {
+      // 콘텐츠 블록 시작 핸들러
+      onContentBlockStart: (event) => {
         console.log(
-          "🚀 Main Message 시작 - Thinking:",
-          currentThinkingRef.current,
+          `📊 콘텐츠 블록 시작 [${event.index}]:`,
+          event.content_block.type,
         );
-
-        // 🔧 먼저 상태를 업데이트하여 thinking 렌더링을 중단
+        // 콘텐츠 블록 타입에 상관없이 처리 준비
         setSessionStatus("RESPONDING");
+      },
 
-        // Thinking 메시지를 고정하고 Main Message 시작
-        if (currentThinkingRef.current) {
-          const newMessage: ChatMessageItem = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            type: "thinking",
-            data: { content: currentThinkingRef.current },
-            timestamp: new Date().toISOString(),
-          };
+      // 텍스트 델타 핸들러 (실시간 텍스트 스트리밍)
+      onTextDelta: (text, index) => {
+        console.log(`💬 텍스트 델타 [${index}]:`, text);
+        setCurrentMainResponse((prev) => prev + text);
+        setSessionStatus("RESPONDING");
+      },
 
-          setMessages((prev) => [...prev, newMessage]);
-          // 🔧 즉시 thinking 초기화
-          setCurrentThinking("");
-          setTimeout(scrollToBottom, 100);
-        } else {
-          // thinking이 없더라도 빈 thinking state 확실히 초기화
-          setCurrentThinking("");
+      // 생각 델타 핸들러 (실시간 생각 스트리밍)
+      onThinkingDelta: (thinking, index) => {
+        console.log(`🤔 생각 델타 [${index}]:`, thinking);
+        setCurrentThinking((prev) => prev + thinking);
+        // thinking이 와도 RESPONDING 상태 유지 (thinking과 text가 함께 올 수 있음)
+        if (sessionStatusRef.current === "PENDING") {
+          setSessionStatus("RESPONDING");
         }
       },
 
-      onMainMessageData: (content: string) => {
-        setCurrentMainResponse((prev) => prev + content);
+      // 콘텐츠 블록 종료 핸들러
+      onContentBlockStop: (event) => {
+        console.log(`✅ 콘텐츠 블록 종료 [${event.index}]`);
       },
 
-      onMainMessageComplete: (data: MainMessageCompleteEvent) => {
-        console.log("✅ Main Message 완료:", data);
+      // 메시지 델타 핸들러
+      onMessageDelta: (event) => {
+        console.log("📝 메시지 델타:", event.delta.stop_reason);
+        if (event.delta.stop_reason === "end_turn") {
+          setSessionStatus("COMPLETED");
+        }
+      },
 
-        // 🔧 스트리밍되지 않은 경우를 위한 fallback: 서버 응답에서 직접 콘텐츠 추출
-        const rawData = data as any; // 임시로 any 타입 사용하여 서버 응답 접근
-        const finalContent =
-          rawData.fullContent || currentMainResponseRef.current || "";
-        console.log("📝 최종 콘텐츠:", {
-          rawData,
-          fullContent: rawData.fullContent,
-          currentResponse: currentMainResponseRef.current,
-          finalContent,
-        });
+      // 메시지 종료 핸들러
+      onMessageStop: (event) => {
+        console.log("🔚 메시지 스트림 종료");
 
-        // 최종 AI 메시지 추가
-        const newMessage: ChatMessageItem = {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: "ai",
-          data: {
-            content: finalContent,
-            relatedInfo: data.relatedInfo,
-            sources: data.sources,
-          },
-          timestamp: new Date().toISOString(),
-        };
+        // 누적된 응답들을 최종 메시지로 추가
+        const finalThinking = currentThinkingRef.current;
+        const finalContent = currentMainResponseRef.current;
 
-        setMessages((prev) => [...prev, newMessage]);
-        setCurrentMainResponse("");
-        // 🔧 완료 시 thinking도 확실히 초기화
+        // 스트리밍 상태 먼저 해제 (실시간 표시 중단)
+        setIsStreaming(false);
         setCurrentThinking("");
-        setTimeout(scrollToBottom, 100);
+        setCurrentMainResponse("");
 
-        // SSE 메타데이터 기반 북마크 데이터 설정
-        if (data.bookmarkData?.available && isAuthenticatedRef.current) {
-          setBookmarkData(data.bookmarkData);
+        // 최종 메시지들 추가
+        const newMessages: ChatMessageItem[] = [];
+
+        if (finalThinking && finalThinking.trim()) {
+          newMessages.push({
+            id: `msg_${Date.now()}_thinking_${Math.random().toString(36).substr(2, 9)}`,
+            type: "thinking",
+            data: {
+              content: finalThinking,
+            },
+            timestamp: new Date().toISOString(),
+          });
         }
 
-        // 병렬 처리 상태 업데이트
-        setParallelProcessing((prev) => ({
-          ...prev,
-          mainMessageComplete: true,
-        }));
-
-        setSessionStatus("COMPLETED");
-      },
-
-      // 상세페이지 버튼 이벤트
-      onDetailPageButtonsStart: (buttonsCount: number) => {
-        console.log(`🔄 상세페이지 버튼 ${buttonsCount}개 준비 시작`);
-      },
-
-      onDetailPageButtonReady: (button: DetailPageButtonEvent) => {
-        setParallelProcessing((prev) => ({
-          ...prev,
-          detailButtons: [...prev.detailButtons, button].sort(
-            (a, b) => a.priority - b.priority,
-          ),
-        }));
-      },
-
-      onDetailPageButtonsComplete: (totalPreparationTime: number) => {
-        console.log(
-          `✅ 모든 상세페이지 버튼 준비 완료 (${totalPreparationTime}초)`,
-        );
-      },
-
-      // 회원 전용 이벤트
-      onMemberEvent: (data: MemberSessionEvent) => {
-        if (data.type === "session_created") {
-          console.log("📝 회원 세션 생성:", data.sessionId);
-          setCurrentSessionId(data.sessionId);
-        } else {
-          console.log("💾 회원 기록 저장 완료:", data);
-          setParallelProcessing((prev) => ({
-            ...prev,
-            memberRecordSaved: true,
-          }));
+        if (finalContent && finalContent.trim()) {
+          newMessages.push({
+            id: `msg_${Date.now()}_content_${Math.random().toString(36).substr(2, 9)}`,
+            type: "ai",
+            data: {
+              content: finalContent,
+            },
+            timestamp: new Date().toISOString(),
+          });
         }
+
+        // 한 번에 모든 메시지 추가
+        if (newMessages.length > 0) {
+          setMessages((prev) => [...prev, ...newMessages]);
+          setTimeout(scrollToBottom, 100);
+        }
+
+        setSessionStatus("PENDING");
       },
 
-      // Error Event
-      onError: (error: ErrorEventData) => {
-        console.error("❌ SSE 에러:", error);
-        setError(error.message || "채팅 처리 중 오류가 발생했습니다");
+      // 핑 이벤트 핸들러
+      onPing: (event) => {
+        console.log("🏓 핑 이벤트 수신");
+      },
+
+      // 에러 핸들러
+      onError: (event) => {
+        console.error("❌ SSE 에러:", event.error.type, event.error.message);
+        setError(event.error.message || "채팅 처리 중 오류가 발생했습니다");
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        // 🔧 에러 시 모든 스트리밍 상태 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
-        toast.error(error.message || "오류가 발생했습니다");
+        toast.error(event.error.message || "오류가 발생했습니다");
       },
     }),
-    [scrollToBottom], // 최소한의 dependency만 포함
+    [scrollToBottom],
   );
 
   /**
@@ -358,7 +312,7 @@ export function ChatInterface({
         setSessionStatus("THINKING");
         setIsStreaming(true);
 
-        // 🔧 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
+        // 새 메시지 시작 시 이전 스트리밍 상태 완전 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
 
@@ -385,7 +339,7 @@ export function ChatInterface({
         // 회원/비회원 차별화 채팅 요청
         const request = {
           message,
-          sessionId: currentSessionIdRef.current || undefined,
+          session_uuid: sessionUuidRef.current || undefined,
           context: {
             userAgent: navigator.userAgent,
             language: "ko",
@@ -394,12 +348,11 @@ export function ChatInterface({
 
         console.log("📤 채팅 요청 전송:", request);
 
-        // v6.1: 통합 채팅 요청 + SSE 스트리밍 처리
-        await chatApi.startV61ChatWithStreaming(request, sseHandlers, {
+        // 새로운 API 사용: 실제 서버 응답에 맞는 SSE 처리
+        await chatApi.startClaudeStandardStreaming(request, sseHandlers, {
           onClose: () => {
             console.log("🔌 SSE 연결 종료");
             setIsStreaming(false);
-            // 🔧 연결 종료 시 스트리밍 상태 초기화
             setCurrentThinking("");
             setCurrentMainResponse("");
             if (sessionStatusRef.current !== "COMPLETED") {
@@ -411,18 +364,16 @@ export function ChatInterface({
             setError(error.message);
             setSessionStatus("FAILED");
             setIsStreaming(false);
-            // 🔧 연결 에러 시 스트리밍 상태 초기화
             setCurrentThinking("");
             setCurrentMainResponse("");
             toast.error(error.message);
           },
         });
       } catch (error) {
-        console.error("v6.1 채팅 처리 실패:", error);
+        console.error("채팅 처리 실패:", error);
         setError(chatApi.parseErrorMessage(error));
         setSessionStatus("FAILED");
         setIsStreaming(false);
-        // 🔧 예외 발생 시 스트리밍 상태 초기화
         setCurrentThinking("");
         setCurrentMainResponse("");
       }
@@ -448,6 +399,7 @@ export function ChatInterface({
     setSessionStatus("PENDING");
     setError(null);
     setCurrentSessionId(null);
+    setSessionUuid(null);
   }, []);
 
   const userType = isAuthenticated ? "MEMBER" : "GUEST";
@@ -535,8 +487,8 @@ export function ChatInterface({
             />
           ))}
 
-          {/* 🔧 세션 상태에 따른 thinking 메시지 렌더링 제어 */}
-          {currentThinking && sessionStatus === "THINKING" && (
+          {/* 🔧 실시간 스트리밍 중인 thinking 표시 */}
+          {currentThinking && isStreaming && (
             <ChatMessage
               type="thinking"
               data={{ content: currentThinking }}
@@ -544,13 +496,27 @@ export function ChatInterface({
             />
           )}
 
-          {/* 🔧 세션 상태에 따른 Main Response 렌더링 제어 */}
-          {currentMainResponse && sessionStatus === "RESPONDING" && (
-            <ChatMessage
-              type="ai"
-              data={{ content: currentMainResponse }}
-              timestamp={new Date().toISOString()}
-            />
+          {/* 🔧 실시간 스트리밍 중인 내용 표시 */}
+          {isStreaming && (
+            <>
+              {/* thinking 표시 */}
+              {currentThinking && (
+                <ChatMessage
+                  type="thinking"
+                  data={{ content: currentThinking }}
+                  timestamp={new Date().toISOString()}
+                />
+              )}
+
+              {/* text 표시 */}
+              {currentMainResponse && (
+                <ChatMessage
+                  type="ai"
+                  data={{ content: currentMainResponse }}
+                  timestamp={new Date().toISOString()}
+                />
+              )}
+            </>
           )}
         </div>
 

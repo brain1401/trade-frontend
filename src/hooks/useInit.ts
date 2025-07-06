@@ -1,10 +1,20 @@
-import { exchangeRatesApi, exchangeRatesQueries } from "@/lib/api";
+import { exchangeRatesQueries } from "@/lib/api";
 import { useAuth } from "@/stores/authStore";
+import type { User } from "@/types/auth";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+
+type AuthContext = {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: User | null;
+  rememberMe: boolean;
+  tokenExpiresAt: Date | null;
+};
 
 type UseInitReturnType = {
   isLoading: boolean;
+  authContext: AuthContext;
 };
 
 /**
@@ -27,17 +37,34 @@ type UseInitReturnType = {
  */
 export default function useInit(): UseInitReturnType {
   // 인증 상태 초기화
-  const { initialize, isLoading: isAuthLoading } = useAuth();
+  const { initialize, isLoading: isAuthLoading, ...auth } = useAuth();
+
+  // auth 컨텍스트를 메모이제이션하여 불필요한 재렌더링 방지
+  const authContext = useMemo(
+    () => ({
+      isAuthenticated: auth.isAuthenticated,
+      isLoading: isAuthLoading,
+      user: auth.user,
+      rememberMe: auth.rememberMe,
+      tokenExpiresAt: auth.tokenExpiresAt,
+    }),
+    [
+      auth.isAuthenticated,
+      isAuthLoading,
+      auth.user,
+      auth.rememberMe,
+      auth.tokenExpiresAt,
+    ],
+  );
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  const { isLoading: isExchangeRateLoading } = useQuery(
-    exchangeRatesQueries.list(),
-  );
+  useQuery(exchangeRatesQueries.list());
 
   return {
-    isLoading: isAuthLoading || isExchangeRateLoading,
+    isLoading: isAuthLoading,
+    authContext,
   };
 }

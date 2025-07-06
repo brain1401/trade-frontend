@@ -14,13 +14,9 @@ import {
   CheckCircle,
   MessageSquare,
 } from "lucide-react";
-import {
-  mockDashboardSummary,
-  getRecentFeedItems,
-} from "@/data/mock/dashboard";
-import { mockExchangeRates } from "@/data/mock/exchange-rates";
+
 import { useQuery } from "@tanstack/react-query";
-import { bookmarkApi, bookmarkQueries } from "@/lib/api";
+import { bookmarkQueries } from "@/lib/api";
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import RecentUpdatesFeed from "@/components/dashboard/RecentUpdatesFeed";

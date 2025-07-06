@@ -43,11 +43,10 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 3, // 무조건 3번 재시도
-
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000), // 지수 백오프, 최대 3초
-      refetchOnMount: true, // 컴포넌트 마운트 시 stale 데이터 자동 refetch
-      refetchOnWindowFocus: true, // 윈도우 포커스 시 stale 데이터 자동 refetch
-      refetchOnReconnect: true, // 네트워크 재연결 시 stale 데이터 자동 refetch
+      refetchOnMount: false, // 컴포넌트 마운트 시 stale 데이터 자동 refetch
+      refetchOnWindowFocus: false, // 윈도우 포커스 시 stale 데이터 자동 refetch
+      refetchOnReconnect: false, // 네트워크 재연결 시 stale 데이터 자동 refetch
     },
   },
 });
