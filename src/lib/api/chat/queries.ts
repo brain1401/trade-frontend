@@ -24,14 +24,14 @@ export const chatHistoryQueries = {
   list: () =>
     queryOptions<PaginatedChatSessions, ApiError>({
       queryKey: chatHistoryQueryKeys.list(),
-      queryFn: () => chatHistoryApi.getChatSessions(),
+      queryFn: () => chatHistoryApi.getChatHistories(),
     }),
 
   /** 특정 채팅 세션 상세 조회를 위한 쿼리 옵션 */
   detail: (sessionId: string) =>
     queryOptions<ChatSessionDetail, ApiError>({
       queryKey: chatHistoryQueryKeys.detail(sessionId),
-      queryFn: () => chatHistoryApi.getChatSession(sessionId),
+      queryFn: () => chatHistoryApi.getChatHistory(sessionId),
       enabled: !!sessionId, // sessionId가 있을 때만 쿼리 실행
     }),
 };

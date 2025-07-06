@@ -13,7 +13,7 @@ export const Route = createFileRoute("/dashboard/history/")({
 
 function ChatHistoryPage() {
   const {
-    data: sessionsResponse,
+    data: history,
     isLoading,
     isError,
   } = useQuery(chatHistoryQueries.list());
@@ -32,7 +32,7 @@ function ChatHistoryPage() {
     );
   }
 
-  if (isError || !sessionsResponse) {
+  if (isError || !history) {
     return (
       <div className="container mx-auto py-8">
         채팅 내역을 불러오는 데 실패했습니다.
@@ -40,7 +40,7 @@ function ChatHistoryPage() {
     );
   }
 
-  const sessions = sessionsResponse.content;
+  const histories = history.content;
 
   return (
     <div className="container mx-auto space-y-8 py-8">
@@ -53,7 +53,7 @@ function ChatHistoryPage() {
         </p>
       </div>
 
-      {sessions.length === 0 ? (
+      {histories.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p>아직 채팅 내역이 없습니다.</p>
@@ -64,29 +64,29 @@ function ChatHistoryPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {sessions.map((session) => (
+          {histories.map((history) => (
             <Link
-              key={session.sessionId}
+              key={history.sessionId}
               to="/dashboard/history/$sessionId"
-              params={{ sessionId: session.sessionId }}
+              params={{ sessionId: history.sessionId }}
               className="block"
             >
               <Card className="transition-shadow hover:shadow-md">
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    {session.sessionTitle}
+                    {history.sessionTitle}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between text-sm text-neutral-500">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    <span>{session.messageCount}개의 메시지</span>
+                    <span>{history.messageCount}개의 메시지</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     <span>
                       마지막 활동:{" "}
-                      {format(new Date(session.updatedAt), "yyyy-MM-dd HH:mm")}
+                      {format(new Date(history.updatedAt), "yyyy-MM-dd HH:mm")}
                     </span>
                   </div>
                 </CardContent>

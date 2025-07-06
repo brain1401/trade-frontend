@@ -340,10 +340,6 @@ export function ChatInterface({
         const request = {
           message,
           session_uuid: sessionUuidRef.current || undefined,
-          context: {
-            userAgent: navigator.userAgent,
-            language: "ko",
-          },
         };
 
         console.log("📤 채팅 요청 전송:", request);
