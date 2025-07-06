@@ -4,37 +4,157 @@ import type {
 } from "@/lib/api/chat/types";
 
 /**
- * 🔧 v2.1: 웹 검색 결과 파싱 유틸리티 (개선된 버전)
+ * 🚀 v2.2: 근본적으로 개선된 웹 검색 결과 파싱 유틸리티
  *
- * Context7 기반 최적화:
- * - JSON 배열 형태 웹 검색 결과 처리 추가
- * - 단일 파이썬 딕셔너리와 JSON 배열 모두 지원
- * - 견고한 에러 핸들링 및 fallback 메커니즘
+ * 핵심 개선사항:
+ * - 웹 검색 데이터 감지 시 완전 제거 (파싱 시도하지 않음)
+ * - 견고한 패턴 매칭으로 "[,,]" 잔여물 방지
+ * - SSE 이벤트 기반 분리 지원
+ * - 안전한 fallback 메커니즘
  */
 
 /**
- * 🆕 JSON 배열 형태의 웹 검색 결과를 감지하는 정규식
- * 예시: [{'encrypted_content': '...', 'type': 'web_search_result', ...}, {...}]
+ * 🔍 웹 검색 결과 패턴들 (순서대로 검사)
  */
-const JSON_ARRAY_PATTERN =
-  /\[\s*\{[^[\]]*'type':\s*'web_search_result'[^[\]]*\}\s*(?:,\s*\{[^[\]]*'type':\s*'web_search_result'[^[\]]*\}\s*)*\]/g;
+const WEB_SEARCH_PATTERNS = [
+  // 1. 배열 형태 (가장 일반적)
+  /\[\s*\{[^[\]]*['"]type['"]:\s*['"]web_search_result['"][^[\]]*\}[^[\]]*\]/gs,
+
+  // 2. 단일 딕셔너리 형태
+  /\{[^{}]*['"]encrypted_content['"][^{}]*['"]type['"]:\s*['"]web_search_result['"][^{}]*\}/gs,
+
+  // 3. 부분적 배열 (스트리밍 중 잘린 형태)
+  /\[\s*\{[^[\]]*['"]encrypted_content['"][^[\]]*$/gs,
+
+  // 4. 단순 배열 표시 (파싱 실패 후 남은 형태)
+  /\[\s*,\s*,\s*,\s*\]/gs,
+  /\[\s*(,\s*)*\]/gs,
+
+  // 5. 매우 긴 암호화 데이터 (특정 패턴)
+  /\[\s*\{[^}]*['"]encrypted_content['"]:\s*['"][A-Za-z0-9+/=]{100,}['"][^}]*\}[^[\]]*\]/gs,
+];
 
 /**
- * 🆕 파이썬 딕셔너리 형태의 웹 검색 결과를 감지하는 정규식 (기존)
- * 예시: {'encrypted_content': '...', 'page_age': None, 'title': '...', 'type': 'web_search_result', 'url': '...'}
+ * 🚀 빠른 웹 검색 데이터 감지 (파싱하지 않고 존재만 확인)
  */
-const PYTHON_DICT_PATTERN =
-  /\{[^{}]*'encrypted_content':[^{}]*'type':\s*'web_search_result'[^{}]*'url':[^{}]*\}/g;
+export function containsWebSearchData(text: string): boolean {
+  if (!text || typeof text !== "string") {
+    return false;
+  }
+
+  // 빠른 키워드 검사
+  const hasWebSearchKeywords =
+    text.includes("web_search_result") ||
+    text.includes("encrypted_content") ||
+    text.includes("page_age") ||
+    (text.includes("[") && text.includes(",") && text.length > 50);
+
+  if (!hasWebSearchKeywords) {
+    return false;
+  }
+
+  // 패턴 매칭으로 확실히 확인
+  return WEB_SEARCH_PATTERNS.some((pattern) => pattern.test(text));
+}
 
 /**
- * 🆕 파이썬 스타일을 JSON으로 변환하는 함수 (Context7 기반 견고함 개선)
+ * 🧹 웹 검색 데이터 완전 제거 (파싱 없이 안전하게 제거)
  */
-function convertPythonToJSON(pythonStr: string): string {
-  return pythonStr
-    .replace(/'/g, '"') // 작은따옴표를 큰따옴표로
-    .replace(/None/g, "null") // None을 null로
-    .replace(/True/g, "true") // True를 true로
-    .replace(/False/g, "false"); // False를 false로
+export function removeWebSearchData(text: string): string {
+  if (!text || typeof text !== "string") {
+    return text || "";
+  }
+
+  // 웹 검색 데이터가 없으면 원본 반환
+  if (!containsWebSearchData(text)) {
+    return text;
+  }
+
+  let cleanText = text;
+
+  // 모든 패턴에 대해 제거 시도
+  for (const pattern of WEB_SEARCH_PATTERNS) {
+    pattern.lastIndex = 0; // 정규식 상태 초기화
+    cleanText = cleanText.replace(pattern, "");
+  }
+
+  // 추가 정리: 연속된 공백, 빈 줄 등 정리
+  cleanText = cleanText
+    .replace(/\s+/g, " ") // 연속 공백을 하나로
+    .replace(/^\s+|\s+$/g, "") // 앞뒤 공백 제거
+    .replace(/\n\s*\n/g, "\n"); // 빈 줄 정리
+
+  return cleanText;
+}
+
+/**
+ * 🎯 v2.2: 스트리밍 텍스트에서 웹 검색 데이터 완전 분리
+ *
+ * 파싱 시도하지 않고 완전히 제거하는 방식으로 "[,,]" 문제 해결
+ */
+export function processStreamingText(text: string): {
+  cleanText: string;
+  hasWebSearchData: boolean;
+  shouldIgnore: boolean; // 이 델타를 무시해야 하는지
+} {
+  if (!text || typeof text !== "string") {
+    return {
+      cleanText: text || "",
+      hasWebSearchData: false,
+      shouldIgnore: false,
+    };
+  }
+
+  const hasWebSearchData = containsWebSearchData(text);
+
+  if (!hasWebSearchData) {
+    return {
+      cleanText: text,
+      hasWebSearchData: false,
+      shouldIgnore: false,
+    };
+  }
+
+  // 웹 검색 데이터가 포함된 경우
+  const cleanText = removeWebSearchData(text);
+
+  // 정리 후 의미있는 텍스트가 남았는지 확인
+  const hasUsefulText = cleanText.trim().length > 0;
+
+  // 웹 검색 데이터만 있고 의미있는 텍스트가 없으면 이 델타를 무시
+  const shouldIgnore = !hasUsefulText;
+
+  return {
+    cleanText: cleanText,
+    hasWebSearchData: true,
+    shouldIgnore,
+  };
+}
+
+/**
+ * 🆕 텍스트에 웹 검색 결과가 포함되어 있는지 빠르게 확인
+ */
+export function containsPythonDict(text: string): boolean {
+  return containsWebSearchData(text);
+}
+
+/**
+ * 🔧 v2.1 호환: Context7 기반 실시간 스트리밍 웹 검색 결과 처리
+ * 🚀 v2.2: 파싱 대신 완전 제거 방식으로 변경
+ */
+export function parseStreamingWebSearchResults(text: string): {
+  cleanText: string;
+  hasWebSearchData: boolean;
+  partialResults?: WebSearchResult[];
+} {
+  const result = processStreamingText(text);
+
+  // v2.2: 파싱하지 않고 완전 제거만 수행
+  return {
+    cleanText: result.cleanText,
+    hasWebSearchData: result.hasWebSearchData,
+    // partialResults는 더 이상 제공하지 않음 (별도 이벤트에서 처리)
+  };
 }
 
 /**
@@ -67,6 +187,17 @@ function parseJSONArrayResults(jsonArrayStr: string): WebSearchResult[] {
     console.error("JSON 배열 파싱 실패:", error, "원본:", jsonArrayStr);
     return [];
   }
+}
+
+/**
+ * 🆕 파이썬 스타일을 JSON으로 변환하는 함수 (Context7 기반 견고함 개선)
+ */
+function convertPythonToJSON(pythonStr: string): string {
+  return pythonStr
+    .replace(/'/g, '"') // 작은따옴표를 큰따옴표로
+    .replace(/None/g, "null") // None을 null로
+    .replace(/True/g, "true") // True를 true로
+    .replace(/False/g, "false"); // False를 false로
 }
 
 /**
@@ -141,146 +272,41 @@ export function detectAndParseWebSearchResults(text: string): {
   const webSearchResults: WebSearchResult[] = [];
   let hasWebSearchData = false;
 
-  // 1. JSON 배열 형태 처리 (우선순위 높음)
-  const jsonArrayMatches = text.match(JSON_ARRAY_PATTERN);
-  if (jsonArrayMatches && jsonArrayMatches.length > 0) {
-    console.log(
-      "🔍 JSON 배열 형태 웹 검색 결과 감지:",
-      jsonArrayMatches.length,
-      "개",
-    );
-
-    for (const match of jsonArrayMatches) {
-      const parsed = parseJSONArrayResults(match);
-      if (parsed.length > 0) {
-        webSearchResults.push(...parsed);
-        hasWebSearchData = true;
-
-        // 원본 텍스트에서 제거
-        cleanText = cleanText.replace(match, "").replace(/\s+/g, " ").trim();
-        console.log("✅ JSON 배열에서", parsed.length, "개 결과 파싱 완료");
-      }
-    }
-  }
-
-  // 2. 개별 파이썬 딕셔너리 형태 처리 (기존 방식)
-  const pythonDictMatches = cleanText.match(PYTHON_DICT_PATTERN);
-  if (pythonDictMatches && pythonDictMatches.length > 0) {
-    console.log(
-      "🔍 파이썬 딕셔너리 형태 웹 검색 결과 감지:",
-      pythonDictMatches.length,
-      "개",
-    );
-
-    for (const match of pythonDictMatches) {
-      const parsed = parseAdvancedPythonDict(match);
-
-      if (
-        parsed &&
-        parsed.type === "web_search_result" &&
-        parsed.title &&
-        parsed.url
-      ) {
-        webSearchResults.push({
-          title: parsed.title,
-          url: parsed.url,
-          type: parsed.type,
-          encrypted_content: parsed.encrypted_content,
-          page_age: parsed.page_age,
-        });
-        hasWebSearchData = true;
-
-        // 원본 텍스트에서 제거
-        cleanText = cleanText.replace(match, "").replace(/\s+/g, " ").trim();
-      }
-    }
+  // 🚀 v2.2: 더 이상 파싱하지 않고 완전 제거만 수행
+  hasWebSearchData = containsWebSearchData(text);
+  if (hasWebSearchData) {
+    cleanText = removeWebSearchData(text);
   }
 
   return {
     hasWebSearchData,
     cleanText: cleanText,
-    webSearchResults,
+    webSearchResults, // 빈 배열 반환 (별도 이벤트에서 처리)
   };
 }
 
 /**
- * 🆕 텍스트에 웹 검색 결과가 포함되어 있는지 빠르게 확인
- */
-export function containsPythonDict(text: string): boolean {
-  if (!text || typeof text !== "string") return false;
-  // JSON 배열 또는 파이썬 딕셔너리 패턴 확인
-  return JSON_ARRAY_PATTERN.test(text) || PYTHON_DICT_PATTERN.test(text);
-}
-
-/**
- * 🔧 v2.1 호환: Context7 기반 실시간 스트리밍 웹 검색 결과 처리
- * JSON 배열과 파이썬 딕셔너리 모두 지원하는 통합 파서
- */
-export function parseStreamingWebSearchResults(text: string): {
-  cleanText: string;
-  hasWebSearchData: boolean;
-  partialResults?: WebSearchResult[];
-} {
-  // 🔧 성능 최적화: 웹 검색 데이터가 없다면 원본 텍스트 그대로 반환
-  if (!containsPythonDict(text)) {
-    return {
-      cleanText: text || "",
-      hasWebSearchData: false,
-    };
-  }
-
-  // 🆕 Context7 기반: 통합 웹 검색 결과 파싱
-  const result = detectAndParseWebSearchResults(text);
-
-  if (result.hasWebSearchData) {
-    console.log(
-      "🎯 통합 파서 성공:",
-      result.webSearchResults.length,
-      "개 결과 파싱",
-    );
-    return {
-      cleanText: result.cleanText,
-      hasWebSearchData: true,
-      partialResults: result.webSearchResults,
-    };
-  }
-
-  // fallback: 원본 텍스트 반환
-  return { cleanText: text || "", hasWebSearchData: false };
-}
-
-/**
- * 🔧 v2.1 호환: AI 응답 텍스트에서 웹 검색 결과 배열을 추출함
+ * 🔧 v2.1 호환: AI 응답 텍스트에서 웹 검색 결과 배열을 추출함 (v2.2 개선)
  */
 export function parseWebSearchResults(
   text: string,
 ): ParsedWebSearchResults | null {
-  const result = detectAndParseWebSearchResults(text);
-
-  if (result.hasWebSearchData && result.webSearchResults.length > 0) {
-    return {
-      results: result.webSearchResults,
-      count: result.webSearchResults.length,
-    };
-  }
-
+  // v2.2: 더 이상 파싱하지 않음 (별도 이벤트에서 처리)
   return null;
 }
 
 /**
- * 🔧 v2.1 호환: 웹 검색 결과가 포함된 텍스트인지 확인함
+ * 🔧 v2.1 호환: 웹 검색 결과가 포함된 텍스트인지 확인함 (v2.2 개선)
  */
 export function containsWebSearchResults(text: string): boolean {
-  const result = detectAndParseWebSearchResults(text);
-  return result.hasWebSearchData;
+  return containsWebSearchData(text);
 }
 
 /**
- * 🔧 v2.1 호환: 웹 검색 결과 부분을 텍스트에서 제거함
+ * 🔧 v2.1 호환: 웹 검색 결과 부분을 텍스트에서 제거함 (v2.2 개선)
  */
 export function removeWebSearchResults(text: string): string {
-  const result = detectAndParseWebSearchResults(text);
-  return result.cleanText;
+  return removeWebSearchData(text);
 }
 
 /**

@@ -12,10 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import {
-  parseStreamingWebSearchResults,
-  containsPythonDict,
-} from "@/lib/utils/webSearchParser";
+import { processStreamingText } from "@/lib/utils/webSearchParser";
 import { chatApi, type V2SSEEventHandlers } from "@/lib/api/chat";
 import { useAuth } from "@/stores/authStore";
 import type {
@@ -220,7 +217,7 @@ export function ChatInterface({
         setSessionStatus("RESPONDING");
       },
 
-      // 🔧 v2.1: 텍스트 델타 핸들러 (Context7 기반 통합 웹 검색 결과 파싱)
+      // 🚀 v2.2: 근본적으로 개선된 텍스트 델타 핸들러 (웹 검색 데이터 완전 분리)
       onChatContentDelta: (event) => {
         console.log("💬 텍스트 델타 이벤트:", {
           textLength: event.delta.text.length || 0,
@@ -231,74 +228,34 @@ export function ChatInterface({
         });
 
         if (event.delta.text) {
-          let textToAdd = event.delta.text;
+          // 🚀 v2.2: 웹 검색 데이터 감지 및 완전 분리
+          const processResult = processStreamingText(event.delta.text);
 
-          // 🔧 Context7 기반: 웹 검색 결과 감지 및 파싱
-          if (containsPythonDict(event.delta.text)) {
-            console.log("🔍 웹 검색 데이터 감지 - 파싱 시작:", {
-              textLength: event.delta.text.length,
-              hasJsonArray: event.delta.text.includes("[{"),
-              hasPythonDict: event.delta.text.includes(
-                "'type': 'web_search_result'",
-              ),
-            });
+          console.log("🔍 v2.2 스트리밍 텍스트 처리:", {
+            originalLength: event.delta.text.length,
+            hasWebSearchData: processResult.hasWebSearchData,
+            shouldIgnore: processResult.shouldIgnore,
+            cleanTextLength: processResult.cleanText.length,
+          });
 
-            const parseResult = parseStreamingWebSearchResults(
-              event.delta.text,
-            );
-
-            console.log("📊 파싱 결과:", {
-              hasWebSearchData: parseResult.hasWebSearchData,
-              resultsCount: parseResult.partialResults?.length || 0,
-              cleanTextLength: parseResult.cleanText.length,
-              originalTextLength: event.delta.text.length,
-            });
-
-            // 웹 검색 결과가 발견된 경우 별도 처리
-            if (parseResult.hasWebSearchData && parseResult.partialResults) {
-              console.log("✅ 웹 검색 결과 파싱 성공:", {
-                newResults: parseResult.partialResults.length,
-                titles: parseResult.partialResults.map(
-                  (r) => r.title.substring(0, 30) + "...",
-                ),
-              });
-
-              // 기존 웹 검색 결과에 추가
-              setWebSearchResults((prev) => {
-                const newResults = [
-                  ...prev,
-                  ...(parseResult.partialResults || []),
-                ];
-                // 중복 제거 (URL 기준)
-                const uniqueResults = newResults.filter(
-                  (result, index, arr) =>
-                    arr.findIndex((r) => r.url === result.url) === index,
-                );
-
-                console.log("🔄 웹 검색 결과 업데이트:", {
-                  previous: prev.length,
-                  added: (parseResult.partialResults || []).length,
-                  total: uniqueResults.length,
-                  duplicatesRemoved: newResults.length - uniqueResults.length,
-                });
-
-                return uniqueResults;
-              });
-            }
-
-            // 파싱된 깨끗한 텍스트 사용
-            textToAdd = parseResult.cleanText;
-
-            if (parseResult.hasWebSearchData) {
-              console.log("🧹 텍스트 정리 완료:", {
-                originalLength: event.delta.text.length,
-                cleanLength: textToAdd.length,
-                removed: event.delta.text.length - textToAdd.length,
-              });
-            }
+          // 웹 검색 데이터만 있고 의미있는 텍스트가 없으면 이 델타를 완전히 무시
+          if (processResult.shouldIgnore) {
+            console.log("⚠️ 웹 검색 데이터만 포함된 델타 무시");
+            return;
           }
 
-          // 텍스트 누적 (파싱된 텍스트 또는 원본 텍스트)
+          // 웹 검색 데이터가 감지되었지만 유용한 텍스트가 있는 경우
+          if (processResult.hasWebSearchData) {
+            console.log("🧹 웹 검색 데이터 제거 완료:", {
+              originalLength: event.delta.text.length,
+              cleanLength: processResult.cleanText.length,
+              removed: event.delta.text.length - processResult.cleanText.length,
+            });
+          }
+
+          // 정리된 텍스트만 스트림에 추가
+          const textToAdd = processResult.cleanText;
+
           if (textToAdd && textToAdd.trim()) {
             setCurrentMainResponse((prev) => {
               const newResponse = prev + textToAdd;
@@ -309,12 +266,12 @@ export function ChatInterface({
               });
               return newResponse;
             });
-          }
 
-          // 스트리밍 상태가 활성화되지 않았다면 활성화
-          if (!isStreamingRef.current) {
-            console.log("🚀 스트리밍 시작");
-            setIsStreaming(true);
+            // 스트리밍 상태가 활성화되지 않았다면 활성화
+            if (!isStreamingRef.current) {
+              console.log("🚀 스트리밍 시작");
+              setIsStreaming(true);
+            }
           }
         }
       },
