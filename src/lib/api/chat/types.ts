@@ -16,6 +16,8 @@ export type ChatRequest = {
   message: string;
   /** 🆕 v6.1: 회원의 기존 세션 ID (연속 대화 시, 회원만) */
   sessionId?: string;
+  /** 세션 UUID (연속 대화 시 사용) */
+  session_uuid?: string;
   /** 추가 컨텍스트 정보 (IP, User-Agent 등) */
   context?: {
     userAgent?: string;
@@ -154,6 +156,7 @@ export type StreamingOptions = {
  * Claude API 표준 SSE 이벤트 타입
  */
 export type ClaudeSSEEventType =
+  | "session_uuid" // 새로운 세션 UUID 이벤트
   | "message_start"
   | "content_block_start"
   | "content_block_delta"
@@ -256,6 +259,14 @@ export type ClaudeMessageStopEvent = {
 };
 
 /**
+ * Claude API 표준 세션 UUID 이벤트
+ */
+export type ClaudeSessionUuidEvent = {
+  session_uuid: string;
+  timestamp: number;
+};
+
+/**
  * Claude API 표준 핑 이벤트
  */
 export type ClaudePingEvent = {
@@ -304,6 +315,11 @@ export type ClaudeSSEEventData =
  * Claude API 표준 SSE 이벤트 핸들러
  */
 export type ClaudeSSEEventHandlers = {
+  /**
+   * 세션 UUID 핸들러
+   */
+  onSessionUuid?: (event: ClaudeSessionUuidEvent) => void;
+
   /**
    * 메시지 시작 핸들러
    */

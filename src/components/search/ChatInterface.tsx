@@ -74,6 +74,7 @@ export function ChatInterface({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionUuid, setSessionUuid] = useState<string | null>(null);
 
   // 현재 스트리밍 중인 메시지들
   const [currentThinking, setCurrentThinking] = useState<string>("");
@@ -104,6 +105,7 @@ export function ChatInterface({
   const currentMainResponseRef = useRef(currentMainResponse);
   const parallelProcessingRef = useRef(parallelProcessing);
   const currentSessionIdRef = useRef(currentSessionId);
+  const sessionUuidRef = useRef(sessionUuid);
 
   // ref 값들을 최신 상태로 동기화
   isAuthenticatedRef.current = isAuthenticated;
@@ -113,6 +115,7 @@ export function ChatInterface({
   currentMainResponseRef.current = currentMainResponse;
   parallelProcessingRef.current = parallelProcessing;
   currentSessionIdRef.current = currentSessionId;
+  sessionUuidRef.current = sessionUuid;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -181,6 +184,12 @@ export function ChatInterface({
    */
   const sseHandlers: ClaudeSSEEventHandlers = useMemo(
     () => ({
+      // 세션 UUID 핸들러
+      onSessionUuid: (event) => {
+        console.log("🆔 세션 UUID 수신:", event.session_uuid);
+        setSessionUuid(event.session_uuid);
+      },
+
       // 메시지 시작 핸들러
       onMessageStart: (event) => {
         console.log("🔍 메시지 시작:", event.message.id);
@@ -330,7 +339,7 @@ export function ChatInterface({
         // 회원/비회원 차별화 채팅 요청
         const request = {
           message,
-          sessionId: currentSessionIdRef.current || undefined,
+          session_uuid: sessionUuidRef.current || undefined,
           context: {
             userAgent: navigator.userAgent,
             language: "ko",
@@ -390,6 +399,7 @@ export function ChatInterface({
     setSessionStatus("PENDING");
     setError(null);
     setCurrentSessionId(null);
+    setSessionUuid(null);
   }, []);
 
   const userType = isAuthenticated ? "MEMBER" : "GUEST";

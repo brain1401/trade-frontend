@@ -6,6 +6,7 @@ import type {
   SSEEventData,
   ClaudeSSEEventHandlers,
   ClaudeSSEEventData,
+  ClaudeSessionUuidEvent,
 } from "./types";
 import {
   fetchEventSource,
@@ -335,116 +336,126 @@ export const chatApi = {
           }
 
           try {
-            const data = JSON.parse(event.data) as ClaudeSSEEventData;
+            const data = JSON.parse(event.data);
 
-            console.log("Claude SSE 이벤트 타입:", data.type);
+            // session_uuid 이벤트 처리 (별도 타입)
+            if (data.session_uuid && data.timestamp) {
+              console.log("세션 UUID 수신:", data.session_uuid);
+              handlers.onSessionUuid?.(data as ClaudeSessionUuidEvent);
+              return;
+            }
 
-            // Claude API 표준 이벤트 타입별 핸들러 호출
-            switch (data.type) {
-              case "message_start":
-                handlers.onMessageStart?.(data);
-                break;
+            // 일반 Claude API 이벤트 처리
+            if (data.type) {
+              console.log("Claude SSE 이벤트 타입:", data.type);
 
-              case "content_block_start":
-                handlers.onContentBlockStart?.(data);
-                break;
+              // Claude API 표준 이벤트 타입별 핸들러 호출
+              switch (data.type) {
+                case "message_start":
+                  handlers.onMessageStart?.(data);
+                  break;
 
-              case "content_block_delta":
-                // 실제 서버 응답: delta.text에 JSON 문자열이 들어있음
-                if (data.delta.type === "text_delta" && data.delta.text) {
-                  try {
-                    // delta.text는 JSON 문자열이므로 파싱 필요
-                    // 예: "{'thinking': '\uc0ac\uc6a9\uc790\uac00 \"', 'type': 'thinking', 'index': 0}"
-                    const parsedText = data.delta.text;
+                case "content_block_start":
+                  handlers.onContentBlockStart?.(data);
+                  break;
 
-                    // JSON 문자열을 파싱하여 실제 데이터 추출
-                    // Python dict 형태이므로 더 안전한 방법으로 파싱
-                    const jsonMatch = parsedText.match(/\{.*\}/);
-                    if (jsonMatch) {
-                      try {
-                        // Python dict 형태를 JSON 형태로 변환
-                        let jsonStr = jsonMatch[0];
+                case "content_block_delta":
+                  // 실제 서버 응답: delta.text에 JSON 문자열이 들어있음
+                  if (data.delta.type === "text_delta" && data.delta.text) {
+                    try {
+                      // delta.text는 JSON 문자열이므로 파싱 필요
+                      // 예: "{'thinking': '\uc0ac\uc6a9\uc790\uac00 \"', 'type': 'thinking', 'index': 0}"
+                      const parsedText = data.delta.text;
 
-                        // 더 안전한 파싱을 위한 단계별 변환
-                        jsonStr = jsonStr
-                          .replace(/'/g, '"') // 작은따옴표를 큰따옴표로 변환
-                          .replace(/(\w+):/g, '"$1":') // 키를 따옴표로 감싸기
-                          .replace(/\\"/g, '\\"') // 이스케이프된 따옴표 처리
-                          .replace(/\\\\/g, "\\\\"); // 이스케이프된 백슬래시 처리
+                      // JSON 문자열을 파싱하여 실제 데이터 추출
+                      // Python dict 형태이므로 더 안전한 방법으로 파싱
+                      const jsonMatch = parsedText.match(/\{.*\}/);
+                      if (jsonMatch) {
+                        try {
+                          // Python dict 형태를 JSON 형태로 변환
+                          let jsonStr = jsonMatch[0];
 
-                        const parsed = JSON.parse(jsonStr);
-                        console.log("파싱된 델타 데이터:", parsed);
+                          // 더 안전한 파싱을 위한 단계별 변환
+                          jsonStr = jsonStr
+                            .replace(/'/g, '"') // 작은따옴표를 큰따옴표로 변환
+                            .replace(/(\w+):/g, '"$1":') // 키를 따옴표로 감싸기
+                            .replace(/\\"/g, '\\"') // 이스케이프된 따옴표 처리
+                            .replace(/\\\\/g, "\\\\"); // 이스케이프된 백슬래시 처리
 
-                        if (parsed.type === "thinking" && parsed.thinking) {
-                          handlers.onThinkingDelta?.(
-                            parsed.thinking,
-                            parsed.index || data.index,
+                          const parsed = JSON.parse(jsonStr);
+                          console.log("파싱된 델타 데이터:", parsed);
+
+                          if (parsed.type === "thinking" && parsed.thinking) {
+                            handlers.onThinkingDelta?.(
+                              parsed.thinking,
+                              parsed.index || data.index,
+                            );
+                          } else if (parsed.type === "text" && parsed.text) {
+                            handlers.onTextDelta?.(
+                              parsed.text,
+                              parsed.index || data.index,
+                            );
+                          }
+                        } catch (innerParseError) {
+                          // 파싱 실패 시 원본 텍스트를 그대로 처리
+                          console.warn(
+                            "내부 JSON 파싱 실패, 원본 텍스트 사용:",
+                            parsedText,
                           );
-                        } else if (parsed.type === "text" && parsed.text) {
-                          handlers.onTextDelta?.(
-                            parsed.text,
-                            parsed.index || data.index,
-                          );
+                          handlers.onTextDelta?.(parsedText, data.index);
                         }
-                      } catch (innerParseError) {
-                        // 파싱 실패 시 원본 텍스트를 그대로 처리
-                        console.warn(
-                          "내부 JSON 파싱 실패, 원본 텍스트 사용:",
-                          parsedText,
-                        );
+                      } else {
+                        // JSON 패턴이 없으면 원본 텍스트 그대로 사용
                         handlers.onTextDelta?.(parsedText, data.index);
                       }
-                    } else {
-                      // JSON 패턴이 없으면 원본 텍스트 그대로 사용
-                      handlers.onTextDelta?.(parsedText, data.index);
+                    } catch (parseError) {
+                      console.error("delta.text 파싱 오류:", parseError);
+                      handlers.onTextDelta?.(data.delta.text, data.index);
                     }
-                  } catch (parseError) {
-                    console.error("delta.text 파싱 오류:", parseError);
-                    handlers.onTextDelta?.(data.delta.text, data.index);
+                  } else if (
+                    data.delta.type === "thinking_delta" &&
+                    data.delta.thinking
+                  ) {
+                    handlers.onThinkingDelta?.(data.delta.thinking, data.index);
                   }
-                } else if (
-                  data.delta.type === "thinking_delta" &&
-                  data.delta.thinking
-                ) {
-                  handlers.onThinkingDelta?.(data.delta.thinking, data.index);
-                }
 
-                // 원본 이벤트도 전달
-                handlers.onContentBlockDelta?.(data);
-                break;
+                  // 원본 이벤트도 전달
+                  handlers.onContentBlockDelta?.(data);
+                  break;
 
-              case "content_block_stop":
-                handlers.onContentBlockStop?.(data);
-                break;
+                case "content_block_stop":
+                  handlers.onContentBlockStop?.(data);
+                  break;
 
-              case "message_delta":
-                handlers.onMessageDelta?.(data);
-                break;
+                case "message_delta":
+                  handlers.onMessageDelta?.(data);
+                  break;
 
-              case "message_stop":
-                handlers.onMessageStop?.(data);
-                break;
+                case "message_stop":
+                  handlers.onMessageStop?.(data);
+                  break;
 
-              case "ping":
-                handlers.onPing?.(data);
-                break;
+                case "ping":
+                  handlers.onPing?.(data);
+                  break;
 
-              case "error":
-                handlers.onError?.(data);
-                break;
+                case "error":
+                  handlers.onError?.(data);
+                  break;
 
-              case "message_limit":
-                handlers.onMessageLimit?.(data);
-                break;
+                case "message_limit":
+                  handlers.onMessageLimit?.(data);
+                  break;
 
-              default:
-                console.warn(
-                  "알 수 없는 Claude SSE 이벤트 타입:",
-                  (data as any).type,
-                  "데이터:",
-                  data,
-                );
-                break;
+                default:
+                  console.warn(
+                    "알 수 없는 Claude SSE 이벤트 타입:",
+                    data.type,
+                    "데이터:",
+                    data,
+                  );
+                  break;
+              }
             }
           } catch (parseError) {
             console.error(
