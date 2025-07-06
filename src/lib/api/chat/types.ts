@@ -375,3 +375,304 @@ export type ClaudeSSEEventHandlers = {
    */
   onMessageLimit?: (event: ClaudeMessageLimitEvent) => void;
 };
+
+/**
+ * v2.0 표준화된 SSE 이벤트 타입들 (chat_endpoint_response_formats.md 기준)
+ */
+export type V2SSEEventType =
+  | "chat_session_info"
+  | "chat_message_start"
+  | "chat_metadata_start" // 🆕 v2.1: 새 세션 메타데이터
+  | "chat_metadata_stop" // 🆕 v2.1: 새 세션 메타데이터 종료
+  | "chat_content_start"
+  | "chat_content_delta"
+  | "chat_web_search_results" // 🆕 v2.1: 웹 검색 결과 분리
+  | "chat_content_stop"
+  | "parallel_processing"
+  | "detail_buttons_start"
+  | "detail_button_ready"
+  | "detail_buttons_complete"
+  | "detail_buttons_error"
+  | "chat_message_delta"
+  | "chat_message_limit"
+  | "chat_message_stop"
+  | "heartbeat"; // 🆕 v2.1: 연결 유지
+
+/**
+ * v2.0 세션 정보 이벤트
+ */
+export type V2SessionInfoEvent = {
+  session_uuid: string;
+  timestamp: number;
+};
+
+/**
+ * v2.0 메시지 시작 이벤트
+ */
+export type V2MessageStartEvent = {
+  type: "message_start";
+  message: {
+    id: string;
+    type: "message";
+    role: "assistant";
+    model: string;
+    parent_uuid?: string;
+    uuid?: string;
+    content: any[];
+    stop_reason: string | null;
+    stop_sequence: string | null;
+  };
+};
+
+/**
+ * v2.0 콘텐츠 델타 이벤트
+ */
+export type V2ContentDeltaEvent = {
+  type: "content_block_delta";
+  index: number;
+  delta: {
+    type: "text_delta";
+    text: string;
+  };
+};
+
+/**
+ * v2.0 병렬 처리 이벤트
+ */
+export type V2ParallelProcessingEvent = {
+  stage:
+    | "parallel_processing_start"
+    | "parallel_processing_progress"
+    | "parallel_processing_complete";
+  content: string;
+  progress: number;
+  timestamp: string;
+};
+
+/**
+ * v2.0 상세 버튼 이벤트들
+ */
+export type V2DetailButtonsStartEvent = {
+  type: "start";
+  buttonsCount: number;
+  estimatedPreparationTime: number;
+  timestamp: string;
+  processingInfo: {
+    context7_enabled: boolean;
+    fallback_available: boolean;
+    cache_checked: boolean;
+  };
+};
+
+export type V2DetailButtonReadyEvent = {
+  type: "button";
+  buttonType: string;
+  priority: number;
+  url: string;
+  title: string;
+  description: string;
+  isReady: boolean;
+  metadata: {
+    hscode?: string | null;
+    confidence: number;
+    source: string;
+    query_params: Record<string, any>;
+  };
+  actionData: {
+    queryParams: Record<string, any>;
+    analytics: {
+      click_tracking: boolean;
+      conversion_target: string;
+    };
+  };
+};
+
+export type V2DetailButtonsCompleteEvent = {
+  type: "complete";
+  totalPreparationTime: number;
+  buttonsGenerated: number;
+  timestamp: string;
+  summary: {
+    hscode_detected: string | null;
+    confidence_score: number;
+    analysis_source: string;
+    fallback_used: boolean;
+    cache_hit: boolean;
+  };
+  performance: {
+    context7_calls: number;
+    context7_latency_ms: number;
+    database_queries: number;
+    total_processing_time: number;
+  };
+};
+
+export type V2DetailButtonsErrorEvent = {
+  type: "error";
+  errorCode: string;
+  errorMessage: string;
+  timestamp: string;
+  fallbackActivated: boolean;
+  retryInfo: {
+    retryable: boolean;
+    retryAfter: number;
+    maxRetries: number;
+  };
+};
+
+/**
+ * v2.0 메시지 종료 이벤트
+ */
+export type V2MessageStopEvent = {
+  type: "message_stop";
+};
+
+/**
+ * 🆕 v2.1 웹 검색 결과 이벤트 (완전 분리됨)
+ */
+export type V2WebSearchResultsEvent = {
+  type: "web_search_results";
+  timestamp: string;
+  total_count: number;
+  results: Array<{
+    type: "web_search_result";
+    title: string;
+    url: string;
+    content: string;
+    page_age: number | null;
+    metadata: {
+      source: string;
+      confidence: number;
+    };
+  }>;
+};
+
+/**
+ * 🆕 v2.1 메타데이터 이벤트 (새 세션 시만)
+ */
+export type V2MetadataStartEvent = {
+  type: "content_block_start";
+  index: number;
+  content_block: {
+    start_timestamp: string;
+    stop_timestamp: string | null;
+    type: "text";
+    text: string;
+    citations: any[];
+  };
+};
+
+export type V2MetadataStopEvent = {
+  type: "content_block_stop";
+  index: number;
+  content_block: {
+    start_timestamp: string;
+    stop_timestamp: string;
+    type: "text";
+    text: string;
+    citations: any[];
+  };
+};
+
+/**
+ * 🆕 v2.1 Heartbeat 이벤트 (연결 유지)
+ */
+export type V2HeartbeatEvent = {
+  session_uuid: string;
+  timestamp: number;
+};
+
+/**
+ * URL과 thinking 정보를 위한 별도 상태 타입
+ */
+export type URLInfo = {
+  url: string;
+  title: string;
+  description: string;
+  buttonType: string;
+  metadata?: Record<string, any>;
+};
+
+export type ThinkingInfo = {
+  content: string;
+  stage: string;
+  timestamp: string;
+};
+
+/**
+ * v2.0 SSE 이벤트 핸들러
+ */
+export type V2SSEEventHandlers = {
+  /** 세션 정보 핸들러 */
+  onChatSessionInfo?: (event: V2SessionInfoEvent) => void;
+
+  /** 메시지 시작 핸들러 */
+  onChatMessageStart?: (event: V2MessageStartEvent) => void;
+
+  /** 🆕 v2.1: 메타데이터 시작 핸들러 (새 세션 시) */
+  onChatMetadataStart?: (event: V2MetadataStartEvent) => void;
+
+  /** 🆕 v2.1: 메타데이터 종료 핸들러 (새 세션 시) */
+  onChatMetadataStop?: (event: V2MetadataStopEvent) => void;
+
+  /** 콘텐츠 시작 핸들러 */
+  onChatContentStart?: () => void;
+
+  /** 텍스트 델타 핸들러 (🔧 v2.1: 순수 텍스트만, JSON 없음) */
+  onChatContentDelta?: (event: V2ContentDeltaEvent) => void;
+
+  /** 🆕 v2.1: 웹 검색 결과 핸들러 (별도 분리됨) */
+  onChatWebSearchResults?: (event: V2WebSearchResultsEvent) => void;
+
+  /** 콘텐츠 종료 핸들러 */
+  onChatContentStop?: () => void;
+
+  /** 병렬 처리 상태 핸들러 */
+  onParallelProcessing?: (event: V2ParallelProcessingEvent) => void;
+
+  /** 상세 버튼 준비 시작 */
+  onDetailButtonsStart?: (event: V2DetailButtonsStartEvent) => void;
+
+  /** 개별 버튼 준비 완료 */
+  onDetailButtonReady?: (event: V2DetailButtonReadyEvent) => void;
+
+  /** 모든 버튼 준비 완료 */
+  onDetailButtonsComplete?: (event: V2DetailButtonsCompleteEvent) => void;
+
+  /** 버튼 준비 에러 */
+  onDetailButtonsError?: (event: V2DetailButtonsErrorEvent) => void;
+
+  /** 메시지 종료 핸들러 */
+  onChatMessageStop?: (event: V2MessageStopEvent) => void;
+
+  /** 🆕 v2.1: Heartbeat 핸들러 (연결 유지) */
+  onHeartbeat?: (event: V2HeartbeatEvent) => void;
+
+  /** 에러 핸들러 */
+  onError?: (event: ClaudeErrorEvent) => void;
+
+  /** URL 정보 업데이트 핸들러 */
+  onUrlInfoUpdate?: (urlInfo: URLInfo) => void;
+
+  /** Thinking 정보 업데이트 핸들러 */
+  onThinkingInfoUpdate?: (thinkingInfo: ThinkingInfo) => void;
+};
+
+/**
+ * 웹 검색 결과 타입
+ */
+export type WebSearchResult = {
+  title: string;
+  url: string;
+  type: string;
+  encrypted_content?: string;
+  page_age?: number | null;
+};
+
+/**
+ * 파싱된 웹 검색 결과 그룹
+ */
+export type ParsedWebSearchResults = {
+  results: WebSearchResult[];
+  count: number;
+};

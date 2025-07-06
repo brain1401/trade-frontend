@@ -7,6 +7,10 @@ import type {
   ClaudeSSEEventHandlers,
   ClaudeSSEEventData,
   ClaudeSessionUuidEvent,
+  V2SSEEventHandlers,
+  V2SSEEventType,
+  URLInfo,
+  ThinkingInfo,
 } from "./types";
 import {
   fetchEventSource,
@@ -494,6 +498,234 @@ export const chatApi = {
         console.log("Claude SSE fetch aborted by client.");
       } else {
         console.error("Claude fetchEventSource 실행 중 예외 발생:", error);
+      }
+    }
+  },
+
+  /**
+   * 🔧 v2.1 표준화된 SSE 이벤트 처리 (sse_event_mapping.md v2.1 기준)
+   * 🚨 실제 서버 응답 형식에 맞춘 혼합 처리 방식
+   * @param request 채팅 요청 데이터
+   * @param handlers v2.1 SSE 이벤트 핸들러들
+   * @param options 스트리밍 옵션
+   */
+  async startV2StandardStreaming(
+    request: ChatRequest,
+    handlers: V2SSEEventHandlers,
+    options?: StreamingOptions,
+  ): Promise<void> {
+    const token = tokenStore.getToken();
+    console.log("현재 엑세스 토큰 token : ", token);
+
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+    try {
+      await fetchEventSource(CHAT_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+        signal: options?.signal,
+
+        onopen: async (response) => {
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new ApiError(
+              response.status,
+              undefined,
+              `채팅 요청 실패: ${errorText}`,
+            );
+          }
+        },
+
+        onmessage: (event: EventSourceMessage) => {
+          // 스트림 종료 체크
+          if (event.event === "close" || event.data === "[DONE]") {
+            return;
+          }
+
+          if (!event.data) {
+            return;
+          }
+
+          try {
+            console.log(
+              `🔔 v2.1 SSE 이벤트 수신: event="${event.event || "message"}", data:`,
+              event.data,
+            );
+
+            // 🆕 실제 서버 형식에 맞춘 혼합 처리 방식
+
+            // 1. heartbeat 이벤트는 event.event로 처리
+            if (event.event === "heartbeat") {
+              const data = JSON.parse(event.data);
+              console.log("💓 연결 유지:", data.session_uuid);
+              handlers.onHeartbeat?.(data);
+              return;
+            }
+
+            // 2. 나머지 이벤트들은 data.type으로 구분 (기본 message 이벤트)
+            const data = JSON.parse(event.data);
+
+            // 세션 정보는 특별 처리 (session_uuid 필드로 식별)
+            if (data.session_uuid && data.timestamp && !data.type) {
+              console.log("🆔 세션 정보:", data.session_uuid);
+              handlers.onChatSessionInfo?.(data);
+              return;
+            }
+
+            // 병렬 처리 이벤트는 stage 필드로 식별
+            if (
+              data.stage &&
+              data.content !== undefined &&
+              data.progress !== undefined
+            ) {
+              console.log("🔄 병렬 처리:", data.stage, data.progress);
+              handlers.onParallelProcessing?.(data);
+
+              // thinking 정보로도 전달
+              const thinkingInfo: ThinkingInfo = {
+                content: data.content,
+                stage: data.stage,
+                timestamp: data.timestamp || new Date().toISOString(),
+              };
+              handlers.onThinkingInfoUpdate?.(thinkingInfo);
+              return;
+            }
+
+            // data.type 기반 이벤트 처리 (Claude API 표준)
+            switch (data.type) {
+              case "message_start":
+                console.log("🔍 메시지 시작:", data.message?.id);
+                handlers.onChatMessageStart?.(data);
+                break;
+
+              case "content_block_start":
+                console.log("📊 콘텐츠 시작:", data.content_block?.type);
+                handlers.onChatContentStart?.();
+                break;
+
+              case "content_block_delta":
+                console.log("💬 텍스트 델타 (순수 텍스트):", data.delta?.text);
+                // 🔧 v2.1: 순수 텍스트만, JSON 파싱 없음
+                handlers.onChatContentDelta?.(data);
+                break;
+
+              case "content_block_stop":
+                console.log("✅콘텐츠 종료");
+                handlers.onChatContentStop?.();
+                break;
+
+              case "start": // detail_buttons_start
+                console.log("🔘 상세 버튼 준비 시작:", data.buttonsCount);
+                handlers.onDetailButtonsStart?.(data);
+                break;
+
+              case "button": // detail_button_ready
+                console.log("✅ 버튼 준비 완료:", data.buttonType);
+                handlers.onDetailButtonReady?.(data);
+
+                // URL 정보 별도 상태로 전달
+                if (data.url && data.title) {
+                  const urlInfo: URLInfo = {
+                    url: data.url,
+                    title: data.title,
+                    description: data.description || "",
+                    buttonType: data.buttonType,
+                    metadata: data.metadata,
+                  };
+                  handlers.onUrlInfoUpdate?.(urlInfo);
+                }
+                break;
+
+              case "complete": // detail_buttons_complete
+                console.log("🎉 모든 버튼 준비 완료:", data.buttonsGenerated);
+                handlers.onDetailButtonsComplete?.(data);
+                break;
+
+              case "error": // detail_buttons_error or general error
+                if (data.errorCode) {
+                  console.log("❌ 버튼 준비 에러:", data.errorCode);
+                  handlers.onDetailButtonsError?.(data);
+                } else {
+                  console.log("❌ 일반 에러:", data.error?.type);
+                  handlers.onError?.(data);
+                }
+                break;
+
+              case "message_delta":
+                console.log("📝 메시지 델타:", data.delta?.stop_reason);
+                break;
+
+              case "message_limit":
+                console.log("📊 메시지 한도:", data.message_limit?.type);
+                break;
+
+              case "message_stop":
+                console.log("🔚 메시지 종료");
+                handlers.onChatMessageStop?.(data);
+                break;
+
+              // 🆕 v2.1 웹 검색 결과 (실제로는 별도 이벤트가 아닐 수 있음)
+              case "web_search_results":
+                console.log("🔍 웹 검색 결과:", data.total_count, "개");
+                handlers.onChatWebSearchResults?.(data);
+                break;
+
+              default:
+                // 알 수 없는 이벤트는 조용히 무시
+                if (data.type) {
+                  console.warn(
+                    `⚠️ 알 수 없는 v2.1 SSE 이벤트: ${data.type}`,
+                    data,
+                  );
+                }
+                break;
+            }
+          } catch (parseError) {
+            console.error(
+              "❌ v2.1 SSE 데이터 파싱 오류:",
+              parseError,
+              "이벤트:",
+              event.event || "message",
+              "원본 데이터:",
+              event.data,
+            );
+            handlers.onError?.({
+              type: "error",
+              error: {
+                type: "CLIENT_PARSE_ERROR",
+                message:
+                  parseError instanceof Error
+                    ? parseError.message
+                    : "v2.1 SSE 데이터 파싱 중 클라이언트 오류 발생",
+              },
+            });
+          }
+        },
+
+        onclose: () => {
+          console.log("🔌 v2.1 SSE 연결 종료");
+          options?.onClose?.();
+        },
+
+        onerror: (err) => {
+          console.error("🚨 v2.1 SSE 연결 에러:", err);
+          options?.onError?.(
+            err instanceof Error ? err : new Error("알 수 없는 v2.1 SSE 오류"),
+          );
+          // 재시도를 중단하려면 에러를 throw해야 함
+          throw err;
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("⏹️ v2.1 SSE fetch aborted by client.");
+      } else {
+        console.error("💥 v2.1 fetchEventSource 실행 중 예외 발생:", error);
       }
     }
   },
