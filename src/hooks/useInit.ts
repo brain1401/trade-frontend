@@ -1,4 +1,4 @@
-import { exchangeRatesApi, exchangeRatesQueries } from "@/lib/api";
+import { exchangeRatesQueries } from "@/lib/api";
 import { useAuth } from "@/stores/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
