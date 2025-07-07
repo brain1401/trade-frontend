@@ -66,8 +66,14 @@ export function useChat({
             onNewSessionCreated(data.session_uuid);
           }
         },
+        onProcessingStatus: (data) => {
+          console.log(
+            `[Processing Status] ${data.message} (${data.progress}%)`,
+          );
+          // TODO: 이 상태를 UI에 표시 (예: 토스트 메시지, 진행률 표시줄)
+        },
         onChatContentDelta: (data: V2ContentDeltaEvent) => {
-          if (data.delta.text) {
+          if (data.delta.type === "text_delta" && data.delta.text) {
             // 스트리밍 데이터 업데이트
             setMessages((prev) =>
               prev.map((msg) =>
@@ -88,9 +94,17 @@ export function useChat({
             prev.filter((msg) => msg.messageId !== aiMessageId),
           );
         },
+        onMessageDelta: (event) => {
+          if (event.delta.stop_reason === "end_turn") {
+            setIsLoading(false);
+            setCurrentMessageId(null);
+            console.log("스트림 종료 (end_turn)");
+          }
+        },
         onChatMessageStop: () => {
           setIsLoading(false);
           setCurrentMessageId(null);
+          console.log("스트림 종료 (message_stop)");
         },
       };
 

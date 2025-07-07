@@ -38,6 +38,22 @@ function ChatSessionPage() {
   // 1. 페이지 컴포넌트가 messages 상태를 직접 소유
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+  // 3. 새 세션이 생성되었을 때 URL을 변경하는 콜백 함수
+  const handleNewSessionCreated = (newSessionId: string) => {
+    navigate({
+      to: "/chat/$session_uuid",
+      params: { session_uuid: newSessionId },
+      replace: true, // URL 히스토리 교체
+    });
+  };
+
+  // 4. 리팩토링된 useChat 훅 사용 (useEffect보다 위로 이동)
+  const { isLoading, error, sendMessage, currentMessageId } = useChat({
+    setMessages, // 상태 업데이트 함수 전달
+    session_uuid, // 현재 세션 ID (URL에서 가져온 값) 전달
+    onNewSessionCreated: handleNewSessionCreated, // 콜백 전달
+  });
+
   const {
     data: chatHistory,
     isLoading: isSessionLoading,
@@ -49,6 +65,9 @@ function ChatSessionPage() {
 
   // 2. useQuery 데이터가 변경되거나, 새 세션일 때 messages 상태를 동기화
   useEffect(() => {
+    // AI 응답이 로딩 중일 때는 상태를 덮어쓰지 않음
+    if (isLoading) return;
+
     // API 로딩이 끝났고, 데이터가 있을 경우
     if (!isSessionLoading && chatHistory) {
       const historyMessages = chatHistory.messages.map(
@@ -63,7 +82,7 @@ function ChatSessionPage() {
     } else if (isNewSession) {
       setMessages([]); // 새 세션이면 메시지 목록을 비움
     }
-  }, [chatHistory, isSessionLoading, isNewSession, session_uuid]); // session_uuid 변경 시 재동기화
+  }, [chatHistory, isSessionLoading, isNewSession, session_uuid, isLoading]); // isLoading 추가
 
   // 기존 세션을 찾지 못했을 경우 홈으로 리다이렉트
   useEffect(() => {
@@ -71,22 +90,6 @@ function ChatSessionPage() {
       navigate({ to: "/", replace: true });
     }
   }, [sessionError, isNewSession, navigate]);
-
-  // 3. 새 세션이 생성되었을 때 URL을 변경하는 콜백 함수
-  const handleNewSessionCreated = (newSessionId: string) => {
-    navigate({
-      to: "/chat/$session_uuid",
-      params: { session_uuid: newSessionId },
-      replace: true, // URL 히스토리 교체
-    });
-  };
-
-  // 4. 리팩토링된 useChat 훅 사용
-  const { isLoading, error, sendMessage, currentMessageId } = useChat({
-    setMessages, // 상태 업데이트 함수 전달
-    session_uuid, // 현재 세션 ID (URL에서 가져온 값) 전달
-    onNewSessionCreated: handleNewSessionCreated, // 콜백 전달
-  });
 
   // 5. 페이지 진입 시 대기 중인 메시지(pendingMessage) 자동 전송
   useEffect(() => {

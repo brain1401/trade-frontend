@@ -382,22 +382,24 @@ export type ClaudeSSEEventHandlers = {
  */
 export type V2SSEEventType =
   | "chat_session_info"
-  | "chat_message_start"
-  | "chat_metadata_start" // 🆕 v2.1: 새 세션 메타데이터
-  | "chat_metadata_stop" // 🆕 v2.1: 새 세션 메타데이터 종료
-  | "chat_content_start"
-  | "chat_content_delta"
-  | "chat_web_search_results" // 🆕 v2.1: 웹 검색 결과 분리
-  | "chat_content_stop"
+  | "processing_status" // 🆕 진행 상태 업데이트
+  | "message_start"
+  | "content_block_start"
+  | "content_block_delta"
+  | "content_block_stop"
+  | "message_delta"
+  | "message_stop"
+  | "heartbeat" // 🆕 v2.1: 연결 유지
+  // 아래는 v2.0/v2.1의 다른 이벤트 타입들이지만 현재는 사용되지 않음
+  | "chat_metadata_start"
+  | "chat_metadata_stop"
+  | "chat_web_search_results"
   | "parallel_processing"
   | "detail_buttons_start"
   | "detail_button_ready"
   | "detail_buttons_complete"
   | "detail_buttons_error"
-  | "chat_message_delta"
-  | "chat_message_limit"
-  | "chat_message_stop"
-  | "heartbeat"; // 🆕 v2.1: 연결 유지
+  | "chat_message_limit";
 
 /**
  * v2.0 세션 정보 이벤트
@@ -426,6 +428,19 @@ export type V2MessageStartEvent = {
 };
 
 /**
+ * 🆕 v2.2 진행 상태 이벤트
+ */
+export type V2ProcessingStatusEvent = {
+  type: "processing_status";
+  id: string;
+  message: string;
+  progress: number;
+  current_step: number;
+  total_steps: number;
+  timestamp: string;
+};
+
+/**
  * v2.0 콘텐츠 델타 이벤트
  */
 export type V2ContentDeltaEvent = {
@@ -434,6 +449,16 @@ export type V2ContentDeltaEvent = {
   delta: {
     type: "text_delta";
     text: string;
+  };
+};
+
+/**
+ * 🆕 v2.2 메시지 델타 이벤트
+ */
+export type V2MessageDeltaEvent = {
+  type: "message_delta";
+  delta: {
+    stop_reason: string;
   };
 };
 
@@ -610,6 +635,9 @@ export type V2SSEEventHandlers = {
   /** 메시지 시작 핸들러 */
   onChatMessageStart?: (event: V2MessageStartEvent) => void;
 
+  /** 🆕 v2.2: 진행 상태 핸들러 */
+  onProcessingStatus?: (event: V2ProcessingStatusEvent) => void;
+
   /** 🆕 v2.1: 메타데이터 시작 핸들러 (새 세션 시) */
   onChatMetadataStart?: (event: V2MetadataStartEvent) => void;
 
@@ -642,6 +670,9 @@ export type V2SSEEventHandlers = {
 
   /** 버튼 준비 에러 */
   onDetailButtonsError?: (event: V2DetailButtonsErrorEvent) => void;
+
+  /** 🆕 v2.2: 메시지 델타 핸들러 */
+  onMessageDelta?: (event: V2MessageDeltaEvent) => void;
 
   /** 메시지 종료 핸들러 */
   onChatMessageStop?: (event: V2MessageStopEvent) => void;

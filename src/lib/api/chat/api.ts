@@ -604,19 +604,25 @@ export const chatApi = {
                 handlers.onChatMessageStart?.(data);
                 break;
 
+              case "processing_status":
+                console.log("🔄 진행 상태:", data.message, `${data.progress}%`);
+                handlers.onProcessingStatus?.(data);
+                break;
+
               case "content_block_start":
-                console.log("📊 콘텐츠 시작:", data.content_block?.type);
+                console.log("📊 콘텐츠 블록 시작:", data.content_block?.type);
                 handlers.onChatContentStart?.();
                 break;
 
               case "content_block_delta":
-                console.log("💬 텍스트 델타 (순수 텍스트):", data.delta?.text);
-                // 🔧 v2.1: 순수 텍스트만, JSON 파싱 없음
-                handlers.onChatContentDelta?.(data);
+                if (data.delta?.type === "text_delta") {
+                  console.log("💬 텍스트 델타:", data.delta.text);
+                  handlers.onChatContentDelta?.(data);
+                }
                 break;
 
               case "content_block_stop":
-                console.log("✅콘텐츠 종료");
+                console.log("✅ 콘텐츠 블록 종료");
                 handlers.onChatContentStop?.();
                 break;
 
@@ -659,6 +665,7 @@ export const chatApi = {
 
               case "message_delta":
                 console.log("📝 메시지 델타:", data.delta?.stop_reason);
+                handlers.onMessageDelta?.(data);
                 break;
 
               case "message_limit":
