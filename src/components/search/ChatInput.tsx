@@ -66,7 +66,7 @@ export function ChatInput({
   /**
    * 키보드 이벤트 처리 (Shift+Enter: 줄바꿈, Enter: 전송)
    */
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -84,7 +84,7 @@ export function ChatInput({
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
         const scrollHeight = textareaRef.current.scrollHeight;
-        const maxHeight = 24 * 6; // 6줄 높이
+        const maxHeight = 24 * 10; // 10줄 높이
         textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
       }
     }
@@ -101,10 +101,10 @@ export function ChatInput({
           ref={textareaRef}
           value={message}
           onChange={(e) => handleChange(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled || isLoading}
-          className="max-h-[144px] min-h-[24px] resize-none border-0 p-0 text-sm placeholder:text-neutral-500 focus-visible:ring-0"
+          className="max-h-[40rem] min-h-[7rem] resize-none border-0 p-0 !text-[1.05rem] placeholder:text-neutral-500 focus-visible:ring-0"
           rows={1}
         />
 
@@ -129,7 +129,7 @@ export function ChatInput({
       </div>
 
       {/* 하단 정보 */}
-      <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+      <div className="mt-2 flex items-center justify-between text-xs text-neutral-700">
         <div className="flex items-center gap-4">
           <span>
             <kbd className="rounded border bg-neutral-100 px-1 py-0.5">
@@ -156,31 +156,31 @@ export function ChatInput({
         </div>
       </div>
 
-      {/* 질문 예시 (빈 상태일 때만 표시) */}
-      {message.length === 0 && !isLoading && (
-        <div className="mt-4">
-          <div className="mb-2 text-xs font-medium text-neutral-600">
-            💡 이런 질문을 해보세요:
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "냉동피자 HS Code 알려줘",
-              "스마트폰 미국 수출 규제",
-              "에너지드링크 관세율",
-              "12345678901234567 화물 위치",
-            ].map((example, index) => (
-              <button
-                key={index}
-                onClick={() => setMessage(example)}
-                className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-700 transition-colors hover:bg-neutral-200"
-                disabled={disabled}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+      {/* 질문 예시 */}
+      <div
+        className={cn("mt-4", (message.length > 0 || isLoading) && "invisible")}
+      >
+        <div className="text-md mb-2 font-medium text-neutral-600">
+          💡 이런 질문을 해보세요
         </div>
-      )}
+        <div className="flex flex-wrap gap-2">
+          {[
+            "냉동피자 HS Code 알려줘",
+            "스마트폰 미국 수출 규제",
+            "에너지드링크 관세율",
+            "12345678901234567 화물 위치",
+          ].map((example, index) => (
+            <Button
+              key={index}
+              onClick={() => handleChange(example)}
+              className="rounded-full bg-primary-300 px-3 py-1 text-xs text-neutral-700 transition-colors hover:bg-primary-400 hover:text-white"
+              disabled={disabled}
+            >
+              {example}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

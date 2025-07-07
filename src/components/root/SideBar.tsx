@@ -128,7 +128,7 @@ export default function SideBar() {
   return (
     <aside className="flex h-full w-[4rem] flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
       {/* 앱 로고 */}
-      <div className="flex-shrink-0 p-4">
+      <div className="w-[8rem] p-4">
         <AppLogo size="md" />
       </div>
 

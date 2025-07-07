@@ -19,18 +19,12 @@ type LogoContentProps = {
  * 로고 내용 컴포넌트
  */
 function LogoContent({ size }: LogoContentProps) {
-  const sizeClasses = {
-    sm: "h-8 w-8 text-sm",
-    md: "h-10 w-10 text-base",
-    lg: "h-12 w-12 text-lg",
-  };
-
   return (
-    <div
-      className={`${sizeClasses[size]} to-brand-600 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 font-bold text-white shadow-sm`}
-    >
-      <span className="leading-none">로고</span>
-    </div>
+    <img
+      src="/logo.png"
+      alt="logo"
+      className="to-brand-600 flex w-[10rem] items-center justify-center rounded-lg font-bold text-white"
+    />
   );
 }
 

@@ -13,10 +13,10 @@ function HomePage() {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="flex h-full w-full flex-col items-center space-y-8 px-4 py-8 sm:py-12">
+    <div className="flex h-full w-full flex-col items-center space-y-8 px-4 py-8 !pt-[15rem] sm:py-12">
       {/* Greeting and Status */}
       <div className="flex-shrink-0 text-center">
-        {isAuthenticated && user ? (
+        {user ? (
           <div className="flex flex-col items-center gap-3">
             <h1 className="text-3xl font-bold text-neutral-800 sm:text-4xl">
               안녕하세요, {user.name}님
@@ -37,7 +37,7 @@ function HomePage() {
       </div>
 
       {/* Main Chat Interface */}
-      <div className="min-h-0 w-full max-w-3xl flex-1">
+      <div className="min-h-0 w-full max-w-3xl">
         <FullPageChatInterface
           welcomeMessage={
             isAuthenticated

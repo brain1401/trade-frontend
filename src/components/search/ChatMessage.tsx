@@ -35,6 +35,16 @@ export type ChatMessageData = {
 };
 
 /**
+ * 채팅 메시지 아이템 (UI용)
+ */
+export type ChatMessageItem = {
+  id: string;
+  type: ChatMessageType;
+  data: ChatMessageData;
+  timestamp: string;
+};
+
+/**
  * 채팅 메시지 컴포넌트 프로퍼티
  */
 export type ChatMessageProps = {

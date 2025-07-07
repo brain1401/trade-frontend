@@ -22,11 +22,12 @@ export { ChatInput, SimpleChatInput } from "./ChatInput";
 export { WebSearchResults, WebSearchResultItem } from "./WebSearchResults";
 
 // 타입들
-export type { ChatInterfaceProps, ChatMessageItem } from "./ChatInterface";
+export type { ChatInterfaceProps } from "./ChatInterface";
 export type {
   ChatMessageProps,
   ChatMessageData,
   ChatMessageType,
+  ChatMessageItem,
 } from "./ChatMessage";
 export type { ChatInputProps } from "./ChatInput";
 export type {
