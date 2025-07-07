@@ -55,8 +55,12 @@ export function useChat({
         messageType: "AI",
         content: "",
         createdAt: new Date(),
+        thinkingSteps: [],
+        isError: false,
       };
       setMessages((prev) => [...prev, aiPlaceholder]);
+
+      let thinkingStepsCleared = false;
 
       const handlers: V2SSEEventHandlers = {
         onChatSessionInfo: (data) => {
@@ -70,17 +74,34 @@ export function useChat({
           console.log(
             `[Processing Status] ${data.message} (${data.progress}%)`,
           );
-          // TODO: 이 상태를 UI에 표시 (예: 토스트 메시지, 진행률 표시줄)
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.messageId === aiMessageId
+                ? {
+                    ...msg,
+                    thinkingSteps: [...(msg.thinkingSteps || []), data.message],
+                  }
+                : msg,
+            ),
+          );
         },
         onChatContentDelta: (data: V2ContentDeltaEvent) => {
           if (data.delta.type === "text_delta" && data.delta.text) {
-            // 스트리밍 데이터 업데이트
             setMessages((prev) =>
-              prev.map((msg) =>
-                msg.messageId === aiMessageId
-                  ? { ...msg, content: (msg.content || "") + data.delta.text }
-                  : msg,
-              ),
+              prev.map((msg) => {
+                if (msg.messageId !== aiMessageId) return msg;
+
+                const newThinkingSteps = !thinkingStepsCleared
+                  ? []
+                  : msg.thinkingSteps;
+                if (!thinkingStepsCleared) thinkingStepsCleared = true;
+
+                return {
+                  ...msg,
+                  content: (msg.content || "") + data.delta.text,
+                  thinkingSteps: newThinkingSteps,
+                };
+              }),
             );
           }
         },
@@ -89,16 +110,31 @@ export function useChat({
             event.error.message || "An unknown error occurred";
           setError(errorMessage);
           toast.error(errorMessage);
-          // 에러 발생 시 AI 메시지 자리 표시자 제거
+          // 에러 발생 시 AI 메시지를 에러 상태로 업데이트
           setMessages((prev) =>
-            prev.filter((msg) => msg.messageId !== aiMessageId),
+            prev.map((msg) =>
+              msg.messageId === aiMessageId
+                ? { ...msg, content: errorMessage, isError: true }
+                : msg,
+            ),
           );
+          setIsLoading(false);
+          setCurrentMessageId(null);
         },
         onMessageDelta: (event) => {
-          if (event.delta.stop_reason === "end_turn") {
+          if (event.delta.stop_reason) {
             setIsLoading(false);
             setCurrentMessageId(null);
-            console.log("스트림 종료 (end_turn)");
+            console.log(`스트림 종료 (${event.delta.stop_reason})`);
+            if (event.delta.stop_reason === "error") {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.messageId === aiMessageId
+                    ? { ...msg, isError: true }
+                    : msg,
+                ),
+              );
+            }
           }
         },
         onChatMessageStop: () => {
@@ -120,9 +156,13 @@ export function useChat({
         setError(errorMessage);
         toast.error(errorMessage);
         setIsLoading(false);
-        // 예외 발생 시 AI 메시지 자리 표시자 제거
+        // 예외 발생 시 AI 메시지를 에러 상태로 업데이트
         setMessages((prev) =>
-          prev.filter((msg) => msg.messageId !== aiMessageId),
+          prev.map((msg) =>
+            msg.messageId === aiMessageId
+              ? { ...msg, content: errorMessage, isError: true }
+              : msg,
+          ),
         );
       } finally {
         clearChatState();

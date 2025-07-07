@@ -493,6 +493,8 @@ export type ChatMessage = {
   messageType: "USER" | "AI";
   content: string;
   createdAt: Date;
+  thinkingSteps?: string[];
+  isError?: boolean;
 };
 
 export type ChatHistory = {
