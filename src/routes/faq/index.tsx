@@ -1,4 +1,5 @@
 import InsideData from "@/components/faq/InsideData";
+import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -96,29 +97,32 @@ function RouteComponent() {
 
   return (
     <div className="w-full h-full flex flex-col items-center p-6 space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">FAQ</h1>
-        <p className="text-gray-600">자주 하는 질문! 아래 내용에서 확인해주세요</p>
+      <div className="w-[80rem] max-w-full space-y-6">
+        <div className="text-center w-full">
+          <h1 className="text-3xl font-bold">FAQ</h1>
+          <p className="text-gray-600">자주 하는 질문! 아래 내용에서 확인해주세요</p>
+        </div>
+
+        <div className="flex justify-between gap-2 w-full ">
+          <Button className="cursor-pointer py-6 text-[1.2rem] flex-auto" variant={"outline"} onClick={() => handleButtonClick("2")}>환율</Button>
+          <Button className="cursor-pointer py-6 text-[1.2rem] flex-auto" variant={"outline"} onClick={() => handleButtonClick("3")}>세관</Button>
+          <Button className="cursor-pointer py-6 text-[1.2rem] flex-auto" variant={"outline"} onClick={() => handleButtonClick("1")}>무역</Button>
+          <Button className="cursor-pointer py-6 text-[1.2rem] flex-auto" variant={"outline"} onClick={() => handleButtonClick("4")}>A/S</Button>
+          <Button className="cursor-pointer py-6 text-[1.2rem] flex-auto" variant={"outline"} onClick={() => handleButtonClick("5")}>기타</Button>
+        </div>
+
+        <div className="w-full flex justify-center">
+          {insideData.map((data) => (
+            <InsideData
+              key={data.id}
+              title={data.title}
+              descriptions={data.description}
+              isActive={data.isActive}
+            />
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-2">
-        <button className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded-lg" onClick={() => handleButtonClick("1")}>무역</button>
-        <button className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded-lg" onClick={() => handleButtonClick("2")}>환율</button>
-        <button className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded-lg" onClick={() => handleButtonClick("3")}>세관</button>
-        <button className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded-lg" onClick={() => handleButtonClick("4")}>A/S</button>
-        <button className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded-lg" onClick={() => handleButtonClick("5")}>기타</button>
-      </div>
-
-      <div className="w-full flex justify-center">
-        {insideData.map((data) => (
-          <InsideData
-            key={data.id}
-            title={data.title}
-            descriptions={data.description}
-            isActive={data.isActive}
-          />
-        ))}
-      </div>
     </div>
   );
 }

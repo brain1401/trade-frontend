@@ -16,10 +16,10 @@ export default function InsideData({ descriptions: description, title, isActive 
     };
 
     return (
-        <div className={cn(isActive ? "block" : "hidden", "p-4 bg-white rounded-lg shadow-md w-full max-w-3xl")}>
+        <div className={cn(isActive ? "block" : "hidden", "px-[5rem] py-[4rem] bg-white rounded-lg shadow-md w-full")}>
             <h1 className="text-xl font-semibold mb-4">{title}</h1>
 
-            <div className="faq-container space-y-3">
+            <div className="faq-container space-y-8 text-[1.2rem]">
                 {description.map((question, index) => (
                     <div key={index} className="faq-item border-t pt-2">
                         <div
@@ -34,7 +34,7 @@ export default function InsideData({ descriptions: description, title, isActive 
                             </span>
                         </div>
                         {openIndex === index && (
-                            <div className="faq-answer mt-2 text-gray-700">
+                            <div className="faq-answer mt-2 text-gray-900">
                                 {question.answer}
                             </div>
                         )}
