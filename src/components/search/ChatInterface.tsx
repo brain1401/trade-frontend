@@ -36,6 +36,7 @@ import {
   type ChatMessageType,
 } from "./ChatMessage";
 import { WebSearchResults } from "./WebSearchResults";
+import { ScrollArea } from "../ui/scroll-area";
 
 /**
  * 채팅 메시지 아이템 (UI용)
@@ -57,14 +58,25 @@ export type ChatInterfaceProps = {
   className?: string;
   /** 초기 메시지 */
   welcomeMessage?: string;
+  /** 채팅 시작 핸들러 */
+  onChatStart?: () => void;
 };
 
 export function FullPageChatInterface({
   onBookmark,
   welcomeMessage,
+  onChatStart,
 }: ChatInterfaceProps) {
   const { isAuthenticated } = useAuth();
   const { messages, isLoading, sendMessage, currentMessageId } = useChat();
+  const chatStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (messages.length > 0 && !chatStartedRef.current) {
+      onChatStart?.();
+      chatStartedRef.current = true;
+    }
+  }, [messages, onChatStart]);
 
   if (messages.length === 0) {
     // 1. 초기 상태
@@ -82,19 +94,21 @@ export function FullPageChatInterface({
   // 2. 활성 상태
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
-        <div className="mx-auto max-w-3xl">
-          {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              type={message.type}
-              data={message.data}
-              timestamp={message.timestamp}
-              isLoading={isLoading && message.id === currentMessageId}
-            />
-          ))}
+      <ScrollArea className="flex-1">
+        <div className="space-y-6 p-4 sm:p-6">
+          <div className="mx-auto max-w-3xl">
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                type={message.type}
+                data={message.data}
+                timestamp={message.timestamp}
+                isLoading={isLoading && message.id === currentMessageId}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </ScrollArea>
       <div className="sticky bottom-0 w-full bg-neutral-50/80 pt-2 pb-4 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl px-4">
           <ChatInput
