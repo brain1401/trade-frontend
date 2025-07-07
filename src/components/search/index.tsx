@@ -16,7 +16,7 @@
  */
 
 // 메인 컴포넌트들
-export { ChatInterface, FullPageChatInterface } from "./ChatInterface";
+export { FullPageChatInterface } from "./ChatInterface";
 export { ChatMessage, UserMessage, ThinkingMessage } from "./ChatMessage";
 export { ChatInput, SimpleChatInput } from "./ChatInput";
 export { WebSearchResults, WebSearchResultItem } from "./WebSearchResults";

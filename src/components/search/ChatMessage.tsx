@@ -10,6 +10,8 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { SourceReference, RelatedInfo } from "@/types/chat";
+import { Skeleton } from "@/components/ui/skeleton";
+import { WebSearchResults } from "./WebSearchResults";
 
 /**
  * 채팅 메시지 타입
@@ -265,6 +267,21 @@ const MarkdownContent = memo(({ content }: { content: string }) => {
 });
 
 MarkdownContent.displayName = "MarkdownContent";
+
+export const WelcomeMessage = memo(({ message }: { message: string }) => {
+  return (
+    <Card className="rounded-xl border-2 border-primary-100 bg-primary-50/30 shadow-sm">
+      <CardContent className="p-6 text-center">
+        <h3 className="mb-2 text-lg font-semibold text-primary-800">
+          AI 무역 플랫폼 (v2.0)
+        </h3>
+        <p className="text-sm whitespace-pre-line text-neutral-600">
+          {message}
+        </p>
+      </CardContent>
+    </Card>
+  );
+});
 
 /**
  * ChatGPT 스타일 메시지 컴포넌트
