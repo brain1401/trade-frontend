@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatInterface } from "@/components/search";
 import { useAuth } from "@/stores/authStore";
 import { bookmarkApi } from "@/lib/api";
 import { toast } from "sonner";
-import type { RelatedInfo } from "@/types/chat";
+import type { RelatedInfo, ChatMessage } from "@/types/chat";
 import { useChat } from "@/hooks/useChat";
 
 /**
@@ -26,18 +26,24 @@ export const Route = createFileRoute("/search/")({
 function SearchPage() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate({ from: Route.fullPath });
-  const { messages, isLoading, sendMessage, currentMessageId, session_uuid } =
-    useChat();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-  useEffect(() => {
-    if (session_uuid) {
+  const handleNewSession = useCallback(
+    (newSessionId: string) => {
       navigate({
         to: "/chat/$session_uuid",
-        params: { session_uuid: session_uuid },
-        replace: true, // 브라우저 히스토리에 현재 /search 페이지를 남기지 않음
+        params: { session_uuid: newSessionId },
+        replace: true,
       });
-    }
-  }, [session_uuid, navigate]);
+    },
+    [navigate],
+  );
+
+  const { isLoading, sendMessage, currentMessageId } = useChat({
+    setMessages,
+    session_uuid: null,
+    onNewSessionCreated: handleNewSession,
+  });
 
   /**
    * 북마크 추가 핸들러

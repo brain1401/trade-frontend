@@ -67,8 +67,8 @@ function ChatHistoryPage() {
           {histories.map((history) => (
             <Link
               key={history.sessionId}
-              to="/dashboard/history/$sessionId"
-              params={{ sessionId: history.sessionId }}
+              to="/chat/$session_uuid"
+              params={{ session_uuid: history.sessionId }}
               className="block"
             >
               <Card className="transition-shadow hover:shadow-md">

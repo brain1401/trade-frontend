@@ -45,7 +45,7 @@ export function useChat({
         content: messageText,
         createdAt: new Date(),
       };
-      setMessages((prev) => [...prev, userMessage]);
+      // setMessages((prev) => [...prev, userMessage])
 
       // AI 응답을 위한 자리 표시자 추가 (부모로부터 받은 setMessages 사용)
       const aiMessageId = `ai_${Date.now()}`;
