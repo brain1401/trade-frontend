@@ -489,8 +489,21 @@ export type ChatSessionDetail = {
  * 채팅 메시지 상세 정보
  */
 export type ChatMessage = {
-  messageId: number;
+  messageId: string;
   messageType: "USER" | "AI";
   content: string;
-  createdAt: string;
+  createdAt: Date;
+};
+
+export type ChatHistory = {
+  sessionInfo: SessionInfo;
+  messages: ChatMessage[];
+};
+
+export type SessionInfo = {
+  sessionId: string;
+  sessionTitle: string;
+  messageCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 };

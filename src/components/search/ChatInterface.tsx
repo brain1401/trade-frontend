@@ -1,25 +1,13 @@
-import {
-  RefreshCw,
-  Trash2,
-  AlertCircle,
-  Bookmark,
-  ExternalLink,
-} from "lucide-react";
 import { useMemo, useCallback, useState, useRef, useEffect } from "react";
-import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import {
-  chatApi,
-  type V2SSEEventHandlers,
-  type ClaudeErrorEvent,
-  type V2ContentDeltaEvent,
-} from "@/lib/api/chat";
+
 import { useAuth } from "@/stores/authStore";
-import type { ChatSessionStatus, RelatedInfo } from "@/types/chat";
+import type {
+  ChatMessage as ChatMessageType,
+  ChatSessionStatus,
+  RelatedInfo,
+} from "@/types/chat";
 import type {
   URLInfo,
   ThinkingInfo,
@@ -27,16 +15,11 @@ import type {
 } from "@/lib/api/chat/types";
 
 import AppLogo from "@/components/common/AppLogo";
-import { useChat } from "@/hooks/useChat";
 import { ChatInput } from "./ChatInput";
-import {
-  ChatMessage,
-  type ChatMessageData,
-  type ChatMessageItem,
-  type ChatMessageType,
-} from "./ChatMessage";
+import { ChatMessage } from "./ChatMessage";
 import { WebSearchResults } from "./WebSearchResults";
 import { ScrollArea } from "../ui/scroll-area";
+import { useNavigate } from "@tanstack/react-router";
 
 /**
  * 채팅 메시지 아이템 (UI용)
@@ -60,16 +43,31 @@ export type ChatInterfaceProps = {
   welcomeMessage?: string;
   /** 채팅 시작 핸들러 */
   onChatStart?: () => void;
+  // useChat 훅에서 전달받을 props 추가
+  messages?: ChatMessageType[];
+  error?: string;
+  isLoading?: boolean;
+  sendMessage: (messageText: string) => Promise<void>;
+  currentMessageId?: string | null;
+  onNewChat?: () => void;
+  sessionId?: string;
 };
 
-export function FullPageChatInterface({
+export function ChatInterface({
   onBookmark,
   welcomeMessage,
   onChatStart,
+  messages = [], // messages prop의 기본값을 빈 배열로 설정
+  isLoading,
+  error,
+  sendMessage,
+  currentMessageId,
+  onNewChat,
+  sessionId,
 }: ChatInterfaceProps) {
   const { isAuthenticated } = useAuth();
-  const { messages, isLoading, sendMessage, currentMessageId } = useChat();
   const chatStartedRef = useRef(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (messages.length > 0 && !chatStartedRef.current) {
@@ -77,6 +75,11 @@ export function FullPageChatInterface({
       chatStartedRef.current = true;
     }
   }, [messages, onChatStart]);
+
+  const handleNewChat = () => {
+    // 2. 부모 컴포넌트로부터 받은 onNewChat 콜백을 실행하여 상태를 리셋합니다.
+    onNewChat?.();
+  };
 
   if (messages.length === 0) {
     // 1. 초기 상태
@@ -94,16 +97,25 @@ export function FullPageChatInterface({
   // 2. 활성 상태
   return (
     <div className="flex h-full flex-col">
+      <header className="flex items-center justify-between border-b bg-neutral-50/80 px-4 py-2 backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-950/80">
+        <h1 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+          AI Chat
+        </h1>
+        <Button variant="outline" onClick={handleNewChat}>
+          새 대화
+        </Button>
+      </header>
       <ScrollArea className="flex-1">
         <div className="space-y-6 p-4 sm:p-6">
           <div className="mx-auto max-w-3xl">
             {messages.map((message) => (
               <ChatMessage
-                key={message.id}
-                type={message.type}
-                data={message.data}
-                timestamp={message.timestamp}
-                isLoading={isLoading && message.id === currentMessageId}
+                key={message.messageId}
+                type={message.messageType}
+                data={{ content: message.content }}
+                timestamp={message.createdAt.toISOString()}
+                error={error}
+                isLoading={isLoading && message.messageId === currentMessageId}
               />
             ))}
           </div>

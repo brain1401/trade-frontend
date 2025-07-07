@@ -16,7 +16,7 @@ import { WebSearchResults } from "./WebSearchResults";
 /**
  * 채팅 메시지 타입
  */
-export type ChatMessageType = "user" | "ai" | "thinking";
+export type ChatMessageType = "USER" | "AI" | "THINKING";
 
 /**
  * 채팅 메시지 데이터
@@ -54,6 +54,8 @@ export type ChatMessageProps = {
   type: ChatMessageType;
   /** 타임스탬프 */
   timestamp?: string;
+  /** 에러 상태 */
+  error?: string;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 북마크 추가 핸들러 */
@@ -304,13 +306,14 @@ export function ChatMessage({
   data,
   type,
   timestamp,
+  error,
   isLoading = false,
   onBookmark,
   onCopy,
 }: ChatMessageProps) {
-  const isUser = type === "user";
-  const isThinking = type === "thinking";
-  const isAI = type === "ai" || type === "thinking";
+  const isUser = type === "USER";
+  const isThinking = type === "THINKING";
+  const isAI = type === "AI" || type === "THINKING";
 
   // message 객체를 data와 timestamp로 재구성
   const message = {
@@ -550,7 +553,7 @@ export function UserMessage({ content }: { content: string }) {
   return (
     <ChatMessage
       data={{ content, timestamp: new Date().toISOString() }}
-      type="user"
+      type="USER"
     />
   );
 }
@@ -562,7 +565,7 @@ export function ThinkingMessage({ content }: { content: string }) {
   return (
     <ChatMessage
       data={{ content, timestamp: new Date().toISOString() }}
-      type="thinking"
+      type="THINKING"
     />
   );
 }

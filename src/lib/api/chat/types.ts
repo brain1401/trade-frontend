@@ -7,6 +7,7 @@ import type {
   MemberSessionEvent,
   ErrorEventData,
 } from "../../../types/chat";
+import type { ChatMessageItem } from "@/components/search";
 
 /**
  * 채팅 요청 타입 (POST /api/chat)
@@ -675,4 +676,14 @@ export type WebSearchResult = {
 export type ParsedWebSearchResults = {
   results: WebSearchResult[];
   count: number;
+};
+
+export type ChatSession = {
+  session_uuid: string;
+  messages: ChatMessageItem[];
+  // 기타 세션 관련 메타데이터
+};
+
+export type NewChatSession = {
+  session_uuid: string;
 };

@@ -8,9 +8,7 @@ import { cn } from "@/lib/utils/cn";
  * 채팅 입력 컴포넌트 프로퍼티
  */
 export type ChatInputProps = {
-  /** 전송 핸들러 (onSend 또는 onSendMessage 지원) */
-  onSend?: (message: string) => void;
-  onSendMessage?: (message: string) => void;
+  onSendMessage: (message: string) => void;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 비활성화 상태 */
@@ -30,7 +28,6 @@ export type ChatInputProps = {
  * 엔터키 전송, 자동 높이 조정, 글자 수 제한 등 지원
  */
 export function ChatInput({
-  onSend,
   onSendMessage,
   isLoading = false,
   disabled = false,
@@ -47,14 +44,12 @@ export function ChatInput({
   const handleSend = () => {
     const trimmedMessage = message.trim();
 
-    // 최소 2글자 이상 검증 (API v6.1 요구사항)
+    // 최소 2글자 이상 검증
     if (trimmedMessage.length < 2) {
       return;
     }
 
-    // onSendMessage가 있으면 우선 사용, 없으면 onSend 사용
-    const sendHandler = onSendMessage || onSend;
-    sendHandler?.(trimmedMessage);
+    onSendMessage(trimmedMessage);
     setMessage("");
 
     // 높이 리셋
@@ -182,24 +177,5 @@ export function ChatInput({
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * 간단한 채팅 입력 컴포넌트 (기본 스타일)
- */
-export function SimpleChatInput({
-  onSend,
-  isLoading,
-}: {
-  onSend: (message: string) => void;
-  isLoading?: boolean;
-}) {
-  return (
-    <ChatInput
-      onSend={onSend}
-      isLoading={isLoading}
-      className="mx-auto max-w-4xl"
-    />
   );
 }

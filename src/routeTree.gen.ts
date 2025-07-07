@@ -17,6 +17,7 @@ import { Route as FaqIndexRouteImport } from './routes/faq/index'
 import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as FeedFeedIdRouteImport } from './routes/feed/$feedId'
+import { Route as ChatSession_uuidRouteImport } from './routes/chat/$session_uuid'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthFindPasswordRouteImport } from './routes/auth/find-password'
@@ -65,6 +66,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const FeedFeedIdRoute = FeedFeedIdRouteImport.update({
   id: '/feed/$feedId',
   path: '/feed/$feedId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatSession_uuidRoute = ChatSession_uuidRouteImport.update({
+  id: '/chat/$session_uuid',
+  path: '/chat/$session_uuid',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/exchange-rates/': typeof ExchangeRatesIndexRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard/'
     | '/exchange-rates/'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   AuthFindPasswordRoute: typeof AuthFindPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  ChatSession_uuidRoute: typeof ChatSession_uuidRoute
   FeedFeedIdRoute: typeof FeedFeedIdRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/feed/$feedId'
       fullPath: '/feed/$feedId'
       preLoaderRoute: typeof FeedFeedIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$session_uuid': {
+      id: '/chat/$session_uuid'
+      path: '/chat/$session_uuid'
+      fullPath: '/chat/$session_uuid'
+      preLoaderRoute: typeof ChatSession_uuidRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/signup': {
@@ -382,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthFindPasswordRoute: AuthFindPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
+  ChatSession_uuidRoute: ChatSession_uuidRoute,
   FeedFeedIdRoute: FeedFeedIdRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,

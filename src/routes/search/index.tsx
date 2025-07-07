@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useCallback } from "react";
-import { FullPageChatInterface } from "@/components/search";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect } from "react";
+import { ChatInterface } from "@/components/search";
 import { useAuth } from "@/stores/authStore";
 import { bookmarkApi } from "@/lib/api";
 import { toast } from "sonner";
 import type { RelatedInfo } from "@/types/chat";
+import { useChat } from "@/hooks/useChat";
 
 /**
  * 검색 라우트 정의 (v4.0 - ChatGPT 스타일)
@@ -24,6 +25,19 @@ export const Route = createFileRoute("/search/")({
  */
 function SearchPage() {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const { messages, isLoading, sendMessage, currentMessageId, session_uuid } =
+    useChat();
+
+  useEffect(() => {
+    if (session_uuid) {
+      navigate({
+        to: "/chat/$session_uuid",
+        params: { session_uuid: session_uuid },
+        replace: true, // 브라우저 히스토리에 현재 /search 페이지를 남기지 않음
+      });
+    }
+  }, [session_uuid, navigate]);
 
   /**
    * 북마크 추가 핸들러
@@ -83,5 +97,13 @@ function SearchPage() {
     [isAuthenticated],
   );
 
-  return <FullPageChatInterface onBookmark={handleBookmark} />;
+  return (
+    <ChatInterface
+      onBookmark={handleBookmark}
+      messages={messages}
+      isLoading={isLoading}
+      sendMessage={sendMessage}
+      currentMessageId={currentMessageId}
+    />
+  );
 }

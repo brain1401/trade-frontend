@@ -1,14 +1,8 @@
+// lib/api/chat/queries.ts
 import { queryOptions } from "@tanstack/react-query";
-import type {
-  ChatHistoryGetParams,
-  ChatHistorySearchParams,
-  ChatSessionDetail,
-  PaginatedChatSessions,
-  PaginatedChatSearchResults,
-} from "../../../types/chat";
 import { chatHistoryApi } from "./api";
 import type { ApiError } from "../common/ApiError";
-import type { ApiResponse } from "@/types/common";
+import type { ChatHistory, PaginatedChatSessions } from "@/types/chat";
 
 export const chatHistoryQueryKeys = {
   all: () => ["chatHistory"] as const,
@@ -20,18 +14,19 @@ export const chatHistoryQueryKeys = {
 };
 
 export const chatHistoryQueries = {
-  /** 채팅 세션 목록 조회를 위한 쿼리 옵션 */
   list: () =>
     queryOptions<PaginatedChatSessions, ApiError>({
       queryKey: chatHistoryQueryKeys.list(),
       queryFn: () => chatHistoryApi.getChatHistories(),
     }),
 
-  /** 특정 채팅 세션 상세 조회를 위한 쿼리 옵션 */
-  detail: (sessionId: string) =>
-    queryOptions<ChatSessionDetail, ApiError>({
-      queryKey: chatHistoryQueryKeys.detail(sessionId),
-      queryFn: () => chatHistoryApi.getChatHistory(sessionId),
-      enabled: !!sessionId, // sessionId가 있을 때만 쿼리 실행
+  detail: (session_uuid: string, options?: { isNewChat?: boolean }) =>
+    queryOptions<ChatHistory, ApiError>({
+      queryKey: chatHistoryQueryKeys.detail(session_uuid),
+      queryFn: () => chatHistoryApi.getChatHistory(session_uuid),
+      enabled: !!session_uuid && !options?.isNewChat,
+      // 세션이 새로 생성된 경우 잠시 후 다시 시도
+      refetchInterval: options?.isNewChat ? 1000 : false,
+      refetchIntervalInBackground: false,
     }),
 };
