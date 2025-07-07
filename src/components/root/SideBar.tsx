@@ -18,13 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip.tsx";
-
-type MenuItem = {
-  title: string;
-  icon: React.ElementType;
-  url: string;
-  requiresAuth: boolean;
-};
+import { menuItems } from "@/data/common.ts";
 
 /**
  * 메인 사이드바 컴포넌트
@@ -34,33 +28,6 @@ type MenuItem = {
 export default function SideBar() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-
-  const menuItems: MenuItem[] = [
-    {
-      title: "환율",
-      icon: DollarSign,
-      url: "/exchange-rates",
-      requiresAuth: false, // 로그인 없이도 접근 가능
-    },
-    {
-      title: "뉴스",
-      icon: Newspaper,
-      url: "/news",
-      requiresAuth: false, // 로그인 없이도 접근 가능
-    },
-    {
-      title: "무역 통계",
-      icon: BarChart,
-      url: "/statistics",
-      requiresAuth: false, // 로그인 필요
-    },
-    {
-      title: "대시보드",
-      icon: LayoutDashboard,
-      url: "/dashboard",
-      requiresAuth: true, // 로그인 필요
-    },
-  ];
 
   /**
    * 로그인 필요 메뉴 클릭 시 처리

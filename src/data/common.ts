@@ -1,4 +1,40 @@
+import { BarChart, DollarSign, LayoutDashboard, Newspaper } from "lucide-react";
+
 import type { CountryInfo } from "@/types/base";
+
+export type MenuItem = {
+  title: string;
+  icon: React.ElementType;
+  url: string;
+  requiresAuth: boolean;
+};
+
+export const menuItems: MenuItem[] = [
+  {
+    title: "환율",
+    icon: DollarSign,
+    url: "/exchange-rates",
+    requiresAuth: false,
+  },
+  {
+    title: "뉴스",
+    icon: Newspaper,
+    url: "/news",
+    requiresAuth: false,
+  },
+  {
+    title: "무역 통계",
+    icon: BarChart,
+    url: "/statistics",
+    requiresAuth: false,
+  },
+  {
+    title: "대시보드",
+    icon: LayoutDashboard,
+    url: "/dashboard",
+    requiresAuth: true,
+  },
+];
 
 // 국가 정보 데이터 (전체 시스템에서 공통 사용)
 export const COUNTRIES: CountryInfo[] = [
@@ -18,6 +54,11 @@ export const COUNTRIES: CountryInfo[] = [
   { code: "AU", name: "호주", flag: "🇦🇺" },
   { code: "NL", name: "네덜란드", flag: "🇳🇱" },
 ];
+
+/**
+ * 한국의 리포터 코드 (UN Comtrade 표준)
+ */
+export const KOR_REPORTER_CODE = "410";
 
 // 주요 통화 정보
 export const CURRENCIES = {

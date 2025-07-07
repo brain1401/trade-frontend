@@ -6,6 +6,8 @@ import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 import type { RouterAuthContext } from "@/types/auth";
 import { Toaster } from "@/components/ui/sonner";
 import SideBar from "@/components/root/SideBar.tsx";
+import { useIsMobile } from "@/hooks/use-mobile.ts";
+import TopBar from "@/components/root/TopBar.tsx";
 
 /**
  * 라우터 컨텍스트 타입 정의
@@ -23,11 +25,21 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootLayout() {
-  // 인증 상태에 관계없이 항상 사이드바와 함께 표시
+  const isMobile = useIsMobile();
+
+  if (isMobile === undefined) {
+    // SSR 또는 초기 로드 시 깜빡임 방지
+    return null;
+  }
+
   return (
-    <div className="flex h-dvh w-dvw bg-neutral-50 font-nanum_gothic">
-      <SideBar />
-      <main className="flex flex-1 flex-col overflow-y-auto">
+    <div
+      className={`h-dvh w-dvw bg-neutral-50 font-nanum_gothic ${
+        isMobile ? "flex flex-col" : "flex"
+      }`}
+    >
+      {isMobile ? <TopBar /> : <SideBar />}
+      <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
       <TanStackQueryLayout />

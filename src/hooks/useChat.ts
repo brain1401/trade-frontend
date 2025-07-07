@@ -1,5 +1,6 @@
 import {
   chatApi,
+  type ChatRequest,
   type V2SSEEventHandlers,
   type ClaudeErrorEvent,
   type V2ContentDeltaEvent,
@@ -14,6 +15,7 @@ export type UseChatOptions = {
 
 export function useChat({ initialMessages = [] }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessageItem[]>(initialMessages);
+  const [sessionUuid, setSessionUuid] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,6 +49,12 @@ export function useChat({ initialMessages = [] }: UseChatOptions = {}) {
       setMessages((prev) => [...prev, aiPlaceholder]);
 
       const handlers: V2SSEEventHandlers = {
+        onChatSessionInfo: (data) => {
+          if (data.session_uuid) {
+            console.log("세션 UUID 수신 및 저장:", data.session_uuid);
+            setSessionUuid(data.session_uuid);
+          }
+        },
         onChatContentDelta: (data: V2ContentDeltaEvent) => {
           if (data.delta?.text) {
             setMessages((prev) =>
@@ -81,10 +89,12 @@ export function useChat({ initialMessages = [] }: UseChatOptions = {}) {
       };
 
       try {
-        await chatApi.startV2StandardStreaming(
-          { message: messageText },
-          handlers,
-        );
+        const request: ChatRequest = { message: messageText };
+        if (sessionUuid) {
+          request.session_uuid = sessionUuid;
+        }
+
+        await chatApi.startV2StandardStreaming(request, handlers);
       } catch (e) {
         const errorMessage =
           e instanceof Error ? e.message : "An unknown error occurred";
@@ -97,7 +107,7 @@ export function useChat({ initialMessages = [] }: UseChatOptions = {}) {
         );
       }
     },
-    [isLoading],
+    [isLoading, sessionUuid],
   );
 
   return {
