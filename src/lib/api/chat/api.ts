@@ -59,6 +59,7 @@ export const chatApi = {
         headers,
         body: JSON.stringify(request),
         signal: options?.signal,
+        openWhenHidden: true,
 
         onopen: async (response) => {
           if (!response.ok) {
@@ -174,6 +175,7 @@ export const chatApi = {
         headers,
         body: JSON.stringify(request),
         signal: options?.signal,
+        openWhenHidden: true,
 
         onopen: async (response) => {
           if (!response.ok) {
@@ -317,6 +319,7 @@ export const chatApi = {
         headers,
         body: JSON.stringify(request),
         signal: options?.signal,
+        openWhenHidden: true,
 
         onopen: async (response) => {
           if (!response.ok) {
@@ -529,6 +532,7 @@ export const chatApi = {
         headers,
         body: JSON.stringify(request),
         signal: options?.signal,
+        openWhenHidden: true,
 
         onopen: async (response) => {
           if (!response.ok) {
