@@ -1,9 +1,6 @@
 // Fixed import statements
 import { httpClient, ApiError } from "../common";
-import {
-  fetchEventSource,
-  type EventSourceMessage,
-} from "@microsoft/fetch-event-source";
+import { stream } from "fetch-event-stream";
 import type {
   ChatHistoryGetParams,
   PaginatedChatSessions,
@@ -22,6 +19,7 @@ import type {
   ChatSession,
   StreamingOptions,
   NewChatSession,
+  ClaudeErrorEvent,
 } from "./types";
 
 const CHAT_API_URL = "http://localhost:8081/api/chat";
@@ -515,8 +513,6 @@ export const chatApi = {
     options?: StreamingOptions,
   ): Promise<void> {
     const token = tokenStore.getToken();
-    console.log("현재 엑세스 토큰 token : ", token);
-
     const headers = {
       "Content-Type": "application/json",
       Accept: "text/event-stream",
@@ -524,216 +520,126 @@ export const chatApi = {
     };
 
     try {
-      await fetchEventSource(CHAT_API_URL, {
+      const response = await fetch(`${CHAT_API_URL}`, {
         method: "POST",
         headers,
         body: JSON.stringify(request),
         signal: options?.signal,
-        openWhenHidden: true,
+      });
 
-        onopen: async (response) => {
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new ApiError(
-              response.status,
-              undefined,
-              `채팅 요청 실패: ${errorText}`,
-            );
-          }
-        },
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new ApiError(
+          response.status,
+          undefined,
+          `채팅 요청 실패: ${errorText}`,
+        );
+      }
 
-        onmessage: (event: EventSourceMessage) => {
-          // 스트림 종료 체크
-          if (event.event === "close" || event.data === "[DONE]") {
-            return;
-          }
+      if (!response.body) {
+        throw new Error("응답에 body가 없습니다.");
+      }
 
-          if (!event.data) {
-            return;
-          }
+      const eventStream = response.body.pipeThrough(new TextDecoderStream());
 
-          try {
-            console.log(
-              `🔔 v2.1 SSE 이벤트 수신: event="${event.event || "message"}", data:`,
-              event.data,
-            );
+      // fetch-event-stream의 parser와 유사한 로직을 직접 구현
+      let buffer = "";
+      const reader = eventStream.getReader();
 
-            // 🆕 실제 서버 형식에 맞춘 혼합 처리 방식
+      const processText = (text: string) => {
+        buffer += text;
+        const lines = buffer.split("\\n");
+        buffer = lines.pop() || ""; // 마지막 줄은 버퍼에 남김 (완전하지 않을 수 있음)
 
-            // 1. heartbeat 이벤트는 event.event로 처리
-            if (event.event === "heartbeat") {
-              const data = JSON.parse(event.data);
-              console.log("💓 연결 유지:", data.session_uuid);
-              handlers.onHeartbeat?.(data);
-              return;
-            }
+        for (const line of lines) {
+          if (line.startsWith("data:")) {
+            const jsonStr = line.substring(5).trim();
+            if (jsonStr) {
+              try {
+                const data = JSON.parse(jsonStr);
 
-            // 2. 나머지 이벤트들은 data.type으로 구분 (기본 message 이벤트)
-            const data = JSON.parse(event.data);
-
-            // 세션 정보는 특별 처리 (session_uuid 필드로 식별)
-            if (data.session_uuid && data.timestamp && !data.type) {
-              console.log("🆔 세션 정보:", data.session_uuid);
-              handlers.onChatSessionInfo?.(data);
-              return;
-            }
-
-            // 병렬 처리 이벤트는 stage 필드로 식별
-            if (
-              data.stage &&
-              data.content !== undefined &&
-              data.progress !== undefined
-            ) {
-              console.log("🔄 병렬 처리:", data.stage, data.progress);
-              handlers.onParallelProcessing?.(data);
-
-              // thinking 정보로도 전달
-              const thinkingInfo: ThinkingInfo = {
-                content: data.content,
-                stage: data.stage,
-                timestamp: data.timestamp || new Date().toISOString(),
-              };
-              handlers.onThinkingInfoUpdate?.(thinkingInfo);
-              return;
-            }
-
-            // data.type 기반 이벤트 처리 (TrAI-Bot API 표준)
-            switch (data.type) {
-              case "message_start":
-                console.log("🔍 메시지 시작:", data.message?.id);
-                handlers.onChatMessageStart?.(data);
-                break;
-
-              case "processing_status":
-                console.log("🔄 진행 상태:", data.message, `${data.progress}%`);
-                handlers.onProcessingStatus?.(data);
-                break;
-
-              case "content_block_start":
-                console.log("📊 콘텐츠 블록 시작:", data.content_block?.type);
-                handlers.onChatContentStart?.();
-                break;
-
-              case "content_block_delta":
-                if (data.delta?.type === "text_delta") {
-                  console.log("💬 텍스트 델타:", data.delta.text);
-                  handlers.onChatContentDelta?.(data);
-                }
-                break;
-
-              case "content_block_stop":
-                console.log("✅ 콘텐츠 블록 종료");
-                handlers.onChatContentStop?.();
-                break;
-
-              case "start": // detail_buttons_start
-                console.log("🔘 상세 버튼 준비 시작:", data.buttonsCount);
-                handlers.onDetailButtonsStart?.(data);
-                break;
-
-              case "button": // detail_button_ready
-                console.log("✅ 버튼 준비 완료:", data.buttonType);
-                handlers.onDetailButtonReady?.(data);
-
-                // URL 정보 별도 상태로 전달
-                if (data.url && data.title) {
-                  const urlInfo: URLInfo = {
-                    url: data.url,
-                    title: data.title,
-                    description: data.description || "",
-                    buttonType: data.buttonType,
-                    metadata: data.metadata,
-                  };
-                  handlers.onUrlInfoUpdate?.(urlInfo);
-                }
-                break;
-
-              case "complete": // detail_buttons_complete
-                console.log("🎉 모든 버튼 준비 완료:", data.buttonsGenerated);
-                handlers.onDetailButtonsComplete?.(data);
-                break;
-
-              case "error": // detail_buttons_error or general error
-                if (data.errorCode) {
-                  console.log("❌ 버튼 준비 에러:", data.errorCode);
-                  handlers.onDetailButtonsError?.(data);
+                if (data.event) {
+                  switch (data.event) {
+                    case "heartbeat": {
+                      handlers.onHeartbeat?.(data);
+                      break;
+                    }
+                    case "session_info":
+                      handlers.onChatSessionInfo?.(data.data);
+                      break;
+                    case "processing_status":
+                      handlers.onProcessingStatus?.(data.data);
+                      break;
+                    case "content_delta":
+                      handlers.onChatContentDelta?.(data.data);
+                      break;
+                    case "message_delta":
+                      handlers.onMessageDelta?.(data.data);
+                      break;
+                    case "error":
+                      handlers.onError?.(data.data);
+                      break;
+                    case "message_stop":
+                      handlers.onChatMessageStop?.(data.data || {});
+                      break;
+                    default:
+                      console.warn(
+                        "[API] onmessage: 알 수 없는 이벤트 타입",
+                        data.event,
+                      );
+                  }
                 } else {
-                  console.log("❌ 일반 에러:", data.error?.type);
-                  handlers.onError?.(data);
-                }
-                break;
-
-              case "message_delta":
-                console.log("📝 메시지 델타:", data.delta?.stop_reason);
-                handlers.onMessageDelta?.(data);
-                break;
-
-              case "message_limit":
-                console.log("📊 메시지 한도:", data.message_limit?.type);
-                break;
-
-              case "message_stop":
-                console.log("🔚 메시지 종료");
-                handlers.onChatMessageStop?.(data);
-                break;
-
-              // 🆕 v2.1 웹 검색 결과 (실제로는 별도 이벤트가 아닐 수 있음)
-              case "web_search_results":
-                console.log("🔍 웹 검색 결과:", data.total_count, "개");
-                handlers.onChatWebSearchResults?.(data);
-                break;
-
-              default:
-                // 알 수 없는 이벤트는 조용히 무시
-                if (data.type) {
                   console.warn(
-                    `⚠️ 알 수 없는 v2.1 SSE 이벤트: ${data.type}`,
+                    "[API] onmessage: 'event' 필드 없는 데이터 수신",
                     data,
                   );
                 }
-                break;
+              } catch (parseError) {
+                console.error(
+                  "[API] onmessage: 데이터 파싱 오류",
+                  parseError,
+                  "원본 데이터:",
+                  jsonStr,
+                );
+                handlers.onError?.({
+                  type: "error",
+                  error: {
+                    type: "CLIENT_PARSE_ERROR",
+                    message:
+                      parseError instanceof Error
+                        ? parseError.message
+                        : "SSE 데이터 파싱 중 클라이언트 오류 발생",
+                  },
+                });
+              }
             }
-          } catch (parseError) {
-            console.error(
-              "❌ v2.1 SSE 데이터 파싱 오류:",
-              parseError,
-              "이벤트:",
-              event.event || "message",
-              "원본 데이터:",
-              event.data,
-            );
-            handlers.onError?.({
-              type: "error",
-              error: {
-                type: "CLIENT_PARSE_ERROR",
-                message:
-                  parseError instanceof Error
-                    ? parseError.message
-                    : "v2.1 SSE 데이터 파싱 중 클라이언트 오류 발생",
-              },
-            });
           }
-        },
+        }
+      };
 
-        onclose: () => {
-          console.log("🔌 v2.1 SSE 연결 종료");
-          options?.onClose?.();
-        },
-
-        onerror: (err) => {
-          console.error("🚨 v2.1 SSE 연결 에러:", err);
-          options?.onError?.(
-            err instanceof Error ? err : new Error("알 수 없는 v2.1 SSE 오류"),
-          );
-          // 재시도를 중단하려면 에러를 throw해야 함
-          throw err;
-        },
-      });
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        processText(value);
+      }
     } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
       if (error instanceof Error && error.name === "AbortError") {
-        console.log("⏹️ v2.1 SSE fetch aborted by client.");
+        console.log("[API] SSE fetch가 클라이언트에 의해 중단됨.");
       } else {
-        console.error("💥 v2.1 fetchEventSource 실행 중 예외 발생:", error);
+        const errorPayload: ClaudeErrorEvent = {
+          type: "error",
+          error: {
+            type: "CLIENT_EXCEPTION",
+            message: error instanceof Error ? error.message : "알 수 없는 오류",
+          },
+        };
+        handlers.onError?.(errorPayload);
       }
     }
   },
@@ -743,7 +649,7 @@ export const chatApi = {
    * @param sessionId 가져올 세션의 UUID
    */
   getChatSession: (sessionId: string) => {
-    return httpClient.get<ChatSession>(`/v2/chat/sessions/${sessionId}`);
+    return httpClient.get<ChatSession>(`/chat/sessions/${sessionId}`);
   },
 
   /**

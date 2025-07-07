@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { ChatInterface } from "@/components/search";
 import { useAuth } from "@/stores/authStore";
 import { bookmarkApi } from "@/lib/api";
 import { toast } from "sonner";
-import type { RelatedInfo, ChatMessage } from "@/types/chat";
+import type { RelatedInfo } from "@/types/chat";
 import { useChat } from "@/hooks/useChat";
+import { useChatState } from "@/stores/chatStore";
 
 /**
  * 검색 라우트 정의 (v4.0 - ChatGPT 스타일)
@@ -26,7 +27,12 @@ export const Route = createFileRoute("/search/")({
 function SearchPage() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate({ from: Route.fullPath });
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { messages, resetChat } = useChatState();
+
+  useEffect(() => {
+    // 새 검색 페이지에 들어올 때마다 이전 채팅 기록을 초기화
+    resetChat();
+  }, [resetChat]);
 
   const handleNewSession = useCallback(
     (newSessionId: string) => {
@@ -40,7 +46,6 @@ function SearchPage() {
   );
 
   const { isLoading, sendMessage, currentMessageId } = useChat({
-    setMessages,
     session_uuid: null,
     onNewSessionCreated: handleNewSession,
   });
