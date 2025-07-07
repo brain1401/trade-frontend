@@ -57,23 +57,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
    * v6.1: HttpOnly 쿠키 환경에서 리프레시 토큰 상태 확인
    */
   initialize: async () => {
-    const currentState = get();
-
-    // 이미 초기화되었다면 건너뛰기 (중복 실행 방지)
-    if (currentState.isInitialized) {
+    // 이미 초기화가 완료되었다면 즉시 반환
+    if (get().isInitialized) {
       if (import.meta.env.DEV) {
-        console.log("⚠️ 인증 초기화 이미 완료됨 - 중복 실행 방지");
+        console.log("⚠️ 인증 초기화 건너뜀 (이미 완료됨)");
       }
       return;
     }
 
+    // isLoading이 이미 true이므로, 초기화 시작 로그만 출력
+    if (import.meta.env.DEV) {
+      console.log("🔐 인증 초기화 프로세스 시작...");
+    }
+
     try {
-      set({ isLoading: true });
-
-      if (import.meta.env.DEV) {
-        console.log("🔐 인증 초기화 시작");
-      }
-
       // 1단계: 기존 Access Token이 유효한지 확인
       if (tokenStore.isAuthenticated()) {
         try {
@@ -85,15 +82,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           set({
             user,
             isAuthenticated: true,
-            isLoading: false,
-            isInitialized: true,
             tokenExpiresAt: tokenStore.getTokenExpiryDate(),
           });
 
           if (import.meta.env.DEV) {
             console.log("✅ 기존 토큰으로 인증 초기화 완료");
           }
-          return;
+          return; // 성공 시 여기서 종료
         } catch (error) {
           if (import.meta.env.DEV) {
             console.warn("⚠️ 기존 토큰으로 사용자 정보 조회 실패:", error);
@@ -103,7 +98,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       // 2단계: HttpOnly 쿠키의 리프레시 토큰으로 갱신 시도
-      // 주의: HttpOnly 쿠키는 JavaScript로 확인할 수 없으므로 API 호출로 간접 확인
       try {
         if (import.meta.env.DEV) {
           console.log("🔄 HttpOnly 리프레시 토큰으로 액세스 토큰 갱신 시도");
@@ -117,15 +111,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           user,
           isAuthenticated: true,
-          isLoading: false,
-          isInitialized: true,
           tokenExpiresAt: tokenStore.getTokenExpiryDate(),
         });
 
         if (import.meta.env.DEV) {
           console.log("🎉 HttpOnly 리프레시 토큰을 통한 자동 로그인 성공");
         }
-        return;
+        return; // 성공 시 여기서 종료
       } catch (refreshError) {
         if (import.meta.env.DEV) {
           console.info(
@@ -140,8 +132,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false,
-        isInitialized: true,
         tokenExpiresAt: null,
       });
 
@@ -150,13 +140,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
     } catch (error) {
       console.error("❌ 인증 상태 초기화 중 예상치 못한 오류:", error);
+      // 오류 발생 시에도 로그아웃 상태로 확실하게 처리
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false,
-        isInitialized: true,
         tokenExpiresAt: null,
       });
+    } finally {
+      // try/catch 모든 경로의 마지막에 항상 실행됨
+      // 성공/실패 여부와 관계없이 로딩 상태를 종료하고 초기화 완료로 설정
+      set({ isLoading: false, isInitialized: true });
+      if (import.meta.env.DEV) {
+        console.log(
+          "🏁 인증 프로세스 종료 (isLoading: false, isInitialized: true)",
+        );
+      }
     }
   },
 

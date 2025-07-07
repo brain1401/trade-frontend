@@ -1,4 +1,10 @@
-import { BarChart, DollarSign, LayoutDashboard, Newspaper } from "lucide-react";
+import {
+  BarChart,
+  DollarSign,
+  LayoutDashboard,
+  MessageSquare,
+  Newspaper,
+} from "lucide-react";
 
 import type { CountryInfo } from "@/types/base";
 
@@ -32,6 +38,12 @@ export const menuItems: MenuItem[] = [
     title: "대시보드",
     icon: LayoutDashboard,
     url: "/dashboard",
+    requiresAuth: true,
+  },
+  {
+    title: "채팅",
+    icon: MessageSquare,
+    url: "/dashboard/history",
     requiresAuth: true,
   },
 ];

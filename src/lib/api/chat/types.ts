@@ -154,7 +154,7 @@ export type StreamingOptions = {
 };
 
 /**
- * Claude API 표준 SSE 이벤트 타입
+ * TrAI-Bot API 표준 SSE 이벤트 타입
  */
 export type ClaudeSSEEventType =
   | "session_uuid" // 새로운 세션 UUID 이벤트
@@ -168,12 +168,12 @@ export type ClaudeSSEEventType =
   | "error";
 
 /**
- * Claude API 표준 콘텐츠 블록 타입
+ * TrAI-Bot API 표준 콘텐츠 블록 타입
  */
 export type ClaudeContentBlockType = "text" | "thinking" | "tool_use";
 
 /**
- * Claude API 표준 델타 타입
+ * TrAI-Bot API 표준 델타 타입
  */
 export type ClaudeDeltaType =
   | "text_delta"
@@ -181,7 +181,7 @@ export type ClaudeDeltaType =
   | "input_json_delta";
 
 /**
- * Claude API 표준 메시지 시작 이벤트
+ * TrAI-Bot API 표준 메시지 시작 이벤트
  */
 export type ClaudeMessageStartEvent = {
   type: "message_start";
@@ -199,7 +199,7 @@ export type ClaudeMessageStartEvent = {
 };
 
 /**
- * Claude API 표준 콘텐츠 블록 시작 이벤트
+ * TrAI-Bot API 표준 콘텐츠 블록 시작 이벤트
  */
 export type ClaudeContentBlockStartEvent = {
   type: "content_block_start";
@@ -216,7 +216,7 @@ export type ClaudeContentBlockStartEvent = {
 };
 
 /**
- * Claude API 표준 콘텐츠 블록 델타 이벤트
+ * TrAI-Bot API 표준 콘텐츠 블록 델타 이벤트
  */
 export type ClaudeContentBlockDeltaEvent = {
   type: "content_block_delta";
@@ -233,7 +233,7 @@ export type ClaudeContentBlockDeltaEvent = {
 };
 
 /**
- * Claude API 표준 콘텐츠 블록 종료 이벤트
+ * TrAI-Bot API 표준 콘텐츠 블록 종료 이벤트
  */
 export type ClaudeContentBlockStopEvent = {
   type: "content_block_stop";
@@ -242,7 +242,7 @@ export type ClaudeContentBlockStopEvent = {
 };
 
 /**
- * Claude API 표준 메시지 델타 이벤트
+ * TrAI-Bot API 표준 메시지 델타 이벤트
  */
 export type ClaudeMessageDeltaEvent = {
   type: "message_delta";
@@ -253,14 +253,14 @@ export type ClaudeMessageDeltaEvent = {
 };
 
 /**
- * Claude API 표준 메시지 종료 이벤트
+ * TrAI-Bot API 표준 메시지 종료 이벤트
  */
 export type ClaudeMessageStopEvent = {
   type: "message_stop";
 };
 
 /**
- * Claude API 표준 세션 UUID 이벤트
+ * TrAI-Bot API 표준 세션 UUID 이벤트
  */
 export type ClaudeSessionUuidEvent = {
   session_uuid: string;
@@ -268,14 +268,14 @@ export type ClaudeSessionUuidEvent = {
 };
 
 /**
- * Claude API 표준 핑 이벤트
+ * TrAI-Bot API 표준 핑 이벤트
  */
 export type ClaudePingEvent = {
   type: "ping";
 };
 
 /**
- * Claude API 표준 에러 이벤트
+ * TrAI-Bot API 표준 에러 이벤트
  */
 export type ClaudeErrorEvent = {
   type: "error";
@@ -286,7 +286,7 @@ export type ClaudeErrorEvent = {
 };
 
 /**
- * Claude API 표준 메시지 한도 이벤트
+ * TrAI-Bot API 표준 메시지 한도 이벤트
  */
 export type ClaudeMessageLimitEvent = {
   type: "message_limit";
@@ -299,7 +299,7 @@ export type ClaudeMessageLimitEvent = {
 };
 
 /**
- * Claude API 표준 SSE 이벤트 데이터 통합 타입
+ * TrAI-Bot API 표준 SSE 이벤트 데이터 통합 타입
  */
 export type ClaudeSSEEventData =
   | ClaudeMessageStartEvent
@@ -313,7 +313,7 @@ export type ClaudeSSEEventData =
   | ClaudeMessageLimitEvent;
 
 /**
- * Claude API 표준 SSE 이벤트 핸들러
+ * TrAI-Bot API 표준 SSE 이벤트 핸들러
  */
 export type ClaudeSSEEventHandlers = {
   /**

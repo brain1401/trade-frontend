@@ -39,7 +39,7 @@ export type ChatResponse = {
  */
 export type SSEEventType =
   // 🆕 v6.1: 초기 메타데이터 (회원/비회원 차별화)
-  | "initial_metadata" // Claude 의도 분석 + 회원/비회원 상태 + RAG 활성화
+  | "initial_metadata" // TrAI-Bot 의도 분석 + 회원/비회원 상태 + RAG 활성화
   | "session_info" // 회원/비회원 차별화 정보
 
   // Phase 1: Thinking Events (v6.1 3단계 병렬 처리)
@@ -74,7 +74,7 @@ export type SSEEventType =
  * 🆕 v6.1: 초기 메타데이터 이벤트 데이터
  */
 export type InitialMetadataEvent = {
-  /** Claude 분석 의도 */
+  /** TrAI-Bot 분석 의도 */
   claudeIntent: QueryType;
   /** 예상 처리 시간 (초) */
   estimatedTime: number;
@@ -241,7 +241,7 @@ export type ErrorEventData = {
 };
 
 /**
- * 🆕 v6.1: Claude + RAG 의도 분석 결과
+ * 🆕 v6.1: TrAI-Bot + RAG 의도 분석 결과
  */
 export type QueryType =
   | "HS_CODE_ANALYSIS" // HS Code 분류 및 관세율 조회

@@ -8,6 +8,9 @@ import { Toaster } from "@/components/ui/sonner";
 import SideBar from "@/components/root/SideBar.tsx";
 import { useIsMobile } from "@/hooks/use-mobile.ts";
 import TopBar from "@/components/root/TopBar.tsx";
+import { useAuth } from "@/stores/authStore.ts";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 /**
  * 라우터 컨텍스트 타입 정의
@@ -26,10 +29,23 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootLayout() {
   const isMobile = useIsMobile();
+  const { isLoading, initialize } = useAuth();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   if (isMobile === undefined) {
     // SSR 또는 초기 로드 시 깜빡임 방지
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-dvh w-dvw items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
+      </div>
+    );
   }
 
   return (

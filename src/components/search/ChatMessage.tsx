@@ -366,7 +366,7 @@ export function ChatMessage({
         {/* 메시지 헤더 */}
         <div className="mb-2 flex items-center gap-2">
           <span className="text-sm font-medium text-neutral-700">
-            {isUser ? "나" : isThinking ? "Claude (분석 중)" : "Claude"}
+            {isUser ? "나" : isThinking ? "TrAI-Bot (분석 중)" : "TrAI-Bot"}
           </span>
           {isThinking && (
             <Badge

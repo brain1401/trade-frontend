@@ -291,9 +291,9 @@ export const chatApi = {
   // },
 
   // /**
-  //  * Claude API 표준 SSE 형식을 지원하는 채팅 스트리밍 처리
+  //  * TrAI-Bot API 표준 SSE 형식을 지원하는 채팅 스트리밍 처리
   //  * @param request 채팅 요청 데이터
-  //  * @param handlers Claude API 표준 SSE 이벤트 핸들러들
+  //  * @param handlers TrAI-Bot API 표준 SSE 이벤트 핸들러들
   //  * @param options 스트리밍 옵션
   //  */
   // async startClaudeStandardStreaming(
@@ -349,11 +349,11 @@ export const chatApi = {
   //             return;
   //           }
 
-  //           // 일반 Claude API 이벤트 처리
+  //           // 일반 TrAI-Bot API 이벤트 처리
   //           if (data.type) {
-  //             console.log("Claude SSE 이벤트 타입:", data.type);
+  //             console.log("TrAI-Bot SSE 이벤트 타입:", data.type);
 
-  //             // Claude API 표준 이벤트 타입별 핸들러 호출
+  //             // TrAI-Bot API 표준 이벤트 타입별 핸들러 호출
   //             switch (data.type) {
   //               case "message_start":
   //                 handlers.onMessageStart?.(data);
@@ -453,7 +453,7 @@ export const chatApi = {
 
   //               default:
   //                 console.warn(
-  //                   "알 수 없는 Claude SSE 이벤트 타입:",
+  //                   "알 수 없는 TrAI-Bot SSE 이벤트 타입:",
   //                   data.type,
   //                   "데이터:",
   //                   data,
@@ -463,7 +463,7 @@ export const chatApi = {
   //           }
   //         } catch (parseError) {
   //           console.error(
-  //             "Claude SSE 데이터 파싱 오류:",
+  //             "TrAI-Bot SSE 데이터 파싱 오류:",
   //             parseError,
   //             "원본 데이터:",
   //             event.data,
@@ -475,7 +475,7 @@ export const chatApi = {
   //               message:
   //                 parseError instanceof Error
   //                   ? parseError.message
-  //                   : "Claude SSE 데이터 파싱 중 클라이언트 오류 발생",
+  //                   : "TrAI-Bot SSE 데이터 파싱 중 클라이언트 오류 발생",
   //             },
   //           });
   //         }
@@ -495,9 +495,9 @@ export const chatApi = {
   //     });
   //   } catch (error) {
   //     if (error instanceof Error && error.name === "AbortError") {
-  //       console.log("Claude SSE fetch aborted by client.");
+  //       console.log("TrAI-Bot SSE fetch aborted by client.");
   //     } else {
-  //       console.error("Claude fetchEventSource 실행 중 예외 발생:", error);
+  //       console.error("TrAI-Bot fetchEventSource 실행 중 예외 발생:", error);
   //     }
   //   }
   // },
@@ -597,7 +597,7 @@ export const chatApi = {
               return;
             }
 
-            // data.type 기반 이벤트 처리 (Claude API 표준)
+            // data.type 기반 이벤트 처리 (TrAI-Bot API 표준)
             switch (data.type) {
               case "message_start":
                 console.log("🔍 메시지 시작:", data.message?.id);
@@ -861,7 +861,7 @@ await chatApi.startChatWithStreaming(
   }
 );
 
-// === 새로운 방법: Claude API 표준 스트리밍 함수 사용 ===
+// === 새로운 방법: TrAI-Bot API 표준 스트리밍 함수 사용 ===
 
 // 텍스트와 생각 누적을 위한 상태
 let accumulatedText = '';

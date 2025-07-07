@@ -2,28 +2,20 @@ import { Link } from "@tanstack/react-router";
 
 type AppLogoProps = {
   /**
-   * 로고 크기
-   */
-  size?: "sm" | "md" | "lg";
-  /**
    * 클릭 가능 여부
    */
   clickable?: boolean;
 };
 
-type LogoContentProps = {
-  size: "sm" | "md" | "lg";
-};
-
 /**
  * 로고 내용 컴포넌트
  */
-function LogoContent({ size }: LogoContentProps) {
+function LogoContent() {
   return (
     <img
-      src="/logo.png"
+      src="/logo.webp"
       alt="logo"
-      className="to-brand-600 flex w-[10rem] items-center justify-center rounded-lg font-bold text-white"
+      className="to-brand-600 flex h-full w-full items-center justify-center rounded-lg object-cover font-bold text-white"
     />
   );
 }
@@ -37,20 +29,17 @@ function LogoContent({ size }: LogoContentProps) {
  * <AppLogo size="md" clickable />
  * ```
  */
-export default function AppLogo({
-  size = "md",
-  clickable = true,
-}: AppLogoProps) {
+export default function AppLogo({ clickable = true }: AppLogoProps) {
   if (!clickable) {
-    return <LogoContent size={size} />;
+    return <LogoContent />;
   }
 
   return (
     <Link
       to="/"
-      className="block transition-opacity hover:opacity-80 active:scale-95"
+      className="block h-full w-full transition-opacity hover:opacity-80 active:scale-95"
     >
-      <LogoContent size={size} />
+      <LogoContent />
     </Link>
   );
 }

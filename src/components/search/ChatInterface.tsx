@@ -65,9 +65,7 @@ export function ChatInterface({
   onNewChat,
   sessionId,
 }: ChatInterfaceProps) {
-  const { isAuthenticated } = useAuth();
   const chatStartedRef = useRef(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (messages.length > 0 && !chatStartedRef.current) {
@@ -99,7 +97,7 @@ export function ChatInterface({
     <div className="flex h-full flex-col">
       <header className="flex items-center justify-between border-b bg-neutral-50/80 px-4 py-2 backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-950/80">
         <h1 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-          AI Chat
+          TrAI-bot
         </h1>
         <Button variant="outline" onClick={handleNewChat}>
           새 대화

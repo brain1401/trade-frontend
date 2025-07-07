@@ -584,9 +584,9 @@ CREATE TABLE monitor_logs (
 );
 
 -- 주석 추가
-COMMENT ON TABLE monitor_logs IS 'Claude API 사용량 및 비용 모니터링 (후순위 구현)';
+COMMENT ON TABLE monitor_logs IS 'TrAI-Bot API 사용량 및 비용 모니터링 (후순위 구현)';
 COMMENT ON COLUMN monitor_logs.api_endpoint IS '호출된 API 엔드포인트';
-COMMENT ON COLUMN monitor_logs.claude_model IS '사용된 Claude 모델';
+COMMENT ON COLUMN monitor_logs.claude_model IS '사용된 TrAI-Bot 모델';
 COMMENT ON COLUMN monitor_logs.input_tokens IS '입력 토큰 수';
 COMMENT ON COLUMN monitor_logs.output_tokens IS '출력 토큰 수';
 COMMENT ON COLUMN monitor_logs.total_cost_usd IS '총 비용 (USD)';

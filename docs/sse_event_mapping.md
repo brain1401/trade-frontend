@@ -76,7 +76,7 @@
     "id": "chatcompl_f204546a724945368021fe51",
     "type": "message",
     "role": "assistant",
-    "model": "claude-sonnet-4-20250514",
+    "model": "TrAI-Bot-sonnet-4-20250514",
     "parent_uuid": "9b516d69-2343-4c74-a219-f6f6e8eb3409",
     "uuid": "fd156e81-6301-4d0c-905f-45ec961f1c35",
     "content": [],

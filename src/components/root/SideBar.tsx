@@ -29,6 +29,7 @@ export default function SideBar() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
+  console.log("user :", user);
   /**
    * 로그인 필요 메뉴 클릭 시 처리
    */
@@ -95,8 +96,9 @@ export default function SideBar() {
   return (
     <aside className="flex h-full w-[4rem] flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
       {/* 앱 로고 */}
-      <div className="w-[8rem] p-4">
-        <AppLogo size="md" />
+      <div className="flex flex-col items-center justify-center pt-5">
+        <AppLogo />
+        <span className="text-sm text-neutral-500">TrAI-bot</span>
       </div>
 
       <nav className="flex-1 space-y-2 p-2">

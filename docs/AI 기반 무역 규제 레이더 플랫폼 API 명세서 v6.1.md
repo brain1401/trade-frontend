@@ -21,11 +21,11 @@
 ### 🔧 **SSE 기반 북마크 시스템 재설계**
 
 - **메타데이터 기반 표시**: SSE 첫 번째 이벤트로 전달되는 HSCode 메타데이터를 통한 프론트엔드 북마크 버튼 표시
-- **실시간 상호작용**: Claude 분석 즉시 북마크 가능 여부 표시
+- **실시간 상호작용**: TrAI-Bot 분석 즉시 북마크 가능 여부 표시
 
 ### 🎯 **3단계 병렬 처리 시스템 (v6.1 혁신)**
 
-- **동시 처리**: (1) Claude 자연어 응답 스트리밍, (2) HSCode/규제/무역통계 상세페이지 정보 준비, (3) 회원 대화 기록 저장
+- **동시 처리**: (1) TrAI-Bot 자연어 응답 스트리밍, (2) HSCode/규제/무역통계 상세페이지 정보 준비, (3) 회원 대화 기록 저장
 - **로딩 최적화**: 상세페이지 버튼에 로딩 스피너 → 준비 완료 시 버튼 활성화
 - **사용자 경험 향상**: 각 단계 완료 시점에 따라 순차적 UI 업데이트
 
@@ -43,7 +43,7 @@
 ┌─────────────────────────────────────────────────────────┐
 │         ChatGPT 스타일 회원/비회원 차별화 채팅            │
 │                                                         │
-│  POST /api/chat → Claude 분석 → 즉시 SSE 스트리밍 시작    │
+│  POST /api/chat → TrAI-Bot 분석 → 즉시 SSE 스트리밍 시작    │
 │                                                         │
 │  ┌─────────────────┐         ┌─────────────────────────┐ │
 │  │     회원        │         │       비회원            │ │
@@ -56,7 +56,7 @@
 │                    ↓                                     │
 │         3단계 병렬 처리 (회원/비회원 공통)                 │
 │  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────┐ │
-│  │Claude 자연어 응답│ │상세페이지 준비  │ │회원 기록저장│ │
+│  │TrAI-Bot 자연어 응답│ │상세페이지 준비  │ │회원 기록저장│ │
 │  │실시간 스트리밍  │ │HSCode/규제/통계 │ │(회원만)     │ │
 │  └─────────────────┘ └─────────────────┘ └─────────────┘ │
 │                                ↓                       │
@@ -776,7 +776,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **`POST /api/chat`**
 
-사용자의 자연어 질문을 Claude AI + RAG 시스템이 분석하여 무역 관련 의도를 파악하고, **회원/비회원 상태에 따라 차별화된 처리**를 수행합니다. 즉시 Server-Sent Events를 통해 분석 과정과 최종 답변을 실시간으로 스트리밍하며, **3단계 병렬 처리**로 최적의 성능을 제공합니다.
+사용자의 자연어 질문을 TrAI-Bot AI + RAG 시스템이 분석하여 무역 관련 의도를 파악하고, **회원/비회원 상태에 따라 차별화된 처리**를 수행합니다. 즉시 Server-Sent Events를 통해 분석 과정과 최종 답변을 실시간으로 스트리밍하며, **3단계 병렬 처리**로 최적의 성능을 제공합니다.
 
 ### 🚀 v6.1 혁신 기능
 
@@ -788,16 +788,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 📊 응답 코드 매트릭스
 
-| 시나리오              | HTTP 상태                  | 에러 코드      | 응답 메시지                                   |
-| --------------------- | -------------------------- | -------------- | --------------------------------------------- |
-| ✅ 스트리밍 시작       | `200 OK`                   | -              | SSE 스트리밍 시작                             |
-| ❌ 메시지 너무 짧음    | `400 Bad Request`          | CHAT_001       | “메시지는 2자 이상이어야 합니다”              |
-| ❌ 메시지 너무 김      | `400 Bad Request`          | CHAT_002       | “메시지는 1000자 이하여야 합니다”             |
-| ❌ 무역 외 질의        | `422 Unprocessable Entity` | CHAT_003       | “무역 관련 질문에만 답변할 수 있습니다”       |
-| ❌ Claude AI 분석 실패 | `502 Bad Gateway`          | CHAT_004       | “AI 분석 중 오류가 발생했습니다”              |
-| ❌ Rate Limit 초과     | `429 Too Many Requests`    | RATE_LIMIT_002 | “채팅 요청 한도를 초과했습니다”               |
-| ❌ RAG 검색 실패       | `502 Bad Gateway`          | CHAT_005       | “지식베이스 검색 중 오류가 발생했습니다”      |
-| ❌ 병렬 처리 실패      | `502 Bad Gateway`          | CHAT_006       | “상세페이지 정보 준비 중 오류가 발생했습니다” |
+| 시나리오                | HTTP 상태                  | 에러 코드      | 응답 메시지                                   |
+| ----------------------- | -------------------------- | -------------- | --------------------------------------------- |
+| ✅ 스트리밍 시작         | `200 OK`                   | -              | SSE 스트리밍 시작                             |
+| ❌ 메시지 너무 짧음      | `400 Bad Request`          | CHAT_001       | “메시지는 2자 이상이어야 합니다”              |
+| ❌ 메시지 너무 김        | `400 Bad Request`          | CHAT_002       | “메시지는 1000자 이하여야 합니다”             |
+| ❌ 무역 외 질의          | `422 Unprocessable Entity` | CHAT_003       | “무역 관련 질문에만 답변할 수 있습니다”       |
+| ❌ TrAI-Bot AI 분석 실패 | `502 Bad Gateway`          | CHAT_004       | “AI 분석 중 오류가 발생했습니다”              |
+| ❌ Rate Limit 초과       | `429 Too Many Requests`    | RATE_LIMIT_002 | “채팅 요청 한도를 초과했습니다”               |
+| ❌ RAG 검색 실패         | `502 Bad Gateway`          | CHAT_005       | “지식베이스 검색 중 오류가 발생했습니다”      |
+| ❌ 병렬 처리 실패        | `502 Bad Gateway`          | CHAT_006       | “상세페이지 정보 준비 중 오류가 발생했습니다” |
 
 ### Request Headers
 
@@ -912,10 +912,10 @@ data: {"type": "record_saved", "sessionId": "chat_session_20240116_123456", "mes
 
 ### 초기 메타데이터
 
-| 이벤트 타입        | 설명                                             | 데이터 형식                                                                                                                              |
-| ------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `initial_metadata` | Claude 의도 분석 + 회원/비회원 상태 + RAG 활성화 | `{"claudeIntent": "...", "estimatedTime": 15, "isAuthenticated": true, "sessionCreated": true, "sessionId": "...", "ragEnabled": true}`  |
-| `session_info`     | 🆕 회원/비회원 차별화 정보                        | `{"isAuthenticated": true, "userType": "MEMBER", "sessionId": "...", "recordingEnabled": true, "message": "회원님의 대화가 기록됩니다"}` |
+| 이벤트 타입        | 설명                                               | 데이터 형식                                                                                                                              |
+| ------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `initial_metadata` | TrAI-Bot 의도 분석 + 회원/비회원 상태 + RAG 활성화 | `{"claudeIntent": "...", "estimatedTime": 15, "isAuthenticated": true, "sessionCreated": true, "sessionId": "...", "ragEnabled": true}`  |
+| `session_info`     | 🆕 회원/비회원 차별화 정보                          | `{"isAuthenticated": true, "userType": "MEMBER", "sessionId": "...", "recordingEnabled": true, "message": "회원님의 대화가 기록됩니다"}` |
 
 ### Thinking 단계 (v6.1 3단계 병렬 처리 추가)
 
@@ -954,7 +954,7 @@ data: {"type": "record_saved", "sessionId": "chat_session_20240116_123456", "mes
 | `member_session_created` | 회원 세션 생성 완료      | `{"type": "session_created", "sessionId": "...", "isFirstMessage": true}`                |
 | `member_record_saved`    | 회원 대화 기록 저장 완료 | `{"type": "record_saved", "sessionId": "...", "messageCount": 2, "partitionYear": 2024}` |
 
-### 🤖 v6.1 Claude AI + RAG 의도 분석 결과
+### 🤖 v6.1 TrAI-Bot AI + RAG 의도 분석 결과
 
 | 의도 코드            | 설명                        | RAG 검색           | 예상 처리 시간 |
 | -------------------- | --------------------------- | ------------------ | -------------- |
@@ -1219,7 +1219,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | `data.relatedData` | object | 관련 데이터 (북마크, HSCode 등)         |
 
 ```json
-{  "success": "SUCCESS",  "message": "채팅 세션이 조회되었습니다",  "data": {    "session": {      "sessionId": "chat_session_20240116_123456",      "sessionTitle": "아이폰 15 프로 수입 HS Code 문의",      "messageCount": 6,      "createdAt": "2024-01-16T10:32:00Z",      "updatedAt": "2024-01-16T10:45:00Z",      "partitionYear": 2024    },    "messages": [      {        "messageId": 1,        "messageType": "USER",        "content": "아이폰 15 프로를 수입할 때 HS Code와 관세율이 어떻게 되나요?",        "createdAt": "2024-01-16T10:32:00Z"      },      {        "messageId": 2,        "messageType": "AI",        "content": "아이폰 15 프로의 정확한 HS Code는 **8517.12.00**입니다.\n\n## 관세율 정보\n- 기본 관세율: 8%\n- FTA 적용 시: 0% (한-미 FTA)\n- 부가가치세: 10%",        "aiModel": "Claude-3.5-Sonnet",        "thinkingProcess": "사용자가 아이폰 15 프로의 HS Code를 문의했습니다. 스마트폰은 8517.12.00으로 분류됩니다.",        "hsCodeAnalysis": {          "hsCode": "8517.12.00",          "productName": "스마트폰 및 기타 무선전화기",          "confidence": 0.95,          "classificationBasis": "셀룰러 네트워크용 무선전화기"        },        "sseBookmarkData": {          "available": true,          "hsCode": "8517.12.00",          "productName": "스마트폰 및 기타 무선전화기",          "confidence": 0.95        },        "createdAt": "2024-01-16T10:32:15Z"      },      {        "messageId": 3,        "messageType": "USER",        "content": "KC 인증은 어떻게 받나요?",        "createdAt": "2024-01-16T10:35:00Z"      },      {        "messageId": 4,        "messageType": "AI",        "content": "KC 인증은 전자파적합성 확인을 위한 필수 인증입니다.\n\n## KC 인증 절차\n1. 공인시험소에서 시험 실시\n2. 시험성적서 발급\n3. 국립전파연구원에 신고\n4. KC 마크 부착",        "aiModel": "Claude-3.5-Sonnet",        "createdAt": "2024-01-16T10:35:10Z"      }    ],    "relatedData": {      "extractedHsCodes": ["8517.12.00"],      "createdBookmarks": [        {          "bookmarkId": "bm_001",          "hsCode": "8517.12.00",          "displayName": "스마트폰 HS Code",          "createdAt": "2024-01-16T10:33:00Z"        }      ],      "sessionStats": {        "totalTokens": 1250,        "processingTimeMs": 18000,        "ragSearches": 2,        "webSearches": 1      }    }  }}
+{  "success": "SUCCESS",  "message": "채팅 세션이 조회되었습니다",  "data": {    "session": {      "sessionId": "chat_session_20240116_123456",      "sessionTitle": "아이폰 15 프로 수입 HS Code 문의",      "messageCount": 6,      "createdAt": "2024-01-16T10:32:00Z",      "updatedAt": "2024-01-16T10:45:00Z",      "partitionYear": 2024    },    "messages": [      {        "messageId": 1,        "messageType": "USER",        "content": "아이폰 15 프로를 수입할 때 HS Code와 관세율이 어떻게 되나요?",        "createdAt": "2024-01-16T10:32:00Z"      },      {        "messageId": 2,        "messageType": "AI",        "content": "아이폰 15 프로의 정확한 HS Code는 **8517.12.00**입니다.\n\n## 관세율 정보\n- 기본 관세율: 8%\n- FTA 적용 시: 0% (한-미 FTA)\n- 부가가치세: 10%",        "aiModel": "TrAI-Bot-3.5-Sonnet",        "thinkingProcess": "사용자가 아이폰 15 프로의 HS Code를 문의했습니다. 스마트폰은 8517.12.00으로 분류됩니다.",        "hsCodeAnalysis": {          "hsCode": "8517.12.00",          "productName": "스마트폰 및 기타 무선전화기",          "confidence": 0.95,          "classificationBasis": "셀룰러 네트워크용 무선전화기"        },        "sseBookmarkData": {          "available": true,          "hsCode": "8517.12.00",          "productName": "스마트폰 및 기타 무선전화기",          "confidence": 0.95        },        "createdAt": "2024-01-16T10:32:15Z"      },      {        "messageId": 3,        "messageType": "USER",        "content": "KC 인증은 어떻게 받나요?",        "createdAt": "2024-01-16T10:35:00Z"      },      {        "messageId": 4,        "messageType": "AI",        "content": "KC 인증은 전자파적합성 확인을 위한 필수 인증입니다.\n\n## KC 인증 절차\n1. 공인시험소에서 시험 실시\n2. 시험성적서 발급\n3. 국립전파연구원에 신고\n4. KC 마크 부착",        "aiModel": "TrAI-Bot-3.5-Sonnet",        "createdAt": "2024-01-16T10:35:10Z"      }    ],    "relatedData": {      "extractedHsCodes": ["8517.12.00"],      "createdBookmarks": [        {          "bookmarkId": "bm_001",          "hsCode": "8517.12.00",          "displayName": "스마트폰 HS Code",          "createdAt": "2024-01-16T10:33:00Z"        }      ],      "sessionStats": {        "totalTokens": 1250,        "processingTimeMs": 18000,        "ragSearches": 2,        "webSearches": 1      }    }  }}
 ```
 
 ---
@@ -1617,7 +1617,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | CHAT_001  | 400       | 메시지 너무 짧음 (2자 미만)  |
 | CHAT_002  | 400       | 메시지 너무 김 (1000자 초과) |
 | CHAT_003  | 422       | 무역 관련 질문이 아님        |
-| CHAT_004  | 502       | Claude AI 분석 실패          |
+| CHAT_004  | 502       | TrAI-Bot AI 분석 실패        |
 | CHAT_005  | 502       | 지식베이스 검색 실패         |
 | CHAT_006  | 502       | 상세페이지 정보 준비 실패    |
 | CHAT_007  | 404       | 채팅 세션 없음               |
@@ -1737,7 +1737,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```java
 @Servicepublic class BookmarkMetadataService {    public void handleSSEBookmarkMetadata(ChatAnalysisResult analysisResult,
-                                        SseEmitter emitter) {        // Claude 분석 결과에서 HSCode 정보 추출        if (analysisResult.getHsCode() != null &&
+                                        SseEmitter emitter) {        // TrAI-Bot 분석 결과에서 HSCode 정보 추출        if (analysisResult.getHsCode() != null &&
             analysisResult.getConfidence() > 0.8) {            // SSE 메타데이터로 북마크 정보 전송            BookmarkMetadata bookmarkData = BookmarkMetadata.builder()                .available(true)                .hsCode(analysisResult.getHsCode())                .productName(analysisResult.getProductName())                .confidence(analysisResult.getConfidence())                .classificationBasis(analysisResult.getClassificationBasis())                .build();            // 메인 메시지 완료 시 북마크 메타데이터 포함            sendMainMessageCompleteEvent(emitter, analysisResult, bookmarkData);        }    }    private void sendMainMessageCompleteEvent(SseEmitter emitter,
                                             ChatAnalysisResult result,                                            BookmarkMetadata bookmarkData) {        try {            Map<String, Object> eventData = Map.of(                "type", "metadata",                "sources", result.getSources(),                "ragSources", result.getRagSources(),                "cacheHit", result.isCacheHit(),                "bookmarkData", bookmarkData  // 🆕 v6.1 SSE 메타데이터            );            SseEventBuilder event = SseEmitter.event()                .name("main_message_complete")                .data(eventData);            emitter.send(event);        } catch (Exception e) {            log.error("SSE 메타데이터 전송 실패", e);        }    }}
 ```
