@@ -718,3 +718,154 @@ export type ChatSession = {
 export type NewChatSession = {
   session_uuid: string;
 };
+
+/**
+ * 실제 SSE 응답 형식에 맞춘 타입 정의
+ */
+export type ActualSSEEventType =
+  | "session_info"
+  | "processing_status"
+  | "message_start"
+  | "content_block_start"
+  | "content_block_delta"
+  | "content_block_stop"
+  | "message_delta"
+  | "end";
+
+/**
+ * 실제 SSE 세션 정보 이벤트
+ */
+export type ActualSessionInfoEvent = {
+  session_uuid: string;
+  timestamp: number;
+};
+
+/**
+ * 실제 SSE 진행 상태 이벤트
+ */
+export type ActualProcessingStatusEvent = {
+  id: string;
+  type: "processing_status";
+  message: string;
+  progress: number;
+  current_step: number;
+  total_steps: number;
+  timestamp: string;
+};
+
+/**
+ * 실제 SSE 메시지 시작 이벤트
+ */
+export type ActualMessageStartEvent = {
+  type: "message_start";
+  message: {
+    id: string;
+    type: "message";
+    role: "assistant";
+    model: string;
+    parent_uuid?: string;
+    uuid?: string;
+    content: any[];
+    stop_reason: string | null;
+    stop_sequence: string | null;
+  };
+};
+
+/**
+ * 실제 SSE 콘텐츠 블록 시작 이벤트
+ */
+export type ActualContentBlockStartEvent = {
+  type: "content_block_start";
+  index: number;
+  content_block: {
+    type: "metadata" | "text" | "thinking";
+    metadata?: {
+      session_uuid: string;
+    };
+    text?: string;
+    thinking?: string;
+  };
+};
+
+/**
+ * 실제 SSE 콘텐츠 블록 델타 이벤트
+ */
+export type ActualContentBlockDeltaEvent = {
+  type: "content_block_delta";
+  index: number;
+  delta: {
+    type: "text_delta" | "thinking_delta";
+    text?: string;
+    thinking?: string;
+  };
+};
+
+/**
+ * 실제 SSE 콘텐츠 블록 종료 이벤트
+ */
+export type ActualContentBlockStopEvent = {
+  type: "content_block_stop";
+  index: number;
+};
+
+/**
+ * 실제 SSE 메시지 델타 이벤트
+ */
+export type ActualMessageDeltaEvent = {
+  type: "message_delta";
+  delta: {
+    stop_reason: string;
+  };
+};
+
+/**
+ * 실제 SSE 종료 이벤트
+ */
+export type ActualEndEvent = {
+  type: "end";
+};
+
+/**
+ * 실제 SSE 이벤트 데이터 통합 타입
+ */
+export type ActualSSEEventData =
+  | ActualSessionInfoEvent
+  | ActualProcessingStatusEvent
+  | ActualMessageStartEvent
+  | ActualContentBlockStartEvent
+  | ActualContentBlockDeltaEvent
+  | ActualContentBlockStopEvent
+  | ActualMessageDeltaEvent
+  | ActualEndEvent;
+
+/**
+ * 실제 SSE 이벤트 핸들러
+ */
+export type ActualSSEEventHandlers = {
+  /** 세션 정보 핸들러 */
+  onSessionInfo?: (event: ActualSessionInfoEvent) => void;
+
+  /** 진행 상태 핸들러 */
+  onProcessingStatus?: (event: ActualProcessingStatusEvent) => void;
+
+  /** 메시지 시작 핸들러 */
+  onMessageStart?: (event: ActualMessageStartEvent) => void;
+
+  /** 콘텐츠 블록 시작 핸들러 */
+  onContentBlockStart?: (event: ActualContentBlockStartEvent) => void;
+
+  /** 콘텐츠 블록 델타 핸들러 */
+  onContentBlockDelta?: (event: ActualContentBlockDeltaEvent) => void;
+
+  /** 콘텐츠 블록 종료 핸들러 */
+  onContentBlockStop?: (event: ActualContentBlockStopEvent) => void;
+
+  /** 메시지 델타 핸들러 */
+  onMessageDelta?: (event: ActualMessageDeltaEvent) => void;
+
+  /** 종료 핸들러 */
+  onEnd?: (event: ActualEndEvent) => void;
+
+  /** 에러 핸들러 */
+  onError?: (event: ClaudeErrorEvent) => void;
+};

@@ -1,6 +1,8 @@
 import { useMemo, useCallback, useState, useRef, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { useAuth } from "@/stores/authStore";
 import type {
@@ -20,16 +22,42 @@ import { ChatMessage } from "./ChatMessage";
 import { WebSearchResults } from "./WebSearchResults";
 import { ScrollArea } from "../ui/scroll-area";
 import { useNavigate } from "@tanstack/react-router";
+import { Input } from "../ui/input";
+import { httpClient } from "@/lib/api";
+
+import type { ProcessingStatus } from "@/hooks/useChat";
 
 /**
- * 채팅 메시지 아이템 (UI용)
+ * 진행 상태 표시 컴포넌트
  */
-// export type ChatMessageItem = {
-//   id: string;
-//   type: ChatMessageType;
-//   data: ChatMessageData;
-//   timestamp: string;
-// };
+function ProcessingStatusCard({
+  message,
+  progress,
+  currentStep,
+  totalSteps,
+}: {
+  message: string;
+  progress: number;
+  currentStep: number;
+  totalSteps: number;
+}) {
+  return (
+    <Card className="border-blue-200 bg-blue-50/30">
+      <CardContent className="p-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-800">{message}</span>
+            <span className="text-xs text-blue-600">
+              {currentStep}/{totalSteps}
+            </span>
+          </div>
+          <Progress value={progress} className="h-2" />
+          <div className="text-xs text-blue-600">{progress}% 완료</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 /**
  * 채팅 인터페이스 프로퍼티
@@ -51,6 +79,28 @@ export type ChatInterfaceProps = {
   currentMessageId?: string | null;
   onNewChat?: () => void;
   sessionId?: string;
+  /** 진행 상태 정보 */
+  processingStatus?: ProcessingStatus | null;
+};
+
+export type Book = {
+  id: number;
+  type: string;
+  targetValue: string;
+  displayName: string;
+  sseGenerated: boolean;
+  sseEventData: SSEEventData;
+  smsNotificationEnabled: boolean;
+  emailNotificationEnabled: boolean;
+  monitoringActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type SSEEventData = {
+  additionalProp1: string;
+  additionalProp2: string;
+  additionalProp3: string;
 };
 
 export function ChatInterface({
@@ -64,7 +114,10 @@ export function ChatInterface({
   currentMessageId,
   onNewChat,
   sessionId,
+  processingStatus,
 }: ChatInterfaceProps) {
+  const [inputState, setInputState] = useState("");
+  const [searchState, setSearchState] = useState("");
   const chatStartedRef = useRef(false);
 
   useEffect(() => {
@@ -77,6 +130,17 @@ export function ChatInterface({
   const handleNewChat = () => {
     // 2. 부모 컴포넌트로부터 받은 onNewChat 콜백을 실행하여 상태를 리셋합니다.
     onNewChat?.();
+  };
+
+  const handleAddBookmark = async () => {
+    const response = (await httpClient.post)<Book>("/api/bookmarks", {
+      type: "HS_CODE",
+      targetValue: inputState,
+      displayName: inputState,
+    });
+    if (response) {
+      console.log(response);
+    }
   };
 
   if (messages.length === 0) {
@@ -102,6 +166,14 @@ export function ChatInterface({
         <Button variant="outline" onClick={handleNewChat}>
           새 대화
         </Button>
+        <Input
+          placeholder="추가할 북마크의 HSCode를 입력하세요..."
+          value={searchState}
+          onChange={(e) => setSearchState(e.target.value)}
+        />
+        <Button variant="outline" onClick={handleAddBookmark}>
+          추가
+        </Button>
       </header>
       <ScrollArea className="flex-1">
         <div className="space-y-6 p-4 sm:p-6">
@@ -116,6 +188,18 @@ export function ChatInterface({
                 isLoading={isLoading && message.messageId === currentMessageId}
               />
             ))}
+
+            {/* 진행 상태 표시 */}
+            {isLoading && processingStatus && (
+              <div className="mt-4">
+                <ProcessingStatusCard
+                  message={processingStatus.message}
+                  progress={processingStatus.progress}
+                  currentStep={processingStatus.currentStep}
+                  totalSteps={processingStatus.totalSteps}
+                />
+              </div>
+            )}
           </div>
         </div>
       </ScrollArea>
