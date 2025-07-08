@@ -163,16 +163,20 @@ export function ChatInterface({
         <h1 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
           TrAI-bot
         </h1>
+
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="추가할 북마크의 HSCode를 입력하세요..."
+            value={searchState}
+            className="w-[30rem]"
+            onChange={(e) => setSearchState(e.target.value)}
+          />
+          <Button variant="outline" onClick={handleAddBookmark}>
+            추가
+          </Button>
+        </div>
         <Button variant="outline" onClick={handleNewChat}>
           새 대화
-        </Button>
-        <Input
-          placeholder="추가할 북마크의 HSCode를 입력하세요..."
-          value={searchState}
-          onChange={(e) => setSearchState(e.target.value)}
-        />
-        <Button variant="outline" onClick={handleAddBookmark}>
-          추가
         </Button>
       </header>
       <ScrollArea className="flex-1">
