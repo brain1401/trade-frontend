@@ -24,6 +24,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { useNavigate } from "@tanstack/react-router";
 import { Input } from "../ui/input";
 import { httpClient } from "@/lib/api";
+import { toast } from "sonner";
 
 import type { ProcessingStatus } from "@/hooks/useChat";
 
@@ -116,7 +117,8 @@ export function ChatInterface({
   sessionId,
   processingStatus,
 }: ChatInterfaceProps) {
-  const [bookMarkName, setBookMarkName] = useState("");
+  const [hsCode, setHsCode] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [searchState, setSearchState] = useState("");
   const chatStartedRef = useRef(false);
 
@@ -133,18 +135,32 @@ export function ChatInterface({
   };
 
   const handleAddBookmark = async () => {
-    const response = (await httpClient.post)<Book>("/bookmarks", {
-      type: "HS_CODE",
-      targetValue: bookMarkName,
-      displayName: bookMarkName,
-    });
-    if (response) {
-      console.log(response);
+    if (!hsCode.trim()) {
+      toast.info("HS Code를 입력해주세요.");
+      return;
+    }
+    if (!displayName.trim()) {
+      toast.info("북마크 이름을 입력해주세요.");
+      return;
+    }
+
+    try {
+      await httpClient.post<Book>("/bookmarks", {
+        type: "HS_CODE",
+        targetValue: hsCode, // HS Code 입력값 사용
+        displayName: displayName, // 북마크 이름 입력값 사용
+      });
+
+      toast.success(`'${displayName}' 북마크가 추가되었습니다.`);
+      setHsCode(""); // HS Code 입력 필드 초기화
+      setDisplayName(""); // 북마크 이름 입력 필드 초기화
+    } catch (error) {
+      console.error("북마크 추가 실패:", error);
+      toast.error("북마크 추가에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
   if (messages.length === 0) {
-    // 1. 초기 상태
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
         <div className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
@@ -164,15 +180,22 @@ export function ChatInterface({
           TrAI-bot
         </h1>
 
+        {/* 2. 입력 필드를 두 개로 나누어 배치합니다. */}
         <div className="flex items-center gap-2">
           <Input
-            placeholder="추가할 북마크의 HSCode를 입력하세요..."
-            value={bookMarkName}
-            className="w-[30rem]"
-            onChange={(e) => setBookMarkName(e.target.value)}
+            placeholder="HS Code 입력"
+            value={hsCode}
+            className="w-[15rem]"
+            onChange={(e) => setHsCode(e.target.value)}
+          />
+          <Input
+            placeholder="북마크 이름 입력"
+            value={displayName}
+            className="w-[15rem]"
+            onChange={(e) => setDisplayName(e.target.value)}
           />
           <Button variant="outline" onClick={handleAddBookmark}>
-            추가
+            북마크 추가
           </Button>
         </div>
         <Button variant="outline" onClick={handleNewChat}>

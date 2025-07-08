@@ -221,17 +221,23 @@ function LoginPage() {
     {
       provider: "google",
       label: "Google",
-      icon: <Chrome className="h-4 w-4" />,
+      icon: (
+        <img src="/images/GOOGLE.png" alt="Google login" className="h-4 w-4" />
+      ),
     },
     {
       provider: "naver",
       label: "네이버",
-      icon: <div className="h-4 w-4 rounded-sm bg-green-500" />,
+      icon: (
+        <img src="/images/NAVER.png" alt="NAVER login" className="h-4 w-4" />
+      ),
     },
     {
       provider: "kakao",
       label: "카카오",
-      icon: <div className="h-4 w-4 rounded-sm bg-yellow-400" />,
+      icon: (
+        <img src="/images/KAKAO.png" alt="KAKAO login" className="h-4 w-4" />
+      ),
     },
   ];
 

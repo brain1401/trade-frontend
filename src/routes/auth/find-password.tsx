@@ -322,7 +322,7 @@ function FindPasswordPage() {
                       이메일 인증
                     </span>
                     <span className="mt-1 text-xs text-neutral-500">
-                      {email}으로 인증 코드를 받습니다.
+                      등록한 이메일로 인증 코드를 받습니다.
                     </span>
                   </Label>
                 </div>
