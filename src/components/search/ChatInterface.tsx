@@ -116,7 +116,7 @@ export function ChatInterface({
   sessionId,
   processingStatus,
 }: ChatInterfaceProps) {
-  const [inputState, setInputState] = useState("");
+  const [bookMarkName, setBookMarkName] = useState("");
   const [searchState, setSearchState] = useState("");
   const chatStartedRef = useRef(false);
 
@@ -133,10 +133,10 @@ export function ChatInterface({
   };
 
   const handleAddBookmark = async () => {
-    const response = (await httpClient.post)<Book>("/api/bookmarks", {
+    const response = (await httpClient.post)<Book>("/bookmarks", {
       type: "HS_CODE",
-      targetValue: inputState,
-      displayName: inputState,
+      targetValue: bookMarkName,
+      displayName: bookMarkName,
     });
     if (response) {
       console.log(response);
@@ -167,9 +167,9 @@ export function ChatInterface({
         <div className="flex items-center gap-2">
           <Input
             placeholder="추가할 북마크의 HSCode를 입력하세요..."
-            value={searchState}
+            value={bookMarkName}
             className="w-[30rem]"
-            onChange={(e) => setSearchState(e.target.value)}
+            onChange={(e) => setBookMarkName(e.target.value)}
           />
           <Button variant="outline" onClick={handleAddBookmark}>
             추가
