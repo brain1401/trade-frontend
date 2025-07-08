@@ -1,10 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useCallback } from "react";
-import { FullPageChatInterface } from "@/components/search";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect } from "react";
+import { ChatInterface } from "@/components/search";
 import { useAuth } from "@/stores/authStore";
 import { bookmarkApi } from "@/lib/api";
 import { toast } from "sonner";
 import type { RelatedInfo } from "@/types/chat";
+import { useChat } from "@/hooks/useChat";
+import { useChatState } from "@/stores/chatStore";
 
 /**
  * 검색 라우트 정의 (v4.0 - ChatGPT 스타일)
@@ -19,11 +21,34 @@ export const Route = createFileRoute("/search/")({
  * 🌟 혁신적 변화:
  * - 복잡한 검색 폼과 결과 카드 → 단일 채팅 인터페이스
  * - 6개 분리된 API → 1개 통합 채팅 API
- * - Claude AI 사고과정 실시간 표시
+ * - TrAI-Bot AI 사고과정 실시간 표시
  * - 모든 무역 질의를 자연어로 처리
  */
 function SearchPage() {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const { messages, resetChat } = useChatState();
+
+  useEffect(() => {
+    // 새 검색 페이지에 들어올 때마다 이전 채팅 기록을 초기화
+    resetChat();
+  }, [resetChat]);
+
+  const handleNewSession = useCallback(
+    (newSessionId: string) => {
+      navigate({
+        to: "/chat/$session_uuid",
+        params: { session_uuid: newSessionId },
+        replace: true,
+      });
+    },
+    [navigate],
+  );
+
+  const { isLoading, sendMessage, currentMessageId } = useChat({
+    session_uuid: null,
+    onNewSessionCreated: handleNewSession,
+  });
 
   /**
    * 북마크 추가 핸들러
@@ -83,5 +108,13 @@ function SearchPage() {
     [isAuthenticated],
   );
 
-  return <FullPageChatInterface onBookmark={handleBookmark} />;
+  return (
+    <ChatInterface
+      onBookmark={handleBookmark}
+      messages={messages}
+      isLoading={isLoading}
+      sendMessage={sendMessage}
+      currentMessageId={currentMessageId}
+    />
+  );
 }

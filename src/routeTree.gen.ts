@@ -17,6 +17,7 @@ import { Route as FaqIndexRouteImport } from './routes/faq/index'
 import { Route as ExchangeRatesIndexRouteImport } from './routes/exchange-rates/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as FeedFeedIdRouteImport } from './routes/feed/$feedId'
+import { Route as ChatSession_uuidRouteImport } from './routes/chat/$session_uuid'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthFindPasswordRouteImport } from './routes/auth/find-password'
@@ -25,7 +26,6 @@ import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/s
 import { Route as DashboardProfileIndexRouteImport } from './routes/dashboard/profile/index'
 import { Route as DashboardHistoryIndexRouteImport } from './routes/dashboard/history/index'
 import { Route as DashboardBookmarksIndexRouteImport } from './routes/dashboard/bookmarks/index'
-import { Route as DashboardHistorySessionIdRouteImport } from './routes/dashboard/history/$sessionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -65,6 +65,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const FeedFeedIdRoute = FeedFeedIdRouteImport.update({
   id: '/feed/$feedId',
   path: '/feed/$feedId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatSession_uuidRoute = ChatSession_uuidRouteImport.update({
+  id: '/chat/$session_uuid',
+  path: '/chat/$session_uuid',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
@@ -107,12 +112,6 @@ const DashboardBookmarksIndexRoute = DashboardBookmarksIndexRouteImport.update({
   path: '/dashboard/bookmarks/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardHistorySessionIdRoute =
-  DashboardHistorySessionIdRouteImport.update({
-    id: '/dashboard/history/$sessionId',
-    path: '/dashboard/history/$sessionId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -120,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
@@ -127,7 +127,6 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
-  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
   '/dashboard/history': typeof DashboardHistoryIndexRoute
   '/dashboard/profile': typeof DashboardProfileIndexRoute
@@ -139,6 +138,7 @@ export interface FileRoutesByTo {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/exchange-rates': typeof ExchangeRatesIndexRoute
@@ -146,7 +146,6 @@ export interface FileRoutesByTo {
   '/news': typeof NewsIndexRoute
   '/search': typeof SearchIndexRoute
   '/statistics': typeof StatisticsIndexRoute
-  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks': typeof DashboardBookmarksIndexRoute
   '/dashboard/history': typeof DashboardHistoryIndexRoute
   '/dashboard/profile': typeof DashboardProfileIndexRoute
@@ -159,6 +158,7 @@ export interface FileRoutesById {
   '/auth/find-password': typeof AuthFindPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/chat/$session_uuid': typeof ChatSession_uuidRoute
   '/feed/$feedId': typeof FeedFeedIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/exchange-rates/': typeof ExchangeRatesIndexRoute
@@ -166,7 +166,6 @@ export interface FileRoutesById {
   '/news/': typeof NewsIndexRoute
   '/search/': typeof SearchIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
-  '/dashboard/history/$sessionId': typeof DashboardHistorySessionIdRoute
   '/dashboard/bookmarks/': typeof DashboardBookmarksIndexRoute
   '/dashboard/history/': typeof DashboardHistoryIndexRoute
   '/dashboard/profile/': typeof DashboardProfileIndexRoute
@@ -180,6 +179,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
@@ -187,7 +187,6 @@ export interface FileRouteTypes {
     | '/news'
     | '/search'
     | '/statistics'
-    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks'
     | '/dashboard/history'
     | '/dashboard/profile'
@@ -199,6 +198,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard'
     | '/exchange-rates'
@@ -206,7 +206,6 @@ export interface FileRouteTypes {
     | '/news'
     | '/search'
     | '/statistics'
-    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks'
     | '/dashboard/history'
     | '/dashboard/profile'
@@ -218,6 +217,7 @@ export interface FileRouteTypes {
     | '/auth/find-password'
     | '/auth/login'
     | '/auth/signup'
+    | '/chat/$session_uuid'
     | '/feed/$feedId'
     | '/dashboard/'
     | '/exchange-rates/'
@@ -225,7 +225,6 @@ export interface FileRouteTypes {
     | '/news/'
     | '/search/'
     | '/statistics/'
-    | '/dashboard/history/$sessionId'
     | '/dashboard/bookmarks/'
     | '/dashboard/history/'
     | '/dashboard/profile/'
@@ -238,6 +237,7 @@ export interface RootRouteChildren {
   AuthFindPasswordRoute: typeof AuthFindPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  ChatSession_uuidRoute: typeof ChatSession_uuidRoute
   FeedFeedIdRoute: typeof FeedFeedIdRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ExchangeRatesIndexRoute: typeof ExchangeRatesIndexRoute
@@ -245,7 +245,6 @@ export interface RootRouteChildren {
   NewsIndexRoute: typeof NewsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   StatisticsIndexRoute: typeof StatisticsIndexRoute
-  DashboardHistorySessionIdRoute: typeof DashboardHistorySessionIdRoute
   DashboardBookmarksIndexRoute: typeof DashboardBookmarksIndexRoute
   DashboardHistoryIndexRoute: typeof DashboardHistoryIndexRoute
   DashboardProfileIndexRoute: typeof DashboardProfileIndexRoute
@@ -310,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedFeedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$session_uuid': {
+      id: '/chat/$session_uuid'
+      path: '/chat/$session_uuid'
+      fullPath: '/chat/$session_uuid'
+      preLoaderRoute: typeof ChatSession_uuidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/signup': {
       id: '/auth/signup'
       path: '/auth/signup'
@@ -366,13 +372,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBookmarksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/history/$sessionId': {
-      id: '/dashboard/history/$sessionId'
-      path: '/dashboard/history/$sessionId'
-      fullPath: '/dashboard/history/$sessionId'
-      preLoaderRoute: typeof DashboardHistorySessionIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -382,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthFindPasswordRoute: AuthFindPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthSignupRoute: AuthSignupRoute,
+  ChatSession_uuidRoute: ChatSession_uuidRoute,
   FeedFeedIdRoute: FeedFeedIdRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ExchangeRatesIndexRoute: ExchangeRatesIndexRoute,
@@ -389,7 +389,6 @@ const rootRouteChildren: RootRouteChildren = {
   NewsIndexRoute: NewsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   StatisticsIndexRoute: StatisticsIndexRoute,
-  DashboardHistorySessionIdRoute: DashboardHistorySessionIdRoute,
   DashboardBookmarksIndexRoute: DashboardBookmarksIndexRoute,
   DashboardHistoryIndexRoute: DashboardHistoryIndexRoute,
   DashboardProfileIndexRoute: DashboardProfileIndexRoute,

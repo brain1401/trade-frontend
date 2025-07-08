@@ -12,21 +12,22 @@
  * v4.0의 혁신적 변화:
  * - 복잡한 검색 결과 카드 → ChatGPT 스타일 메시지
  * - 다중 검색 API → 단일 통합 채팅 API
- * - Claude AI 사고과정 실시간 표시
+ * - TrAI-Bot AI 사고과정 실시간 표시
  */
 
 // 메인 컴포넌트들
-export { ChatInterface, FullPageChatInterface } from "./ChatInterface";
+export { ChatInterface } from "./ChatInterface";
 export { ChatMessage, UserMessage, ThinkingMessage } from "./ChatMessage";
-export { ChatInput, SimpleChatInput } from "./ChatInput";
+export { ChatInput } from "./ChatInput";
 export { WebSearchResults, WebSearchResultItem } from "./WebSearchResults";
 
 // 타입들
-export type { ChatInterfaceProps, ChatMessageItem } from "./ChatInterface";
+export type { ChatInterfaceProps } from "./ChatInterface";
 export type {
   ChatMessageProps,
   ChatMessageData,
   ChatMessageType,
+  ChatMessageItem,
 } from "./ChatMessage";
 export type { ChatInputProps } from "./ChatInput";
 export type {

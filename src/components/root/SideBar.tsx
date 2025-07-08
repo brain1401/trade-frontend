@@ -18,13 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip.tsx";
-
-type MenuItem = {
-  title: string;
-  icon: React.ElementType;
-  url: string;
-  requiresAuth: boolean;
-};
+import { menuItems } from "@/data/common.ts";
 
 /**
  * 메인 사이드바 컴포넌트
@@ -35,33 +29,7 @@ export default function SideBar() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
-  const menuItems: MenuItem[] = [
-    {
-      title: "환율",
-      icon: DollarSign,
-      url: "/exchange-rates",
-      requiresAuth: false, // 로그인 없이도 접근 가능
-    },
-    {
-      title: "뉴스",
-      icon: Newspaper,
-      url: "/news",
-      requiresAuth: false, // 로그인 없이도 접근 가능
-    },
-    {
-      title: "무역 통계",
-      icon: BarChart,
-      url: "/statistics",
-      requiresAuth: false, // 로그인 필요
-    },
-    {
-      title: "대시보드",
-      icon: LayoutDashboard,
-      url: "/dashboard",
-      requiresAuth: true, // 로그인 필요
-    },
-  ];
-
+  console.log("user :", user);
   /**
    * 로그인 필요 메뉴 클릭 시 처리
    */
@@ -128,8 +96,9 @@ export default function SideBar() {
   return (
     <aside className="flex h-full w-[4rem] flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
       {/* 앱 로고 */}
-      <div className="flex-shrink-0 p-4">
-        <AppLogo size="md" />
+      <div className="flex flex-col items-center justify-center pt-5">
+        <AppLogo />
+        <span className="text-sm text-neutral-500">TrAI-bot</span>
       </div>
 
       <nav className="flex-1 space-y-2 p-2">

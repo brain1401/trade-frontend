@@ -1,8 +1,15 @@
-import { exchangeRatesQueries } from "@/lib/api";
+import {
+  exchangeRatesQueries,
+  newsApi,
+  newsQueries,
+  statisticsQueries,
+} from "@/lib/api";
 import { useAuth } from "@/stores/authStore";
 import type { User } from "@/types/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
+import { defaultStatsSearchParams } from "@/data/statistics";
+import { KOR_REPORTER_CODE } from "@/data/common";
 
 type AuthContext = {
   isAuthenticated: boolean;
@@ -62,6 +69,19 @@ export default function useInit(): UseInitReturnType {
   }, [initialize]);
 
   useQuery(exchangeRatesQueries.list());
+
+  useQuery(newsQueries.list({ offset: 0, limit: 6 }));
+  useQuery(newsQueries.list({ offset: 0, limit: 4 }));
+  useQuery(newsQueries.list({ offset: 0, limit: 2 }));
+
+  useQuery(
+    statisticsQueries.detail({
+      reporterCode: KOR_REPORTER_CODE,
+      partnerCode: defaultStatsSearchParams.partnerCode,
+      StartPeriod: defaultStatsSearchParams.startYear,
+      EndPeriod: defaultStatsSearchParams.endYear,
+    }),
+  );
 
   return {
     isLoading: isAuthLoading,

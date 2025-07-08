@@ -10,11 +10,13 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { SourceReference, RelatedInfo } from "@/types/chat";
+import { Skeleton } from "@/components/ui/skeleton";
+import { WebSearchResults } from "./WebSearchResults";
 
 /**
  * 채팅 메시지 타입
  */
-export type ChatMessageType = "user" | "ai" | "thinking";
+export type ChatMessageType = "USER" | "AI" | "THINKING";
 
 /**
  * 채팅 메시지 데이터
@@ -33,6 +35,16 @@ export type ChatMessageData = {
 };
 
 /**
+ * 채팅 메시지 아이템 (UI용)
+ */
+export type ChatMessageItem = {
+  id: string;
+  type: ChatMessageType;
+  data: ChatMessageData;
+  timestamp: string;
+};
+
+/**
  * 채팅 메시지 컴포넌트 프로퍼티
  */
 export type ChatMessageProps = {
@@ -42,6 +54,8 @@ export type ChatMessageProps = {
   type: ChatMessageType;
   /** 타임스탬프 */
   timestamp?: string;
+  /** 에러 상태 */
+  error?: string;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 북마크 추가 핸들러 */
@@ -266,6 +280,21 @@ const MarkdownContent = memo(({ content }: { content: string }) => {
 
 MarkdownContent.displayName = "MarkdownContent";
 
+export const WelcomeMessage = memo(({ message }: { message: string }) => {
+  return (
+    <Card className="rounded-xl border-2 border-primary-100 bg-primary-50/30 shadow-sm">
+      <CardContent className="p-6 text-center">
+        <h3 className="mb-2 text-lg font-semibold text-primary-800">
+          AI 무역 플랫폼 (v2.0)
+        </h3>
+        <p className="text-sm whitespace-pre-line text-neutral-600">
+          {message}
+        </p>
+      </CardContent>
+    </Card>
+  );
+});
+
 /**
  * ChatGPT 스타일 메시지 컴포넌트
  *
@@ -277,13 +306,14 @@ export function ChatMessage({
   data,
   type,
   timestamp,
+  error,
   isLoading = false,
   onBookmark,
   onCopy,
 }: ChatMessageProps) {
-  const isUser = type === "user";
-  const isThinking = type === "thinking";
-  const isAI = type === "ai" || type === "thinking";
+  const isUser = type === "USER";
+  const isThinking = type === "THINKING";
+  const isAI = type === "AI" || type === "THINKING";
 
   // message 객체를 data와 timestamp로 재구성
   const message = {
@@ -336,7 +366,7 @@ export function ChatMessage({
         {/* 메시지 헤더 */}
         <div className="mb-2 flex items-center gap-2">
           <span className="text-sm font-medium text-neutral-700">
-            {isUser ? "나" : isThinking ? "Claude (분석 중)" : "Claude"}
+            {isUser ? "나" : isThinking ? "TrAI-Bot (분석 중)" : "TrAI-Bot"}
           </span>
           {isThinking && (
             <Badge
@@ -523,7 +553,7 @@ export function UserMessage({ content }: { content: string }) {
   return (
     <ChatMessage
       data={{ content, timestamp: new Date().toISOString() }}
-      type="user"
+      type="USER"
     />
   );
 }
@@ -535,7 +565,7 @@ export function ThinkingMessage({ content }: { content: string }) {
   return (
     <ChatMessage
       data={{ content, timestamp: new Date().toISOString() }}
-      type="thinking"
+      type="THINKING"
     />
   );
 }

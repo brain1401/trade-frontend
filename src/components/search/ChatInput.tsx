@@ -8,9 +8,7 @@ import { cn } from "@/lib/utils/cn";
  * 채팅 입력 컴포넌트 프로퍼티
  */
 export type ChatInputProps = {
-  /** 전송 핸들러 (onSend 또는 onSendMessage 지원) */
-  onSend?: (message: string) => void;
-  onSendMessage?: (message: string) => void;
+  onSendMessage: (message: string) => void;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 비활성화 상태 */
@@ -30,7 +28,6 @@ export type ChatInputProps = {
  * 엔터키 전송, 자동 높이 조정, 글자 수 제한 등 지원
  */
 export function ChatInput({
-  onSend,
   onSendMessage,
   isLoading = false,
   disabled = false,
@@ -47,14 +44,12 @@ export function ChatInput({
   const handleSend = () => {
     const trimmedMessage = message.trim();
 
-    // 최소 2글자 이상 검증 (API v6.1 요구사항)
+    // 최소 2글자 이상 검증
     if (trimmedMessage.length < 2) {
       return;
     }
 
-    // onSendMessage가 있으면 우선 사용, 없으면 onSend 사용
-    const sendHandler = onSendMessage || onSend;
-    sendHandler?.(trimmedMessage);
+    onSendMessage(trimmedMessage);
     setMessage("");
 
     // 높이 리셋
@@ -66,7 +61,7 @@ export function ChatInput({
   /**
    * 키보드 이벤트 처리 (Shift+Enter: 줄바꿈, Enter: 전송)
    */
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -84,7 +79,7 @@ export function ChatInput({
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
         const scrollHeight = textareaRef.current.scrollHeight;
-        const maxHeight = 24 * 6; // 6줄 높이
+        const maxHeight = 24 * 10; // 10줄 높이
         textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
       }
     }
@@ -101,10 +96,10 @@ export function ChatInput({
           ref={textareaRef}
           value={message}
           onChange={(e) => handleChange(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled || isLoading}
-          className="max-h-[144px] min-h-[24px] resize-none border-0 p-0 text-sm placeholder:text-neutral-500 focus-visible:ring-0"
+          className="max-h-[40rem] min-h-[7rem] resize-none border-0 p-0 !text-[1.05rem] placeholder:text-neutral-500 focus-visible:ring-0"
           rows={1}
         />
 
@@ -129,7 +124,7 @@ export function ChatInput({
       </div>
 
       {/* 하단 정보 */}
-      <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+      <div className="mt-2 flex items-center justify-between text-xs text-neutral-700">
         <div className="flex items-center gap-4">
           <span>
             <kbd className="rounded border bg-neutral-100 px-1 py-0.5">
@@ -156,50 +151,31 @@ export function ChatInput({
         </div>
       </div>
 
-      {/* 질문 예시 (빈 상태일 때만 표시) */}
-      {message.length === 0 && !isLoading && (
-        <div className="mt-4">
-          <div className="mb-2 text-xs font-medium text-neutral-600">
-            💡 이런 질문을 해보세요:
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "냉동피자 HS Code 알려줘",
-              "스마트폰 미국 수출 규제",
-              "에너지드링크 관세율",
-              "12345678901234567 화물 위치",
-            ].map((example, index) => (
-              <button
-                key={index}
-                onClick={() => setMessage(example)}
-                className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-700 transition-colors hover:bg-neutral-200"
-                disabled={disabled}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+      {/* 질문 예시 */}
+      <div
+        className={cn("mt-4", (message.length > 0 || isLoading) && "invisible")}
+      >
+        <div className="text-md mb-2 font-medium text-neutral-600">
+          💡 이런 질문을 해보세요
         </div>
-      )}
+        <div className="flex flex-wrap gap-2">
+          {[
+            "냉동피자 HS Code 알려줘",
+            "스마트폰 미국 수출 규제",
+            "에너지드링크 관세율",
+            "12345678901234567 화물 위치",
+          ].map((example, index) => (
+            <Button
+              key={index}
+              onClick={() => handleChange(example)}
+              className="rounded-full bg-primary-300 px-3 py-1 text-xs text-neutral-700 transition-colors hover:bg-primary-400 hover:text-white"
+              disabled={disabled}
+            >
+              {example}
+            </Button>
+          ))}
+        </div>
+      </div>
     </div>
-  );
-}
-
-/**
- * 간단한 채팅 입력 컴포넌트 (기본 스타일)
- */
-export function SimpleChatInput({
-  onSend,
-  isLoading,
-}: {
-  onSend: (message: string) => void;
-  isLoading?: boolean;
-}) {
-  return (
-    <ChatInput
-      onSend={onSend}
-      isLoading={isLoading}
-      className="mx-auto max-w-4xl"
-    />
   );
 }

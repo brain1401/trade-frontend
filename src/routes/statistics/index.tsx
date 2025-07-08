@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-router";
 import { z } from "zod";
 
+import { defaultStatsSearchParams } from "@/data/statistics";
 import { TradeBalanceChart } from "@/components/statistics/TradeBalanceChart";
 import { TopExportItems } from "@/components/statistics/TopExportItems";
 import { TopImportItems } from "@/components/statistics/TopImportItems";
@@ -41,16 +42,18 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { countries } from "@/data/countries";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 const REPORTER_CODE = "410"; // 대한민국
 type Country = (typeof countries)[number];
 
 // 검색 파라미터 스키마 정의
 const statsSearchSchema = z.object({
-  partnerCode: z.string().optional().default("156"),
-  startYear: z.string().optional().default("2024"),
-  endYear: z.string().optional().default("2024"),
+  partnerCode: z
+    .string()
+    .optional()
+    .default(defaultStatsSearchParams.partnerCode),
+  startYear: z.string().optional().default(defaultStatsSearchParams.startYear),
+  endYear: z.string().optional().default(defaultStatsSearchParams.endYear),
 });
 
 export const Route = createFileRoute("/statistics/")({
