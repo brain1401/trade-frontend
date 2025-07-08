@@ -21,7 +21,7 @@ function HomePage() {
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-center space-y-8 px-4 py-8 sm:py-12",
+        "flex h-full w-full flex-col items-center justify-center space-y-8 px-4 py-8 sm:py-12",
       )}
     >
       {user ? (
