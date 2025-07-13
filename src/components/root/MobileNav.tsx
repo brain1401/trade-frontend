@@ -44,7 +44,7 @@ export function MobileNav({ closeSheet }: MobileNavProps) {
   return (
     <div className="flex h-full flex-col pr-6">
       <div className="border-b p-4">
-        <AppLogo size="sm" />
+        <AppLogo />
       </div>
       <nav className="flex-1 space-y-1 p-4">
         {menuItems.map((item) => (

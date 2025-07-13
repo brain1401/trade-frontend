@@ -1,11 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  DollarSign,
-  Newspaper,
-  LayoutDashboard,
-  LogIn,
-  BarChart,
-} from "lucide-react";
+import { LogIn } from "lucide-react";
 
 import UserAvatar from "../common/Avatar";
 import AppLogo from "../common/AppLogo";
