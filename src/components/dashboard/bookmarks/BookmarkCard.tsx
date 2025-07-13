@@ -4,15 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Bookmark as BookmarkType } from "@/lib/api/bookmark/types";
 
 import { getTypeColor, getTypeName } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
-import {
-  Bookmark,
-  Edit,
-  ExternalLink,
-  Monitor,
-  MonitorOff,
-  Trash2,
-} from "lucide-react";
+import { Bookmark, Edit, Monitor, Trash2 } from "lucide-react";
 
 /**
  * 개별 북마크 카드 컴포넌트
@@ -69,8 +61,8 @@ export default function BookmarkCard({
             <p>
               저장일: {new Date(bookmark.createdAt).toLocaleDateString("ko-KR")}
             </p>
-            <p>
-              업데이트:{" "}
+            <p className="mr-2">
+              업데이트 :
               {new Date(bookmark.updatedAt).toLocaleDateString("ko-KR")}
             </p>
           </div>
