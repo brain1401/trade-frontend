@@ -1,26 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { createFileRoute } from "@tanstack/react-router";
 import { requireAuth } from "@/lib/utils/authGuard";
-import {
-  Search,
-  Bookmark,
-  Bell,
-  BarChart3,
-  User,
-  ChevronRight,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle,
-  MessageSquare,
-} from "lucide-react";
+import { Search, Bookmark, Bell, User } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
 import { bookmarkQueries } from "@/lib/api";
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import RecentUpdatesFeed from "@/components/dashboard/RecentUpdatesFeed";
-import ExchangeRatesWidget from "@/components/dashboard/ExchangeRatesWidget";
 import { useAuth } from "@/stores/authStore";
 
 /**
