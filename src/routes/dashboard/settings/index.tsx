@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Database } from "lucide-react";
+import { Bell } from "lucide-react";
 import { requireAuth } from "@/lib/utils/authGuard";
-import { dashboardNotificationQueries } from "@/lib/api/dashboardnotification/queries";
+import { dashboardNotificationQueries } from "@/lib/api/dashboard/queries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { dashboardNotificationApi } from "@/lib/api/dashboardnotification/api";
-import type { DashboardNotification } from "@/lib/api/dashboardnotification";
+import { dashboardApi } from "@/lib/api/dashboard/api";
+import type { DashboardNotification } from "@/lib/api/dashboard/types";
 import { useAuth } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
@@ -35,12 +35,12 @@ function SettingsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // 1. 서버에서 알림 설정 데이터를 가져옵니다.
+  // 1. 서버에서 알림 설정 데이터를 가져옴
   const { data: serverSettings, isLoading } = useQuery(
     dashboardNotificationQueries.settings(),
   );
 
-  // 2. 컴포넌트 내부 상태(State)에서 설정을 관리합니다.
+  // 2. 컴포넌트 내부 상태(State)에서 설정을 관리함
   const [settings, setSettings] = useState<DashboardNotification | null>(null);
 
   useEffect(() => {
@@ -49,12 +49,12 @@ function SettingsPage() {
     }
   }, [serverSettings]);
 
-  // 3. 설정을 업데이트하는 Mutation을 정의합니다.
+  // 3. 설정을 업데이트하는 Mutation을 정의함
   const updateSettingsMutation = useMutation({
     mutationFn: (newSettings: DashboardNotification) =>
-      dashboardNotificationApi.updateDashboardNotificationSettings(newSettings),
+      dashboardApi.updateDashboardNotificationSettings(newSettings),
     onSuccess: (data) => {
-      // 성공 시 서버 상태(캐시)와 UI 상태를 함께 업데이트합니다.
+      // 성공 시 서버 상태(캐시)와 UI 상태를 함께 업데이트함
       queryClient.setQueryData(
         dashboardNotificationQueries.settings().queryKey,
         data,
@@ -64,7 +64,7 @@ function SettingsPage() {
     },
     onError: (error) => {
       toast.error(`설정 저장에 실패했습니다: ${error.message}`);
-      // 실패 시, 서버 데이터로 UI를 되돌립니다.
+      // 실패 시, 서버 데이터로 UI를 되돌림
       setSettings(serverSettings ?? null);
     },
   });
