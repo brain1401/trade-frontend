@@ -1,10 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Bell, Book, Bookmark, MessageSquare, Search } from "lucide-react";
+import { Bell, Bookmark, MessageSquare, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { bookmarkQueries } from "@/lib/api";
 import { dashboardQueries } from "@/lib/api/dashboard/queries";
-
-
 
 /**
  * 대시보드 요약 통계 컴포넌트
@@ -13,17 +11,20 @@ import { dashboardQueries } from "@/lib/api/dashboard/queries";
 export default function DashboardSummary() {
   const { data: paginatedData } = useQuery(bookmarkQueries.list());
   const bookmarks = paginatedData?.content ?? [];
-  const activeBookmarks = bookmarks.filter((bookmark) => bookmark.monitoringActive);
+  const activeBookmarks = bookmarks.filter(
+    (bookmark) => bookmark.monitoringActive,
+  );
 
-const { data: dashboardSummaryResponse } = useQuery(dashboardQueries.data());
+  const { data: dashboardSummaryResponse } = useQuery(dashboardQueries.data());
 
-// ...existing code...
-const totalSessions = dashboardSummaryResponse?.chatHistory?.totalSessions ?? 0;
-const recentSessions30d = dashboardSummaryResponse?.chatHistory?.recentSessions30d ?? 0;
-const totalMessages = dashboardSummaryResponse?.chatHistory?.totalMessages ?? 0;
-// ...existing code...
-
-    
+  // ...existing code...
+  const totalSessions =
+    dashboardSummaryResponse?.chatHistory.totalSessions ?? 0;
+  const recentSessions30d =
+    dashboardSummaryResponse?.chatHistory.recentSessions30d ?? 0;
+  const totalMessages =
+    dashboardSummaryResponse?.chatHistory.totalMessages ?? 0;
+  // ...existing code...
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
