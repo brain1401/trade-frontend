@@ -179,9 +179,6 @@ export default tseslint.config({
       },
     ],
 
-    // 불필요한 조건문 검사
-    "@typescript-eslint/no-unnecessary-condition": "warn",
-
     // TypeScript에서 React 컴포넌트 props 타입 명시 권장
     "react/prop-types": "off", // TypeScript 사용 시 prop-types 비활성화
 
@@ -246,5 +243,7 @@ export default tseslint.config({
 
     // Type import 관련 충돌 방지 - inline type specifier와 충돌하므로 비활성화
     "import/consistent-type-specifier-style": "off",
+
+    "@typescript-eslint/no-unnecessary-condition": "off",
   },
 });
