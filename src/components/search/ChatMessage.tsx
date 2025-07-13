@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Bot, Copy, ExternalLink, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { memo, useCallback } from "react";
@@ -10,8 +10,6 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { SourceReference, RelatedInfo } from "@/types/chat";
-import { Skeleton } from "@/components/ui/skeleton";
-import { WebSearchResults } from "./WebSearchResults";
 
 /**
  * 채팅 메시지 타입
@@ -54,8 +52,6 @@ export type ChatMessageProps = {
   type: ChatMessageType;
   /** 타임스탬프 */
   timestamp?: string;
-  /** 에러 상태 */
-  error?: string;
   /** 로딩 상태 */
   isLoading?: boolean;
   /** 북마크 추가 핸들러 */
@@ -306,7 +302,6 @@ export function ChatMessage({
   data,
   type,
   timestamp,
-  error,
   isLoading = false,
   onBookmark,
   onCopy,
@@ -389,9 +384,9 @@ export function ChatMessage({
           {isLoading && (
             <div className="flex items-center gap-2 text-neutral-600">
               <div className="flex gap-1">
-                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]"></div>
-                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]"></div>
-                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.3s]" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400 [animation-delay:-0.15s]" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-neutral-400" />
               </div>
               <span className="text-sm">답변 생성 중...</span>
             </div>
