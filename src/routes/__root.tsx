@@ -55,7 +55,7 @@ function RootLayout() {
       }`}
     >
       {isMobile ? <TopBar /> : <SideBar />}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto px-[2.5rem]">
         <Outlet />
       </main>
       <TanStackQueryLayout />
