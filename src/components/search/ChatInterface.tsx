@@ -14,6 +14,7 @@ import { httpClient } from "@/lib/api";
 import { toast } from "sonner";
 
 import type { ProcessingStatus } from "@/hooks/useChat";
+import type { Bookmark } from "@/types/common";
 
 /**
  * 진행 상태 표시 컴포넌트
@@ -55,13 +56,13 @@ export type ChatInterfaceProps = {
   onChatStart?: () => void;
   // useChat 훅에서 전달받을 props 추가
   messages?: ChatMessageType[];
-  error?: string;
   isLoading?: boolean;
   sendMessage: (messageText: string) => Promise<void>;
   currentMessageId?: string | null;
   onNewChat?: () => void;
   /** 진행 상태 정보 */
   processingStatus?: ProcessingStatus | null;
+  onBookmark?: (bookmark: Bookmark) => void;
 };
 
 export type Book = {
@@ -88,13 +89,13 @@ const initialMessages: ChatMessageType[] = [];
 
 export function ChatInterface({
   onChatStart,
-  messages = initialMessages, // messages prop의 기본값을 빈 배열로 설정
+  messages = initialMessages,
   isLoading,
-  error,
   sendMessage,
   currentMessageId,
   onNewChat,
   processingStatus,
+  onBookmark,
 }: ChatInterfaceProps) {
   const [hsCode, setHsCode] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -189,7 +190,6 @@ export function ChatInterface({
                 type={message.messageType}
                 data={{ content: message.content }}
                 timestamp={message.createdAt.toISOString()}
-                error={error}
                 isLoading={isLoading && message.messageId === currentMessageId}
               />
             ))}
