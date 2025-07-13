@@ -96,9 +96,8 @@ export default function SideBar() {
   return (
     <aside className="flex h-full w-[4rem] flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
       {/* 앱 로고 */}
-      <div className="flex flex-col items-center justify-center pt-5">
+      <div className="flex h-[5.8rem] flex-col items-center justify-center pt-[2rem]">
         <AppLogo />
-        <span className="text-sm text-neutral-500">TrAI-bot</span>
       </div>
 
       <nav className="flex-1 space-y-2 p-2">

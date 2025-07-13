@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 
 type AppLogoProps = {
@@ -5,18 +6,29 @@ type AppLogoProps = {
    * 클릭 가능 여부
    */
   clickable?: boolean;
+  className?: string;
 };
 
 /**
  * 로고 내용 컴포넌트
  */
-function LogoContent() {
+function LogoContent({ className }: { className?: string }) {
   return (
-    <img
-      src="/logo.webp"
-      alt="logo"
-      className="to-brand-600 flex h-full w-full items-center justify-center rounded-lg object-cover font-bold text-white"
-    />
+    <div
+      className={cn(
+        "relative flex w-full flex-col items-center justify-center",
+        className,
+      )}
+    >
+      <img
+        src="/logo.webp"
+        alt="logo"
+        className="h-[3.5rem] scale-[2] overflow-hidden object-contain"
+      />
+      <span className="absolute bottom-[-.5rem] text-sm text-neutral-500">
+        TrAI-bot
+      </span>
+    </div>
   );
 }
 
@@ -29,17 +41,20 @@ function LogoContent() {
  * <AppLogo size="md" clickable />
  * ```
  */
-export default function AppLogo({ clickable = true }: AppLogoProps) {
+export default function AppLogo({ clickable = true, className }: AppLogoProps) {
   if (!clickable) {
-    return <LogoContent />;
+    return <LogoContent className={className} />;
   }
 
   return (
     <Link
       to="/"
-      className="block h-full w-full transition-opacity hover:opacity-80 active:scale-95"
+      className={cn(
+        "block h-full w-full transition-opacity hover:opacity-80 active:scale-95",
+        className,
+      )}
     >
-      <LogoContent />
+      <LogoContent className={className} />
     </Link>
   );
 }
