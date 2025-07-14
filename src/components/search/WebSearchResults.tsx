@@ -30,7 +30,7 @@ export function WebSearchResults({
   maxResults = 8,
   compact = false,
 }: WebSearchResultsProps) {
-  if (!results || results.length === 0) {
+  if (results.length === 0) {
     return null;
   }
 

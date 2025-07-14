@@ -4,6 +4,8 @@
 
 @import "./css/animation.css";
 
+@import "./css/images.css";
+
 @custom-variant dark (&:is(.dark *));
 
 html,

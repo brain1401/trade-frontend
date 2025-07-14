@@ -7,16 +7,20 @@ import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
-import { feedQueries, feedQueryKeys } from "@/lib/api/feed";
+import {
+  useMarkFeedAsRead,
+  useRecentUpdatesFeed,
+  feedQueryKeys,
+} from "@/lib/api/feed";
 import type { RecentUpdatesFeedData } from "@/lib/api/feed/types";
 
 export default function RecentUpdatesFeed() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const markAsReadMutation = feedQueries.useMarkFeedAsRead();
+  const markAsReadMutation = useMarkFeedAsRead();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    feedQueries.recentUpdates();
+    useRecentUpdatesFeed();
 
   const unreadUpdates =
     data?.pages.flatMap((page) =>

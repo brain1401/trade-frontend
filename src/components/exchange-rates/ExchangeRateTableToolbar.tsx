@@ -56,7 +56,7 @@ export function ExchangeRateTableToolbar<TData>({
   // currencyOptions 메모이제이션 - data 변경 시에만 재계산
   const currencyOptions = useMemo<CurrencyOption[]>(() => {
     // data가 없거나 빈 배열인 경우 기본값 반환
-    if (!data || data.length === 0) {
+    if (data.length === 0) {
       return [{ value: "KRW", label: "대한민국 원 (KRW)" }];
     }
 
@@ -66,10 +66,9 @@ export function ExchangeRateTableToolbar<TData>({
     // KRW를 먼저 추가 (최상단 고정)
     currencyMap.set("KRW", { value: "KRW", label: "대한민국 원 (KRW)" });
 
-    // data에서 고유한 통화들을 추가 - null 안전 처리
+    // data에서 고유한 통화들을 추가
     data.forEach((rate) => {
       if (
-        rate &&
         rate.currencyCode &&
         rate.currencyName &&
         !currencyMap.has(rate.currencyCode)
@@ -86,20 +85,23 @@ export function ExchangeRateTableToolbar<TData>({
 
   // 마지막 업데이트 시간 계산
   const lastUpdated = useMemo(() => {
-    if (!data || data.length === 0) {
+    if (data.length === 0) {
       return null;
     }
-    // 데이터 중에서 가장 최신 lastUpdated 값을 찾습니다.
-    // 각 ExchangeRate 객체에 lastUpdated가 직접 있다고 가정합니다.
-    const latestDate = data.reduce((latest, current) => {
-      if (current.lastUpdated) {
-        const currentDate = new Date(current.lastUpdated);
-        if (latest === null || currentDate > latest) {
-          return currentDate;
+    // 데이터 중에서 가장 최신 lastUpdated 값을 찾음
+    // 각 ExchangeRate 객체에 lastUpdated가 직접 있다고 가정
+    const latestDate = data.reduce(
+      (latest, current) => {
+        if (current.lastUpdated) {
+          const currentDate = new Date(current.lastUpdated);
+          if (latest === null || currentDate > latest) {
+            return currentDate;
+          }
         }
-      }
-      return latest;
-    }, null as Date | null);
+        return latest;
+      },
+      null as Date | null,
+    );
 
     return latestDate ? latestDate.toLocaleString("ko-KR") : null;
   }, [data]);
@@ -205,7 +207,7 @@ export function ExchangeRateTableToolbar<TData>({
           className="w-36 bg-white"
           aria-label="기준 금액"
         />
-        <span className="text-sm font-medium"></span>
+        <span className="text-sm font-medium" />
       </div>
       <div className="flex items-center">
         <Input
@@ -222,7 +224,7 @@ export function ExchangeRateTableToolbar<TData>({
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto"> {/* ml-auto는 위에 주석처리된 ml-auto 대신 여기로 옮겼습니다. */}
+            <Button variant="outline" className="ml-auto">
               컬럼 표시 <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -237,7 +239,6 @@ export function ExchangeRateTableToolbar<TData>({
                   checked={column.getIsVisible()}
                   onCheckedChange={handleColumnToggle(column.id)}
                 >
-                  {/* 여기에 컬럼 ID에 대한 한글 매핑을 추가하면 더 좋습니다. */}
                   {column.id}
                 </DropdownMenuCheckboxItem>
               ))}

@@ -2,9 +2,7 @@
 import { httpClient, ApiError } from "../common";
 import { stream } from "fetch-event-stream";
 import type {
-  ChatHistoryGetParams,
   PaginatedChatSessions,
-  ChatSessionDetail,
   ChatHistorySearchParams,
   PaginatedChatSearchResults,
   ChatHistory,
@@ -13,8 +11,6 @@ import { tokenStore } from "../../auth/tokenStore";
 import type { ApiResponse } from "../../../types/common";
 import type {
   ChatRequest,
-  URLInfo,
-  ThinkingInfo,
   V2SSEEventHandlers,
   ChatSession,
   StreamingOptions,
@@ -353,162 +349,3 @@ export const chatHistoryApi = {
     return session;
   },
 };
-
-/* 
-=== 사용 예시 ===
-
-// 기존 방법: 새로운 startChatWithStreaming 함수 사용
-import { chatApi } from './api';
-
-// 메시지 누적을 위한 상태
-let accumulatedMessage = '';
-
-await chatApi.startChatWithStreaming(
-  {
-    message: "안녕하세요",
-    sessionId: "session-123", // 선택사항
-  },
-  {
-    onSessionId: (data) => {
-      console.log("새 세션 ID:", data.session_id);
-    },
-    onToken: (data) => {
-      // 실시간으로 들어오는 토큰을 누적
-      accumulatedMessage += data.content;
-      console.log("현재 메시지:", accumulatedMessage);
-    },
-    onComplete: (data) => {
-      console.log("응답 완료:", data.message);
-      console.log("토큰 수:", data.token_count);
-      console.log("소스:", data.source);
-    },
-    onHSCodeResult: (data) => {
-      console.log("HSCode 검색 결과:", data.results);
-    },
-    onFinish: (data) => {
-      console.log("스트림 종료:", data.message);
-    },
-    onError: (data) => {
-      console.error("에러 발생:", data.error, data.message);
-    },
-  },
-  {
-    onError: (error) => {
-      console.error("스트림 에러:", error);
-    },
-    onClose: () => {
-      console.log("스트림 연결 종료");
-    },
-  }
-);
-
-// === 새로운 방법: TrAI-Bot API 표준 스트리밍 함수 사용 ===
-
-// 텍스트와 생각 누적을 위한 상태
-let accumulatedText = '';
-let accumulatedThinking = '';
-
-await chatApi.startClaudeStandardStreaming(
-  {
-    message: "게으르고 맨날 119에 짜장면 있냐고 하는 소방관 박성준을 위한 장편 시를 써줘",
-    sessionId: "session-123", // 선택사항
-  },
-  {
-    onMessageStart: (event) => {
-      console.log("메시지 시작:", event.message.id);
-      console.log("모델:", event.message.model);
-      // 누적 상태 초기화
-      accumulatedText = '';
-      accumulatedThinking = '';
-    },
-    
-    onContentBlockStart: (event) => {
-      console.log(`콘텐츠 블록 시작 [${event.index}]:`, event.content_block.type);
-      if (event.content_block.type === "thinking") {
-        console.log("생각 블록 시작됨");
-      } else if (event.content_block.type === "text") {
-        console.log("텍스트 블록 시작됨");
-      }
-    },
-    
-    onTextDelta: (text, index) => {
-      // 실시간으로 들어오는 텍스트를 누적하여 UI에 표시
-      accumulatedText += text;
-      console.log(`텍스트 델타 [${index}]:`, text);
-      // UI 업데이트: 실시간 텍스트 스트리밍 표시
-      updateUIWithText(accumulatedText);
-    },
-    
-    onThinkingDelta: (thinking, index) => {
-      // 실시간으로 들어오는 생각을 누적하여 UI에 표시
-      accumulatedThinking += thinking;
-      console.log(`생각 델타 [${index}]:`, thinking);
-      // UI 업데이트: 실시간 생각 과정 표시
-      updateUIWithThinking(accumulatedThinking);
-    },
-    
-    onContentBlockDelta: (event) => {
-      // 원본 델타 이벤트 처리 (필요시 사용)
-      console.log("콘텐츠 블록 델타:", event.delta.type, event.index);
-    },
-    
-    onContentBlockStop: (event) => {
-      console.log(`콘텐츠 블록 종료 [${event.index}]`);
-      if (event.stop_timestamp) {
-        console.log("종료 시간:", event.stop_timestamp);
-      }
-    },
-    
-    onMessageDelta: (event) => {
-      console.log("메시지 델타:", event.delta.stop_reason);
-      if (event.delta.stop_reason === "end_turn") {
-        console.log("응답 완료");
-      }
-    },
-    
-    onMessageStop: (event) => {
-      console.log("메시지 스트림 종료");
-      console.log("최종 텍스트:", accumulatedText);
-      console.log("최종 생각:", accumulatedThinking);
-    },
-    
-    onPing: (event) => {
-      console.log("핑 이벤트 수신");
-    },
-    
-    onError: (event) => {
-      console.error("에러 발생:", event.error.type, event.error.message);
-    },
-    
-    onMessageLimit: (event) => {
-      console.log("메시지 한도 정보:", event.message_limit);
-    },
-  },
-  {
-    onError: (error) => {
-      console.error("스트림 에러:", error);
-    },
-    onClose: () => {
-      console.log("스트림 연결 종료");
-    },
-  }
-);
-
-// UI 업데이트 함수 예시
-function updateUIWithText(text: string) {
-  // 실제 UI 업데이트 로직
-  const textElement = document.getElementById('streaming-text');
-  if (textElement) {
-    textElement.textContent = text;
-  }
-}
-
-function updateUIWithThinking(thinking: string) {
-  // 실제 UI 업데이트 로직  
-  const thinkingElement = document.getElementById('streaming-thinking');
-  if (thinkingElement) {
-    thinkingElement.textContent = thinking;
-  }
-}
-
-*/

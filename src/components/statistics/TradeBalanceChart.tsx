@@ -1,4 +1,4 @@
-import { BarChart, type Color } from "@tremor/react";
+import { BarChart, type Color, type CustomTooltipProps } from "@tremor/react";
 import type { Top } from "@/lib/api/statistics";
 import {
   Card,
@@ -11,6 +11,8 @@ import { TrendingUp } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { httpClient } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import CustomTooltip from "./CustomToolTip";
+import { useCallback } from "react";
 
 type TradeBalanceChartProps = {
   title: string;
@@ -27,6 +29,7 @@ const truncateText = (text: string, maxLength: number = 10): string => {
   return text.substring(0, maxLength) + "...";
 };
 
+// TODO: 유저 경험을 위해 서버에서 애초에 번역해서 데이터 보내주는 식으로 변경 필요
 // 번역 API 호출 함수
 const fetchTranslation = async (text: string): Promise<string> => {
   if (!text || text.trim() === "") {
@@ -42,24 +45,6 @@ const fetchTranslation = async (text: string): Promise<string> => {
     console.error(`'${text}' 번역 요청 실패:`, error);
     return text;
   }
-};
-
-const CustomTooltip = ({ payload, active, category }: any) => {
-  if (!active || !payload || payload.length === 0) {
-    return null;
-  }
-  const categoryPayload = payload[0];
-  const value = categoryPayload.value;
-  const originalName = categoryPayload.payload.originalName;
-
-  return (
-    <div className="rounded-tremor-default border-tremor-border bg-tremor-background text-tremor-content-strong shadow-tremor-dropdown max-w-xs translate-x-15 -translate-y-15 transform border p-2 whitespace-normal">
-      <p className="font-semibold">{originalName}</p>
-      <p className="text-tremor-content">
-        {category}: {`$${(value / 10).toFixed(1)}B`}
-      </p>
-    </div>
-  );
 };
 
 export function TradeBalanceChart({
@@ -95,6 +80,22 @@ export function TradeBalanceChart({
     };
   });
 
+  const customTooltipRenderer = useCallback(
+    (...props: [CustomTooltipProps]) => (
+      <CustomTooltip
+        payload={{
+          payload: undefined,
+          active: undefined,
+          label: undefined,
+        }}
+        active={false}
+        {...props}
+        category={category}
+      />
+    ),
+    [category],
+  );
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -122,9 +123,7 @@ export function TradeBalanceChart({
             yAxisWidth={120}
             allowDecimals={false}
             layout="vertical"
-            customTooltip={(props) => (
-              <CustomTooltip {...props} category={category} />
-            )}
+            customTooltip={customTooltipRenderer}
           />
         )}
       </CardContent>

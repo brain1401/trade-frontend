@@ -1,5 +1,5 @@
 import { dashboardApi } from "./api";
-import type { DashBoardData } from "./types";
+import type { DashBoardData, DashboardNotification } from "./types";
 import type { ApiError } from "../common/ApiError";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -17,5 +17,20 @@ export const dashboardQueries = {
       refetchOnWindowFocus: true,
       refetchOnReconnect: false,
       staleTime: 1000 * 60 * 5, // 5분
+    }),
+};
+
+export const dashboardNotificationQueryKeys = {
+  all: () => ["dashboardNotification"] as const,
+  settings: () =>
+    [...dashboardNotificationQueryKeys.all(), "settings"] as const,
+};
+
+export const dashboardNotificationQueries = {
+  settings: () =>
+    queryOptions<DashboardNotification, ApiError>({
+      queryKey: dashboardNotificationQueryKeys.settings(),
+      queryFn: () => dashboardApi.getDashboardNotificationSettings(),
+      refetchOnWindowFocus: true,
     }),
 };

@@ -47,8 +47,11 @@ function ChartContainer({
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
 
+  // Context value 메모이제이션으로 불필요한 리렌더링 방지
+  const contextValue = React.useMemo(() => ({ config }), [config]);
+
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={contextValue}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -68,36 +71,50 @@ function ChartContainer({
 }
 
 function ChartStyle({ id, config }: { id: string; config: ChartConfig }) {
-  const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme || config.color,
+  const styleRef = React.useRef<HTMLStyleElement>(null);
+
+  const colorConfig = React.useMemo(
+    () =>
+      Object.entries(config).filter(
+        ([, config]) => config.theme || config.color,
+      ),
+    [config],
   );
+
+  React.useEffect(() => {
+    if (!colorConfig.length || !styleRef.current) {
+      return;
+    }
+
+    // CSS 콘텐츠 생성
+    const cssContent = Object.entries(THEMES)
+      .map(([theme, prefix]) => {
+        const themeRules = colorConfig
+          .map(([key, itemConfig]) => {
+            const color =
+              itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+              itemConfig.color;
+            return color ? `  --color-${key}: ${color};` : null;
+          })
+          .filter(Boolean)
+          .join("\n");
+
+        return themeRules
+          ? `${prefix} [data-chart="${id}"] {\n${themeRules}\n}`
+          : "";
+      })
+      .filter(Boolean)
+      .join("\n");
+
+    // textContent를 사용하여 안전하게 CSS 설정
+    styleRef.current.textContent = cssContent;
+  }, [id, colorConfig]);
 
   if (!colorConfig.length) {
     return null;
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
-          )
-          .join("\n"),
-      }}
-    />
-  );
+  return <style ref={styleRef} />;
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
@@ -302,7 +319,7 @@ function ChartLegendContent({
   );
 }
 
-// Helper to extract item config from a payload.
+// 페이로드에서 아이템 설정 추출 헬퍼 함수
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: unknown,

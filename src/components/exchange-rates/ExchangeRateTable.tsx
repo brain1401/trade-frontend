@@ -94,7 +94,8 @@ export default function ExchangeRateTable({ data }: Props) {
         baseAmount={baseAmount}
         setBaseAmount={setBaseAmount}
         baseCurrency={baseCurrency}
-        setBaseCurrency={setBaseCurrency} />
+        setBaseCurrency={setBaseCurrency}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

@@ -1,32 +1,20 @@
-import { useMemo, useCallback, useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { useAuth } from "@/stores/authStore";
-import type {
-  ChatMessage as ChatMessageType,
-  ChatSessionStatus,
-  RelatedInfo,
-} from "@/types/chat";
-import type {
-  URLInfo,
-  ThinkingInfo,
-  WebSearchResult,
-} from "@/lib/api/chat/types";
+import type { ChatMessage as ChatMessageType } from "@/types/chat";
 
-import AppLogo from "@/components/common/AppLogo";
 import { ChatInput } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
-import { WebSearchResults } from "./WebSearchResults";
 import { ScrollArea } from "../ui/scroll-area";
-import { useNavigate } from "@tanstack/react-router";
 import { Input } from "../ui/input";
 import { httpClient } from "@/lib/api";
 import { toast } from "sonner";
 
 import type { ProcessingStatus } from "@/hooks/useChat";
+import type { Bookmark } from "@/types/common";
 
 /**
  * 진행 상태 표시 컴포넌트
@@ -64,24 +52,17 @@ function ProcessingStatusCard({
  * 채팅 인터페이스 프로퍼티
  */
 export type ChatInterfaceProps = {
-  /** 북마크 추가 핸들러 */
-  onBookmark?: (relatedInfo: RelatedInfo) => void;
-  /** 추가 CSS 클래스 */
-  className?: string;
-  /** 초기 메시지 */
-  welcomeMessage?: string;
   /** 채팅 시작 핸들러 */
   onChatStart?: () => void;
   // useChat 훅에서 전달받을 props 추가
   messages?: ChatMessageType[];
-  error?: string;
   isLoading?: boolean;
   sendMessage: (messageText: string) => Promise<void>;
   currentMessageId?: string | null;
   onNewChat?: () => void;
-  sessionId?: string;
   /** 진행 상태 정보 */
   processingStatus?: ProcessingStatus | null;
+  onBookmark?: (bookmark: Bookmark) => void;
 };
 
 export type Book = {
@@ -104,22 +85,20 @@ export type SSEEventData = {
   additionalProp3: string;
 };
 
+const initialMessages: ChatMessageType[] = [];
+
 export function ChatInterface({
-  onBookmark,
-  welcomeMessage,
   onChatStart,
-  messages = [], // messages prop의 기본값을 빈 배열로 설정
+  messages = initialMessages,
   isLoading,
-  error,
   sendMessage,
   currentMessageId,
   onNewChat,
-  sessionId,
   processingStatus,
+  onBookmark,
 }: ChatInterfaceProps) {
   const [hsCode, setHsCode] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [searchState, setSearchState] = useState("");
   const chatStartedRef = useRef(false);
 
   useEffect(() => {
@@ -130,7 +109,7 @@ export function ChatInterface({
   }, [messages, onChatStart]);
 
   const handleNewChat = () => {
-    // 2. 부모 컴포넌트로부터 받은 onNewChat 콜백을 실행하여 상태를 리셋합니다.
+    // 2. 부모 컴포넌트로부터 받은 onNewChat 콜백을 실행하여 상태를 리셋
     onNewChat?.();
   };
 
@@ -211,7 +190,6 @@ export function ChatInterface({
                 type={message.messageType}
                 data={{ content: message.content }}
                 timestamp={message.createdAt.toISOString()}
-                error={error}
                 isLoading={isLoading && message.messageId === currentMessageId}
               />
             ))}

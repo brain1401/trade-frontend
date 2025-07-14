@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { SimplifiedExchangeRate } from "./ExchangeRateTable";
@@ -25,7 +24,7 @@ const createFormatter = (currency: string) => {
       maximumFractionDigits: 2,
       minimumFractionDigits: 2,
     });
-  } catch (e) {
+  } catch {
     // 지원하지 않는 통화 코드의 경우, 통화 표시 없이 숫자만 표시
     return new Intl.NumberFormat("ko-KR", {
       maximumFractionDigits: 2,
@@ -180,7 +179,7 @@ export const createColumns = ({
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">  
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => navigator.clipboard.writeText(currencyCode)}
                 >

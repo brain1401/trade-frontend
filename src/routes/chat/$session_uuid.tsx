@@ -1,14 +1,9 @@
-import {
-  createFileRoute,
-  useNavigate,
-  useRouterState,
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useChat } from "@/hooks/useChat";
 import { chatHistoryQueries } from "@/lib/api/chat";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useEffect, useRef } from "react";
-import type { ChatMessage } from "@/types/chat";
 import { ChatInterface } from "@/components/search";
 import { useChatState } from "@/stores/chatStore";
 
@@ -44,7 +39,7 @@ function ChatSessionPage() {
     });
   };
 
-  const { isLoading, error, sendMessage, currentMessageId } = useChat({
+  const { isLoading, sendMessage, currentMessageId } = useChat({
     session_uuid,
     onNewSessionCreated: handleNewSessionCreated,
   });
@@ -108,11 +103,9 @@ function ChatSessionPage() {
         <ChatInterface
           messages={messages}
           isLoading={isLoading}
-          error={error ?? undefined}
           sendMessage={sendMessage}
           currentMessageId={currentMessageId}
           onNewChat={resetChat}
-          sessionId={session_uuid}
         />
       )}
     </div>
