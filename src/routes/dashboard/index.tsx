@@ -3,7 +3,11 @@ import { requireAuth } from "@/lib/utils/authGuard";
 import { Search, Bookmark, Bell, User } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
-import { bookmarkQueries } from "@/lib/api";
+import {
+  bookmarkQueries,
+  chatHistoryQueries,
+  dashboardNotificationQueries,
+} from "@/lib/api";
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import RecentUpdatesFeed from "@/components/dashboard/RecentUpdatesFeed";
@@ -51,14 +55,6 @@ const dashboardCards = [
     href: "/dashboard/settings" as const,
     color: "warning" as const,
   },
-  // {
-  //   id: "trade-stats",
-  //   title: "무역 통계",
-  //   description: "개인화된 무역 통계와 트렌드를 확인할 수 있습니다.",
-  //   icon: BarChart3,
-  //   href: "/statistics" as const,
-  //   color: "info" as const,
-  // },
   {
     id: "profile",
     title: "프로필 관리",
@@ -77,12 +73,10 @@ const dashboardCards = [
  */
 function DashboardPage() {
   const { user } = useAuth();
-
-  const onClick = (data: any) => {};
-
   // 북마크 상세페이지 들어가기 전에 미리 dashboard에서 데이터를 가져와서 캐싱 해놓음.
-  const { data } = useQuery(bookmarkQueries.list());
-
+  useQuery(bookmarkQueries.list());
+  useQuery(chatHistoryQueries.list());
+  useQuery(dashboardNotificationQueries.settings(user));
   return (
     <div className="container mx-auto space-y-8 py-8">
       {/* 헤더 섹션 - 사용자 환영 메시지 */}
