@@ -20,8 +20,8 @@ import { useAuth } from "@/stores/authStore";
  * @see https://tanstack.com/router/latest/docs/framework/react/guide/authenticated-routes
  */
 export const Route = createFileRoute("/dashboard/")({
-  beforeLoad: ({ context, location }) => {
-    requireAuth(context, location);
+  beforeLoad: ({ location }) => {
+    requireAuth(location);
   },
   component: DashboardPage,
 });

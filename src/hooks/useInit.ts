@@ -74,14 +74,15 @@ export default function useInit(): UseInitReturnType {
   useQuery(newsQueries.list({ offset: 0, limit: 4 }));
   useQuery(newsQueries.list({ offset: 0, limit: 2 }));
 
-  useQuery(
-    statisticsQueries.detail({
-      reporterCode: KOR_REPORTER_CODE,
-      partnerCode: defaultStatsSearchParams.partnerCode,
-      StartPeriod: defaultStatsSearchParams.startYear,
-      EndPeriod: defaultStatsSearchParams.endYear,
-    }),
-  );
+  // TODO: 실제 배포때는 주석 해제해서 사용할 것
+  // useQuery(
+  //   statisticsQueries.detail({
+  //     reporterCode: KOR_REPORTER_CODE,
+  //     partnerCode: defaultStatsSearchParams.partnerCode,
+  //     StartPeriod: defaultStatsSearchParams.startYear,
+  //     EndPeriod: defaultStatsSearchParams.endYear,
+  //   }),
+  // );
 
   return {
     isLoading: isAuthLoading,

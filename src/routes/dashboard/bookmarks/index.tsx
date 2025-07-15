@@ -25,8 +25,8 @@ import { DeleteConfirmationModal } from "@/components/dashboard/bookmarks/Delete
  * 인증된 사용자만 접근 가능한 보호된 페이지
  */
 export const Route = createFileRoute("/dashboard/bookmarks/")({
-  beforeLoad: ({ context, location }) => {
-    requireAuth(context, location);
+  beforeLoad: ({ location }) => {
+    requireAuth(location);
   },
   component: BookmarksPage,
 });
