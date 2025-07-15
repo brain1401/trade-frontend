@@ -41,6 +41,20 @@ function OAuthCallbackPage() {
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const processCallback = async () => {
+      // ✅ OAuth 파라미터가 있을 때만 처리
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasOAuthParams =
+        urlParams.has("status") ||
+        urlParams.has("accessToken") ||
+        urlParams.has("error");
+
+      if (!hasOAuthParams) {
+        if (import.meta.env.DEV) {
+          console.log("🔄 OAuth 파라미터 없음 - 처리 스킵");
+        }
+        return;
+      }
+
       try {
         setStatus("processing");
 
