@@ -6,13 +6,13 @@ import {
   Bell,
   CheckCircle,
   Loader2,
-  Sparkles,
   Clock,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "../ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import {
   useMarkFeedAsRead,
@@ -21,13 +21,25 @@ import {
 } from "@/lib/api/feed";
 import type { RecentUpdatesFeedData } from "@/lib/api/feed/types";
 
-export default function RecentUpdatesFeed() {
+interface ActivitySidebarProps {
+  className?: string;
+}
+
+export default function ActivitySidebar({
+  className = "",
+}: ActivitySidebarProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const markAsReadMutation = useMarkFeedAsRead();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useRecentUpdatesFeed();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    refetch,
+  } = useRecentUpdatesFeed();
 
   const unreadUpdates =
     data?.pages.flatMap((page) =>
@@ -35,6 +47,7 @@ export default function RecentUpdatesFeed() {
     ) ?? [];
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -61,36 +74,36 @@ export default function RecentUpdatesFeed() {
     switch (importance) {
       case "HIGH":
         return {
-          icon: <AlertCircle className="h-4 w-4 text-red-500" />,
+          icon: <AlertCircle className="h-4 w-4 text-red-600" />,
           badge: (
-            <Badge className="border-0 bg-gradient-to-r from-red-500 to-pink-600 text-xs text-white">
+            <Badge variant="destructive" className="text-xs">
               높음
             </Badge>
           ),
-          gradient: "from-red-50 to-pink-50",
-          borderColor: "border-red-200/50",
         };
       case "MEDIUM":
         return {
-          icon: <AlertCircle className="h-4 w-4 text-amber-500" />,
+          icon: <AlertCircle className="h-4 w-4 text-amber-600" />,
           badge: (
-            <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-600 text-xs text-white">
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-xs text-amber-800"
+            >
               보통
             </Badge>
           ),
-          gradient: "from-amber-50 to-orange-50",
-          borderColor: "border-amber-200/50",
         };
       default:
         return {
-          icon: <CheckCircle className="h-4 w-4 text-emerald-500" />,
+          icon: <CheckCircle className="h-4 w-4 text-green-600" />,
           badge: (
-            <Badge className="border-0 bg-gradient-to-r from-emerald-500 to-teal-600 text-xs text-white">
+            <Badge
+              variant="secondary"
+              className="bg-green-100 text-xs text-green-800"
+            >
               낮음
             </Badge>
           ),
-          gradient: "from-emerald-50 to-teal-50",
-          borderColor: "border-emerald-200/50",
         };
     }
   };
@@ -128,80 +141,108 @@ export default function RecentUpdatesFeed() {
     });
   };
 
+  const handleKeyDown = (
+    e: React.KeyboardEvent,
+    feed: (typeof unreadUpdates)[0],
+  ) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleFeedClick(feed);
+    }
+  };
+
+  const handleRetry = () => {
+    refetch();
+  };
+
   return (
-    <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-50/80 via-blue-50/60 to-indigo-50/40 backdrop-blur-sm">
-      {/* 배경 장식 */}
-      <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-600/20 blur-2xl" />
-
-      <CardHeader className="relative">
-        <CardTitle className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
-            <Bell className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-800">
-              업데이트 피드
+    <aside
+      className={`w-full rounded-lg border bg-card md:w-80 ${className}`}
+      role="complementary"
+      aria-label="최근 활동 피드"
+    >
+      {/* Header */}
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                최근 활동
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {unreadUpdates.length}개의 새로운 업데이트
+              </p>
             </div>
-            <div className="text-sm font-medium text-slate-600">
-              {unreadUpdates.length}개의 새로운 업데이트
-            </div>
           </div>
-          <div className="ml-auto">
-            <Sparkles className="h-5 w-5 text-blue-500/60" />
-          </div>
-        </CardTitle>
-      </CardHeader>
+          {status === "error" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRetry}
+              aria-label="다시 시도"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
 
-      <CardContent className="relative">
-        <ScrollArea className="h-[400px] pr-4">
+      {/* Content */}
+      <div className="p-4">
+        <ScrollArea className="h-[400px] md:h-[500px]">
           <div className="space-y-3">
             {status === "pending" ? (
               <div className="flex flex-col items-center justify-center space-y-3 py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                <p className="text-sm font-medium text-slate-600">로딩 중...</p>
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">로딩 중...</p>
               </div>
             ) : status === "error" ? (
               <div className="flex flex-col items-center justify-center space-y-3 py-8">
-                <AlertCircle className="h-8 w-8 text-red-500" />
-                <p className="text-sm font-medium text-red-600">
-                  피드를 불러오는 데 실패했습니다.
-                </p>
+                <AlertCircle className="h-8 w-8 text-destructive" />
+                <div className="text-center">
+                  <p className="text-sm font-medium text-destructive">
+                    피드를 불러오는 데 실패했습니다.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    className="mt-2"
+                  >
+                    다시 시도
+                  </Button>
+                </div>
               </div>
             ) : unreadUpdates.length > 0 ? (
-              unreadUpdates.map((update, index) => {
+              unreadUpdates.map((update) => {
                 const config = getImportanceConfig(update.importance);
                 return (
                   <div
                     key={update.id}
                     onClick={() => handleFeedClick(update)}
-                    className={`group relative cursor-pointer overflow-hidden rounded-xl border-0 bg-gradient-to-br ${config.gradient} p-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${config.borderColor} `}
+                    onKeyDown={(e) => handleKeyDown(e, update)}
+                    className="group cursor-pointer rounded-lg border p-3 transition-all duration-200 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 hover:scale-[1.02] hover:shadow-md"
                     role="button"
                     tabIndex={0}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                    onKeyDown={(e) =>
-                      (e.key === "Enter" || e.key === " ") &&
-                      handleFeedClick(update)
-                    }
+                    aria-label={`${update.title} - ${update.importance} 중요도`}
                   >
-                    {/* 배경 장식 */}
-                    <div className="absolute -top-2 -right-2 h-12 w-12 rounded-full bg-white/30 blur-xl transition-all duration-300 group-hover:scale-110" />
-
-                    <div className="relative flex items-start gap-3">
+                    <div className="flex items-start gap-3">
                       <div className="mt-1 flex-shrink-0">{config.icon}</div>
 
                       <div className="flex-1 space-y-2 overflow-hidden">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="line-clamp-2 text-sm leading-tight font-semibold text-slate-800 transition-colors group-hover:text-slate-900">
+                          <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary">
                             {update.title}
-                          </h4>
+                          </h3>
                           {config.badge}
                         </div>
 
-                        <p className="line-clamp-2 text-xs leading-relaxed font-medium text-slate-600">
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
                           {update.content}
                         </p>
 
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             <span>
@@ -211,7 +252,7 @@ export default function RecentUpdatesFeed() {
                             </span>
                           </div>
                           <span>•</span>
-                          <span className="font-medium">
+                          <span>
                             {update.sourceUrl ? "공식 발표" : "업데이트"}
                           </span>
                         </div>
@@ -222,14 +263,14 @@ export default function RecentUpdatesFeed() {
               })
             ) : (
               <div className="flex flex-col items-center justify-center space-y-3 py-12">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-200">
-                  <Bell className="h-8 w-8 text-slate-400" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <Bell className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-600">
+                  <p className="text-sm font-semibold text-foreground">
                     모든 업데이트를 확인했습니다
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     새로운 소식이 있으면 알려드릴게요
                   </p>
                 </div>
@@ -242,21 +283,21 @@ export default function RecentUpdatesFeed() {
             >
               {isFetchingNextPage && (
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                  <span className="text-xs font-medium text-slate-600">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">
                     더 불러오는 중...
                   </span>
                 </div>
               )}
               {!hasNextPage && unreadUpdates.length > 0 && (
-                <span className="text-xs font-medium text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   모든 피드를 불러왔습니다
                 </span>
               )}
             </div>
           </div>
         </ScrollArea>
-      </CardContent>
-    </Card>
+      </div>
+    </aside>
   );
 }
