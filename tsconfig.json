@@ -12,7 +12,13 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+
+    "types": [
+      "bun-types", // Bun 런타임 타입
+      "@testing-library/react", // 테스트 라이브러리 타입
+      "@testing-library/jest-dom", // jest-dom 매처 타입
+      "vite/client"
+    ],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
