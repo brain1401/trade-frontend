@@ -1,4 +1,3 @@
-// lib/api/chat/queries.ts
 import { queryOptions } from "@tanstack/react-query";
 import { chatHistoryApi } from "./api";
 import type { ApiError } from "../common/ApiError";
