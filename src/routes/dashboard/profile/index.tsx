@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useAuth, useAuthStore } from "@/stores/authStore";
+import { useAuth, useAuthStore, useUser } from "@/stores/authStore";
 import { requireAuth } from "@/lib/utils/authGuard";
 import { useState } from "react";
 import { PasswordChangeModal } from "../../../components/profile/PasswordChangeModal";
@@ -135,7 +135,8 @@ function ProfileSummary({
  * 사용자 정보 조회 및 수정 기능 제공
  */
 function ProfilePage() {
-  const { user } = useAuth();
+  const user = useUser();
+  console.log("user :", user);
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
@@ -148,10 +149,11 @@ function ProfilePage() {
       const updatedUser = await authService.getCurrentUser();
       useAuthStore.getState().setUser(updatedUser); // Zustand 스토어 직접 업데이트
       toast.success("사용자 정보가 업데이트되었습니다.");
-    } catch (error) {
+    } catch {
       toast.error("사용자 정보 업데이트에 실패했습니다.");
     }
   };
+
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -272,21 +274,6 @@ function ProfilePage() {
                 <Label className="text-sm font-medium">로그인 위치</Label>
                 <p className="text-sm text-neutral-600">대한민국</p>
               </div>
-              {/* <div className="space-y-2">
-                <Label className="text-sm font-medium">계정 타입</Label>
-                <Badge
-                  variant="secondary"
-                  className="bg-brand-100 text-brand-800"
-                >
-                  표준 사용자
-                </Badge>
-              </div> */}
-              {/* <div className="space-y-2">
-                <Label className="text-sm font-medium">데이터 사용량</Label>
-                <p className="text-sm text-neutral-600">
-                  북마크 4개, 검색 47회
-                </p>
-              </div> */}
             </div>
           </CardContent>
         </Card>
