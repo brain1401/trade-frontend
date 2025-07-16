@@ -42,7 +42,7 @@ export type NotificationSettings = {
     smsNotificationEnabled: boolean;
     emailNotificationEnabled: boolean;
     notificationFrequency: "DAILY" | "WEEKLY";
-    notificationTime: string; // HH:mm:ss
+    notificationTime: string; // 시:분:초 형식
   };
   bookmarkSettings: {
     bookmarkId: string;
