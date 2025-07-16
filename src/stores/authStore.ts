@@ -295,11 +295,29 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 }));
 
-// ✅ 기존 API와 호환되는 개별 상태 선택자들 (원자적 선택자)
-export const useUser = () => useAuthStore((state) => state.user);
+// ✅ 기존 API와 호환되는 개별 상태 선택자들 (원자적 선택자) - 초기화 안전성 강화
+export const useUser = () =>
+  useAuthStore((state) => {
+    // 초기화가 완료되지 않은 경우 null 반환 (안전성 보장)
+    if (state.initializationState !== "completed") {
+      return null;
+    }
+    return state.user;
+  });
+
 export const useIsAuthenticated = () =>
-  useAuthStore((state) => state.isAuthenticated);
-export const useIsLoading = () => useAuthStore((state) => state.isLoading);
+  useAuthStore((state) => {
+    // 초기화가 완료되지 않은 경우 false 반환 (안전성 보장)
+    if (state.initializationState !== "completed") {
+      return false;
+    }
+    return state.isAuthenticated;
+  });
+export const useIsLoading = () =>
+  useAuthStore((state) => {
+    // Consider loading if initializing OR explicitly loading
+    return state.isLoading || state.initializationState === "initializing";
+  });
 export const useInitializationState = () =>
   useAuthStore((state) => state.initializationState);
 export const useIsInitialized = () =>
@@ -309,6 +327,62 @@ export const useInitializationFailed = () =>
 export const useTokenExpiresAt = () =>
   useAuthStore((state) => state.tokenExpiresAt);
 export const useRememberMe = () => useAuthStore((state) => state.rememberMe);
+
+// ✅ 안전하지 않은 훅 변형 (초기화 상태 무시하고 원시 상태 반환)
+
+/**
+ * **안전하지 않음**: 초기화 상태와 관계없이 원시 사용자 상태 반환
+ *
+ * ⚠️ **경고**: 이 훅은 초기화 안전성 검사를 우회하며 인증 시스템이
+ * 초기화를 완료하지 않았을 때 예상치 못한 값을 반환할 수 있음
+ *
+ * **사용 사례:**
+ * - 초기화 상태를 수동으로 처리해야 하는 고급 컴포넌트
+ * - 초기화 중 원시 상태에 접근해야 하는 특수한 경우
+ * - 기존 동작이 필요한 마이그레이션 시나리오
+ *
+ * **권장 대안:** 안전한 초기화 인식 동작을 위해 `useUser()` 사용
+ *
+ * @returns {User | null} 초기화 상태와 관계없이 스토어의 원시 사용자 상태
+ *
+ * @example
+ * ```typescript
+ * // ❌ 잠재적으로 안전하지 않음 - 초기화 중 오래된 데이터 반환 가능
+ * const user = useUserUnsafe();
+ *
+ * // ✅ 권장 - 기본적으로 안전함
+ * const user = useUser();
+ * ```
+ */
+export const useUserUnsafe = () => useAuthStore((state) => state.user);
+
+/**
+ * **안전하지 않음**: 초기화 상태와 관계없이 원시 인증 상태 반환
+ *
+ * ⚠️ **경고**: 이 훅은 초기화 안전성 검사를 우회하며 인증 시스템이
+ * 초기화를 완료하지 않았을 때도 `true`를 반환할 수 있어 컴포넌트가
+ * 인증된 콘텐츠를 조기에 렌더링할 수 있음
+ *
+ * **사용 사례:**
+ * - 초기화 상태를 수동으로 처리해야 하는 고급 컴포넌트
+ * - 초기화 중 원시 상태에 접근해야 하는 특수한 경우
+ * - 기존 동작이 필요한 마이그레이션 시나리오
+ *
+ * **권장 대안:** 안전한 초기화 인식 동작을 위해 `useIsAuthenticated()` 사용
+ *
+ * @returns {boolean} 초기화 상태와 관계없이 스토어의 원시 인증 상태
+ *
+ * @example
+ * ```typescript
+ * // ❌ 잠재적으로 안전하지 않음 - 초기화 중에도 true 반환 가능
+ * const isAuth = useIsAuthenticatedUnsafe();
+ *
+ * // ✅ 권장 - 기본적으로 안전함
+ * const isAuth = useIsAuthenticated();
+ * ```
+ */
+export const useIsAuthenticatedUnsafe = () =>
+  useAuthStore((state) => state.isAuthenticated);
 
 // ✅ 기존 API와 호환되는 개별 액션 선택자들 (성능 최적화)
 export const useInitialize = () => useAuthStore((state) => state.initialize);
@@ -344,13 +418,17 @@ export const useAuthActions = () =>
     })),
   );
 
-// ✅ 기존 API와 호환되는 여러 상태가 필요한 경우 (useShallow로 최적화)
+// ✅ 기존 API와 호환되는 여러 상태가 필요한 경우 (useShallow로 최적화) - 안전한 선택자 사용
 export const useAuthState = () =>
   useAuthStore(
     useShallow((state) => ({
-      user: state.user,
-      isAuthenticated: state.isAuthenticated,
-      isLoading: state.isLoading,
+      user: state.initializationState !== "completed" ? null : state.user,
+      isAuthenticated:
+        state.initializationState !== "completed"
+          ? false
+          : state.isAuthenticated,
+      isLoading:
+        state.isLoading || state.initializationState === "initializing",
       initializationState: state.initializationState,
       isInitialized: state.initializationState === "completed",
       initializationFailed: state.initializationState === "failed",
