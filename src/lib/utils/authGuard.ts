@@ -114,8 +114,7 @@ export const requirePhoneVerified = (
   location: LocationContext,
   redirectTo: string = "/verify-phone",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -155,8 +154,7 @@ export const requireProfileImage = (
   location: LocationContext,
   redirectTo: string = "/profile/setup",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -198,8 +196,7 @@ export const requireCompleteProfile = (
   location: LocationContext,
   redirectTo: string = "/profile/complete",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -261,8 +258,7 @@ export const requireCondition = (
   location: LocationContext,
   redirectTo: string = "/dashboard",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -307,8 +303,7 @@ export const requireAnyCondition = (
   location: LocationContext,
   redirectTo: string = "/dashboard",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -354,8 +349,7 @@ export const requireAllConditions = (
   location: LocationContext,
   redirectTo: string = "/dashboard",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -397,8 +391,7 @@ export const requireEmailDomain = (
   location: LocationContext,
   redirectTo: string = "/dashboard",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -450,8 +443,7 @@ export const requireRecentLogin = (
   location: LocationContext,
   redirectTo: string = "/auth/login",
 ): void => {
-  const { isLoading, isAuthenticated, user, initializationState } =
-    useAuthStore.getState();
+  const { isLoading, user, initializationState } = useAuthStore.getState();
 
   // 먼저 인증 확인
   requireAuth(location);
@@ -502,7 +494,7 @@ export const requireRecentLogin = (
  * ```
  */
 export const requireDevelopment = (
-  location: LocationContext,
+  _location: LocationContext,
   redirectTo: string = "/dashboard",
 ): void => {
   if (import.meta.env.PROD) {
