@@ -200,25 +200,25 @@ export type ApiErrorCode =
  * HTTP 상태 코드 타입 (API v6.1에서 사용되는 코드들)
  */
 export type HttpStatusCode =
-  | 200 // OK
-  | 201 // Created
-  | 202 // Accepted
-  | 204 // No Content
+  | 200 // 성공
+  | 201 // 생성됨
+  | 202 // 수락됨
+  | 204 // 내용 없음
   | 302 // Found (OAuth 리디렉션)
-  | 400 // Bad Request
-  | 401 // Unauthorized
-  | 403 // Forbidden
-  | 404 // Not Found
-  | 409 // Conflict
+  | 400 // 잘못된 요청
+  | 401 // 인증되지 않음
+  | 403 // 접근 금지
+  | 404 // 찾을 수 없음
+  | 409 // 충돌
   | 410 // Gone (SMS 코드 만료)
   | 412 // Precondition Failed (북마크 동시 수정)
-  | 422 // Unprocessable Entity
-  | 423 // Locked
-  | 429 // Too Many Requests
-  | 500 // Internal Server Error
-  | 502 // Bad Gateway
-  | 503 // Service Unavailable
-  | 504; // Gateway Timeout
+  | 422 // 처리할 수 없는 엔티티
+  | 423 // 잠김
+  | 429 // 너무 많은 요청
+  | 500 // 내부 서버 오류
+  | 502 // 잘못된 게이트웨이
+  | 503 // 서비스 사용 불가
+  | 504; // 게이트웨이 시간 초과
 
 /**
  * 기본 엔티티 속성
