@@ -32,9 +32,9 @@ function NewsPage() {
 
   useEffect(() => {
     const getLimit = () => {
-      if (window.innerWidth >= 1024) return 6; // lg: 3 cols
-      if (window.innerWidth >= 768) return 4; // md: 2 cols
-      return 2; // sm: 1 col
+      if (window.innerWidth >= 1024) return 6; // 대형 화면: 3열
+      if (window.innerWidth >= 768) return 4; // 중형 화면: 2열
+      return 2; // 소형 화면: 1열
     };
 
     const handleResize = () => {
