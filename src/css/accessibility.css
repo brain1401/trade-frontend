@@ -1,0 +1,528 @@
+/**
+ * 접근성 및 시각적 일관성을 위한 CSS 스타일 (Tailwind CSS v4 호환)
+ * WCAG 2.1 AA 준수를 위한 색상 대비, 포커스 표시, 터치 영역 등을 정의
+ */
+
+/* 포커스 표시 개선 */
+.focus-visible-enhanced {
+  transition: all 0.15s ease-in-out;
+
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--ring);
+  }
+}
+
+.focus-visible-strong {
+  transition: all 0.15s ease-in-out;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 5px var(--primary);
+  }
+}
+
+/* 고대비 포커스 표시 (중요한 요소용) */
+.focus-visible-high-contrast {
+  transition: all 0.15s ease-in-out;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+    box-shadow:
+      0 0 0 4px var(--background),
+      0 0 0 8px var(--primary);
+  }
+}
+
+/* 터치 친화적 최소 크기 */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-sm {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+.touch-target-lg {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* 색상 대비 개선된 텍스트 */
+.text-high-contrast {
+  color: oklch(0.1 0 0); /* 매우 높은 대비 */
+  .dark & {
+    color: oklch(0.95 0 0);
+  }
+}
+
+.text-medium-contrast {
+  color: oklch(0.2 0 0); /* 높은 대비 */
+  .dark & {
+    color: oklch(0.85 0 0);
+  }
+}
+
+.text-accessible-muted {
+  color: oklch(0.45 0 0); /* WCAG AA 준수 */
+  .dark & {
+    color: oklch(0.65 0 0);
+  }
+}
+
+/* 카드 기반 구조 개선 */
+.card-enhanced {
+  border-radius: var(--radius-xl);
+  border: 1px solid oklch(0.9 0 0);
+  background-color: var(--card);
+  box-shadow: theme("boxShadow.sm");
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: theme("boxShadow.md");
+  }
+
+  .dark & {
+    border-color: oklch(0.25 0 0);
+  }
+}
+
+/* 충분한 여백을 가진 카드 */
+.card-spacious {
+  padding: theme("spacing.6");
+  & > * + * {
+    /* space-y-4 */
+    margin-top: theme("spacing.4");
+  }
+}
+
+.card-spacious-sm {
+  padding: theme("spacing.4");
+  & > * + * {
+    /* space-y-3 */
+    margin-top: theme("spacing.3");
+  }
+}
+
+.card-spacious-lg {
+  padding: theme("spacing.8");
+  & > * + * {
+    /* space-y-6 */
+    margin-top: theme("spacing.6");
+  }
+}
+
+/* 일관된 아이콘 크기 */
+.icon-xs {
+  height: theme("spacing.3");
+  width: theme("spacing.3");
+}
+.icon-sm {
+  height: theme("spacing.4");
+  width: theme("spacing.4");
+}
+.icon-md {
+  height: theme("spacing.5");
+  width: theme("spacing.5");
+}
+.icon-lg {
+  height: theme("spacing.6");
+  width: theme("spacing.6");
+}
+.icon-xl {
+  height: theme("spacing.8");
+  width: theme("spacing.8");
+}
+
+/* 아이콘과 텍스트 정렬 */
+.icon-text-align {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.2");
+}
+.icon-text-align-sm {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.1.5");
+}
+.icon-text-align-lg {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.3");
+}
+
+/* 절제된 색상 팔레트 */
+.color-primary-subtle {
+  background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+  color: color-mix(in oklch, var(--primary) 80%, transparent);
+}
+.color-secondary-subtle {
+  background-color: color-mix(in oklch, var(--secondary) 50%, transparent);
+  color: color-mix(in oklch, var(--secondary-foreground) 80%, transparent);
+}
+.color-success-subtle,
+.status-success {
+  background-color: var(--color-success-50);
+  color: var(--color-success-700);
+  .dark & {
+    background-color: color-mix(
+      in oklch,
+      var(--color-success-950) 30%,
+      transparent
+    );
+    color: var(--color-success-300);
+  }
+}
+.color-warning-subtle,
+.status-warning {
+  background-color: var(--color-warning-50);
+  color: var(--color-warning-700);
+  .dark & {
+    background-color: color-mix(
+      in oklch,
+      var(--color-warning-950) 30%,
+      transparent
+    );
+    color: var(--color-warning-300);
+  }
+}
+.color-error-subtle,
+.status-error {
+  /* 참고: 테마의 두 번째 'warning' 팔레트를 'error'로 간주하여 매핑했습니다. */
+  background-color: oklch(96.83% 0.014 17.52); /* error-50 */
+  color: oklch(43.32% 0.166 27.8); /* error-700 */
+  .dark & {
+    background-color: color-mix(
+      in oklch,
+      oklch(18.62% 0.07 27.45) 30%,
+      transparent
+    ); /* error-950/30 */
+    color: oklch(78.13% 0.116 20.02); /* error-300 */
+  }
+}
+.color-info-subtle,
+.status-info {
+  background-color: var(--color-info-50);
+  color: var(--color-info-700);
+  .dark & {
+    background-color: color-mix(
+      in oklch,
+      var(--color-info-950) 30%,
+      transparent
+    );
+    color: var(--color-info-300);
+  }
+}
+
+/* 상태별 배지 색상 */
+.badge-success {
+  border: 1px solid var(--color-success-200);
+  background-color: var(--color-success-100);
+  color: var(--color-success-800);
+  .dark & {
+    border-color: var(--color-success-800);
+    background-color: color-mix(
+      in oklch,
+      var(--color-success-950) 50%,
+      transparent
+    );
+    color: var(--color-success-300);
+  }
+}
+.badge-warning {
+  border: 1px solid var(--color-warning-200);
+  background-color: var(--color-warning-100);
+  color: var(--color-warning-800);
+  .dark & {
+    border-color: var(--color-warning-800);
+    background-color: color-mix(
+      in oklch,
+      var(--color-warning-950) 50%,
+      transparent
+    );
+    color: var(--color-warning-300);
+  }
+}
+.badge-error {
+  border: 1px solid oklch(85.46% 0.072 18.68); /* error-200 */
+  background-color: oklch(92.61% 0.034 17.84); /* error-100 */
+  color: oklch(33.35% 0.128 27.81); /* error-800 */
+  .dark & {
+    border-color: oklch(33.35% 0.128 27.81); /* error-800 */
+    background-color: color-mix(
+      in oklch,
+      oklch(18.62% 0.07 27.45) 50%,
+      transparent
+    ); /* error-950/50 */
+    color: oklch(78.13% 0.116 20.02); /* error-300 */
+  }
+}
+.badge-info {
+  border: 1px solid var(--color-info-200);
+  background-color: var(--color-info-100);
+  color: var(--color-info-800);
+  .dark & {
+    border-color: var(--color-info-800);
+    background-color: color-mix(
+      in oklch,
+      var(--color-info-950) 50%,
+      transparent
+    );
+    color: var(--color-info-300);
+  }
+}
+
+/* 스크린 리더 전용 텍스트 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .card-enhanced {
+    border-width: 2px;
+  }
+  .focus-visible-enhanced,
+  .focus-visible-strong,
+  .focus-visible-high-contrast {
+    &:focus-visible {
+      box-shadow:
+        0 0 0 4px var(--background),
+        0 0 0 8px var(--ring);
+    }
+  }
+  .text-accessible-muted {
+    color: oklch(0.3 0 0);
+    .dark & {
+      color: oklch(0.8 0 0);
+    }
+  }
+}
+
+/* 애니메이션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .card-enhanced,
+  .focus-visible-enhanced,
+  .focus-visible-strong,
+  .focus-visible-high-contrast,
+  .interactive-hover,
+  .interactive-hover-subtle,
+  .btn-consistent,
+  .btn-consistent-sm,
+  .link-consistent {
+    transition: none;
+  }
+}
+
+/* 인터랙티브 요소 호버 상태 */
+.interactive-hover {
+  transition:
+    color,
+    background-color 150ms;
+  &:hover {
+    background-color: color-mix(in oklch, var(--accent) 50%, transparent);
+    color: var(--accent-foreground);
+  }
+}
+.interactive-hover-subtle {
+  transition: background-color 150ms;
+  &:hover {
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+}
+
+/* 버튼 스타일 일관성 */
+.btn-consistent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: theme("spacing.2");
+  border-radius: var(--radius-md);
+  padding: theme("spacing.2") theme("spacing.4");
+  font-size: theme("fontSize.sm");
+  font-weight: theme("fontWeight.medium");
+  min-height: 44px; /* from .touch-target */
+  min-width: 44px; /* from .touch-target */
+  transition: all 0.15s ease-in-out;
+
+  &:focus-visible {
+    /* from .focus-visible-enhanced */
+    outline: none;
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--ring);
+  }
+}
+.btn-consistent-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: theme("spacing.1.5");
+  border-radius: var(--radius-md);
+  padding: theme("spacing.1.5") theme("spacing.3");
+  font-size: theme("fontSize.sm");
+  font-weight: theme("fontWeight.medium");
+  min-height: 36px; /* from .touch-target-sm */
+  min-width: 36px; /* from .touch-target-sm */
+  transition: all 0.15s ease-in-out;
+
+  &:focus-visible {
+    /* from .focus-visible-enhanced */
+    outline: none;
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--ring);
+  }
+}
+
+/* 링크 스타일 일관성 */
+.link-consistent {
+  color: var(--primary);
+  text-underline-offset: 4px;
+  transition: color 150ms;
+
+  &:hover {
+    color: color-mix(in oklch, var(--primary) 80%, transparent);
+    text-decoration-line: underline;
+  }
+
+  /* from .focus-visible-enhanced */
+  transition: all 0.15s ease-in-out;
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--ring);
+  }
+}
+
+/* 입력 필드 일관성 */
+.input-consistent {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input);
+  background-color: var(--background);
+  padding: theme("spacing.2") theme("spacing.3");
+  font-size: theme("fontSize.sm");
+
+  &::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* from .focus-visible-enhanced */
+  transition: all 0.15s ease-in-out;
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--ring);
+  }
+}
+
+/* 그리드 레이아웃 일관성 */
+.grid-consistent {
+  display: grid;
+  gap: theme("spacing.4");
+}
+.grid-consistent-sm {
+  display: grid;
+  gap: theme("spacing.3");
+}
+.grid-consistent-lg {
+  display: grid;
+  gap: theme("spacing.6");
+}
+
+/* 플렉스 레이아웃 일관성 */
+.flex-consistent {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.3");
+}
+.flex-consistent-sm {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.2");
+}
+.flex-consistent-lg {
+  display: flex;
+  align-items: center;
+  gap: theme("spacing.4");
+}
+
+/* 텍스트 계층 구조 */
+.text-hierarchy-1 {
+  font-size: theme("fontSize.2xl");
+  font-weight: theme("fontWeight.bold");
+  color: oklch(0.1 0 0);
+  .dark & {
+    color: oklch(0.95 0 0);
+  }
+}
+.text-hierarchy-2 {
+  font-size: theme("fontSize.xl");
+  font-weight: theme("fontWeight.semibold");
+  color: oklch(0.1 0 0);
+  .dark & {
+    color: oklch(0.95 0 0);
+  }
+}
+.text-hierarchy-3 {
+  font-size: theme("fontSize.lg");
+  font-weight: theme("fontWeight.medium");
+  color: oklch(0.2 0 0);
+  .dark & {
+    color: oklch(0.85 0 0);
+  }
+}
+.text-hierarchy-4 {
+  font-size: theme("fontSize.base");
+  font-weight: theme("fontWeight.medium");
+  color: oklch(0.2 0 0);
+  .dark & {
+    color: oklch(0.85 0 0);
+  }
+}
+.text-hierarchy-5 {
+  font-size: theme("fontSize.sm");
+  font-weight: theme("fontWeight.normal");
+  color: oklch(0.45 0 0);
+  .dark & {
+    color: oklch(0.65 0 0);
+  }
+}
+
+/* 상태 표시 일관성 */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: theme("spacing.1.5");
+  font-size: theme("fontSize.sm");
+}

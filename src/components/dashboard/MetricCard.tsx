@@ -13,6 +13,8 @@ type MetricCardProps = {
   description?: string;
   loading?: boolean;
   error?: boolean;
+  onClick?: () => void;
+  href?: string;
   className?: string;
 };
 
@@ -32,6 +34,8 @@ export function MetricCard({
   description,
   loading = false,
   error = false,
+  onClick,
+  href,
   className,
 }: MetricCardProps) {
   // 스켈레톤 UI를 사용한 로딩 상태
@@ -73,10 +77,19 @@ export function MetricCard({
             <Icon className="h-4 w-4 text-destructive" aria-hidden="true" />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
           <p className="text-sm text-destructive">
             데이터를 불러올 수 없습니다
           </p>
+          {onClick && (
+            <button
+              onClick={onClick}
+              className="rounded text-xs text-destructive underline hover:no-underline focus:ring-2 focus:ring-destructive focus:ring-offset-1 focus:outline-none"
+              aria-label={`${title} 데이터 다시 시도`}
+            >
+              다시 시도
+            </button>
+          )}
         </CardContent>
       </Card>
     );
@@ -107,6 +120,9 @@ export function MetricCard({
     }
   };
 
+  const isClickable = onClick || href;
+  const CardComponent = href ? "a" : isClickable ? "button" : "div";
+
   return (
     <Card
       className={cn(
@@ -114,66 +130,74 @@ export function MetricCard({
         "relative transition-shadow duration-200 hover:shadow-md",
         // 포커스 링을 통한 키보드 네비게이션 지원
         "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+        // 클릭 가능한 경우 커서와 호버 효과 추가
+        isClickable && "cursor-pointer hover:shadow-lg",
         className,
       )}
-      tabIndex={0}
-      role="region"
-      aria-labelledby={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-title`}
-      aria-describedby={
-        description
-          ? `metric-${title.replace(/\s+/g, "-").toLowerCase()}-desc`
-          : undefined
-      }
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle
-          id={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-title`}
-          className="text-sm font-medium text-foreground"
-        >
-          {title}
-        </CardTitle>
-        {/* 일관된 스타일링을 가진 아이콘 - 그라데이션이나 과도한 장식 없음 */}
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted"
-          aria-hidden="true"
-        >
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-1">
-        <div className="flex items-baseline gap-2">
-          {/* 적절한 포매팅과 접근성을 가진 메인 값 */}
+      <CardComponent
+        {...(href ? { href } : {})}
+        {...(onClick && !href ? { onClick } : {})}
+        tabIndex={isClickable ? 0 : undefined}
+        role={isClickable ? "button" : "region"}
+        aria-labelledby={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-title`}
+        aria-describedby={
+          description
+            ? `metric-${title.replace(/\s+/g, "-").toLowerCase()}-desc`
+            : undefined
+        }
+        className={isClickable ? "block w-full text-left" : undefined}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle
+            id={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-title`}
+            className="text-sm font-medium text-foreground sm:text-base"
+          >
+            {title}
+          </CardTitle>
+          {/* 일관된 스타일링을 가진 아이콘 - 그라데이션이나 과도한 장식 없음 */}
           <div
-            className="text-2xl font-bold text-foreground"
-            aria-label={`${title}: ${typeof value === "number" ? value.toLocaleString() : value}`}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted sm:h-10 sm:w-10"
+            aria-hidden="true"
           >
-            {typeof value === "number" ? value.toLocaleString() : value}
+            <Icon className="h-4 w-4 text-muted-foreground sm:h-5 sm:w-5" />
           </div>
-          {/* 시맨틱 색상만 사용한 변화 지표 */}
-          {change && (
+        </CardHeader>
+
+        <CardContent className="space-y-1">
+          <div className="flex items-baseline gap-2">
+            {/* 적절한 포매팅과 접근성을 가진 메인 값 */}
             <div
-              className={cn(
-                "flex items-center gap-1 text-xs font-medium",
-                getTrendColor(change.trend),
-              )}
-              aria-label={`변화량: ${change.value}, 추세: ${change.trend === "up" ? "상승" : change.trend === "down" ? "하락" : "변화없음"}`}
+              className="text-2xl font-bold text-foreground"
+              aria-label={`${title}: ${typeof value === "number" ? value.toLocaleString() : value}`}
             >
-              <span aria-hidden="true">{getTrendIcon(change.trend)}</span>
-              {change.value}
+              {typeof value === "number" ? value.toLocaleString() : value}
             </div>
+            {/* 시맨틱 색상만 사용한 변화 지표 */}
+            {change && (
+              <div
+                className={cn(
+                  "flex items-center gap-1 text-xs font-medium",
+                  getTrendColor(change.trend),
+                )}
+                aria-label={`변화량: ${change.value}, 추세: ${change.trend === "up" ? "상승" : change.trend === "down" ? "하락" : "변화없음"}`}
+              >
+                <span aria-hidden="true">{getTrendIcon(change.trend)}</span>
+                {change.value}
+              </div>
+            )}
+          </div>
+          {/* 적절한 시맨틱 구조를 가진 설명 */}
+          {description && (
+            <p
+              id={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-desc`}
+              className="text-sm text-muted-foreground"
+            >
+              {description}
+            </p>
           )}
-        </div>
-        {/* 적절한 시맨틱 구조를 가진 설명 */}
-        {description && (
-          <p
-            id={`metric-${title.replace(/\s+/g, "-").toLowerCase()}-desc`}
-            className="text-sm text-muted-foreground"
-          >
-            {description}
-          </p>
-        )}
-      </CardContent>
+        </CardContent>
+      </CardComponent>
     </Card>
   );
 }

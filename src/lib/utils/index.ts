@@ -7,3 +7,5 @@ export * from "./formatters";
 export * from "./icon-helpers";
 export * from "./news";
 export * from "./ui-helpers";
+export * from "./dashboard";
+export * from "./error-handling";

@@ -1,12 +1,14 @@
+/// <reference types="vitest" />
 // @ts-check
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { resolve } from "node:path";
 
-// Vite 설정 파일 - 개발 서버 및 번들링 최적화
+// Vite 설정 파일 - 개발 서버 및 번들링 최적화 + Vitest 테스트 설정
 // https://vitejs.dev/config/
 export default defineConfig({
   // 사용할 Vite 플러그인들
@@ -19,6 +21,9 @@ export default defineConfig({
 
     // Tailwind CSS 플러그인 - CSS 처리 및 최적화
     tailwindcss(),
+
+    // TypeScript 경로 지원
+    tsconfigPaths(),
   ],
 
   // esbuild 설정 - Vite의 TypeScript/JSX 변환 최적화
@@ -34,8 +39,6 @@ export default defineConfig({
     stringify: "auto", // 큰 JSON만 문자열화 (Vite 6 기본값)
     namedExports: true, // JSON named exports 활성화
   },
-
-  // 테스트는 Bun 테스트 러너를 사용하므로 Vite 테스트 설정 불필요
 
   // 모듈 해석 설정
   resolve: {
@@ -112,5 +115,52 @@ export default defineConfig({
     ],
     // ESM 호환성 문제가 있는 패키지들 강제 사전 번들링
     force: true,
+  },
+
+  // 🧪 Vitest 테스트 설정
+  test: {
+    // 테스트 환경 설정
+    environment: "jsdom",
+
+    // 전역 함수 사용 (describe, it, expect 등)
+    globals: true,
+
+    // 설정 파일
+    setupFiles: ["./src/test/setup.ts"],
+
+    // 테스트 파일 패턴
+    include: [
+      "src/**/*.{test,spec}.{js,ts,jsx,tsx}",
+      "tests/**/*.{test,spec}.{js,ts,jsx,tsx}",
+    ],
+
+    // 제외할 파일
+    exclude: ["node_modules", "dist", ".next", "coverage"],
+
+    // 커버리지 설정
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: [
+        "coverage/**",
+        "dist/**",
+        "packages/*/test{,s}/**",
+        "**/*.d.ts",
+        "cypress/**",
+        "test{,s}/**",
+        "test{,-*}.{js,cjs,mjs,ts,tsx,jsx}",
+        "**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}",
+        "**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}",
+        "**/__tests__/**",
+        "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+        "**/.{eslint,mocha,prettier}rc.{js,cjs,yml}",
+      ],
+    },
+
+    // 테스트 타임아웃
+    testTimeout: 10000,
+
+    // 더 나은 에러 출력
+    logHeapUsage: true,
   },
 });

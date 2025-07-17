@@ -4,7 +4,8 @@
     "**/*.tsx",
     "eslint.config.js",
     "prettier.config.js",
-    "vite.config.js"
+    "vite.config.ts",
+    "vitest.config.ts"
   ],
 
   "compilerOptions": {
@@ -14,8 +15,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
 
     "types": [
-      "bun-types", // Bun 런타임 타입
-      "@testing-library/react", // 테스트 라이브러리 타입
+      "vitest/globals", // Vitest 전역 함수 타입
       "@testing-library/jest-dom", // jest-dom 매처 타입
       "vite/client"
     ],
@@ -37,7 +37,11 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/utils/*": ["src/lib/utils/*"],
+      "@/test/*": ["src/test/*"]
     }
   }
 }

@@ -21,9 +21,9 @@ import {
 } from "@/lib/api/feed";
 import type { RecentUpdatesFeedData } from "@/lib/api/feed/types";
 
-interface ActivitySidebarProps {
+type ActivitySidebarProps = {
   className?: string;
-}
+};
 
 export default function ActivitySidebar({
   className = "",
@@ -190,7 +190,7 @@ export default function ActivitySidebar({
 
       {/* Content */}
       <div className="p-4">
-        <ScrollArea className="h-[400px] md:h-[500px]">
+        <ScrollArea className="">
           <div className="space-y-3">
             {status === "pending" ? (
               <div className="flex flex-col items-center justify-center space-y-3 py-8">
