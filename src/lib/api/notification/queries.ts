@@ -25,7 +25,7 @@ export const notificationQueries = {
       queryFn: notificationApi.getNotificationSettings,
     }),
 
-  // Mutations
+  // 변경 작업
   markAsRead: (queryClient: QueryClient) => ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all() });

@@ -67,7 +67,7 @@ export type SSEEventType =
   | "member_session_created" // 회원 세션 생성 완료
   | "member_record_saved" // 회원 대화 기록 저장 완료
 
-  // Error Events
+  // 오류 이벤트
   | "error"; // 에러 발생
 
 /**

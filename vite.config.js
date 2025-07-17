@@ -35,11 +35,7 @@ export default defineConfig({
     namedExports: true, // JSON named exports 활성화
   },
 
-  // 테스트 환경 설정 (Vitest 사용)
-  test: {
-    globals: true, // describe, it, expect 등을 전역으로 사용
-    environment: "jsdom", // DOM API 시뮬레이션 (React 컴포넌트 테스트용)
-  },
+  // 테스트는 Bun 테스트 러너를 사용하므로 Vite 테스트 설정 불필요
 
   // 모듈 해석 설정
   resolve: {

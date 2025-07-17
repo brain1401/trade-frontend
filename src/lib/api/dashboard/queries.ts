@@ -2,6 +2,7 @@ import { dashboardApi } from "./api";
 import type { DashBoardData, DashboardNotification } from "./types";
 import type { ApiError } from "../common/ApiError";
 import { queryOptions } from "@tanstack/react-query";
+import type { User } from "@/types/auth";
 
 export const dashboardQueryKeys = {
   all: () => ["dashboard"] as const,
@@ -22,15 +23,16 @@ export const dashboardQueries = {
 
 export const dashboardNotificationQueryKeys = {
   all: () => ["dashboardNotification"] as const,
-  settings: () =>
-    [...dashboardNotificationQueryKeys.all(), "settings"] as const,
+  settings: (user: User | null) =>
+    [...dashboardNotificationQueryKeys.all(), "settings", user?.email] as const,
 };
 
 export const dashboardNotificationQueries = {
-  settings: () =>
+  settings: (user: User | null) =>
     queryOptions<DashboardNotification, ApiError>({
-      queryKey: dashboardNotificationQueryKeys.settings(),
+      queryKey: dashboardNotificationQueryKeys.settings(user),
       queryFn: () => dashboardApi.getDashboardNotificationSettings(),
       refetchOnWindowFocus: true,
+      enabled: !!user,
     }),
 };

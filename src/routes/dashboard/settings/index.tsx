@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Bell } from "lucide-react";
 import { requireAuth } from "@/lib/utils/authGuard";
-import { dashboardNotificationQueries } from "@/lib/api/dashboard/queries";
+import {
+  dashboardNotificationQueries,
+  dashboardNotificationQueryKeys,
+} from "@/lib/api/dashboard/queries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { dashboardApi } from "@/lib/api/dashboard/api";
 import type { DashboardNotification } from "@/lib/api/dashboard/types";
 import { useAuth } from "@/stores/authStore";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
 
 /**
  * 설정 관리 라우트 정의
@@ -19,8 +21,8 @@ import { useEffect, useState } from "react";
  * 인증된 사용자만 접근 가능한 보호된 페이지
  */
 export const Route = createFileRoute("/dashboard/settings/")({
-  beforeLoad: ({ context, location }) => {
-    requireAuth(context, location);
+  beforeLoad: ({ location }) => {
+    requireAuth(location);
   },
   component: SettingsPage,
 });
@@ -35,41 +37,59 @@ function SettingsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // 1. 서버에서 알림 설정 데이터를 가져옴
-  const { data: serverSettings, isLoading } = useQuery(
-    dashboardNotificationQueries.settings(),
+  console.log("user : ", user);
+
+  // 서버에서 알림 설정 데이터를 가져옴
+  const { data: settings, isLoading } = useQuery(
+    dashboardNotificationQueries.settings(user),
   );
 
-  // 2. 컴포넌트 내부 상태(State)에서 설정을 관리함
-  const [settings, setSettings] = useState<DashboardNotification | null>(null);
+  console.log(settings);
 
-  useEffect(() => {
-    if (serverSettings) {
-      setSettings(serverSettings);
-    }
-  }, [serverSettings]);
-
-  // 3. 설정을 업데이트하는 Mutation을 정의함
+  // 설정을 업데이트하는 Mutation - 낙관적 업데이트 적용
   const updateSettingsMutation = useMutation({
     mutationFn: (newSettings: DashboardNotification) =>
       dashboardApi.updateDashboardNotificationSettings(newSettings),
-    onSuccess: (data) => {
-      // 성공 시 서버 상태(캐시)와 UI 상태를 함께 업데이트함
-      queryClient.setQueryData(
-        dashboardNotificationQueries.settings().queryKey,
-        data,
+    onMutate: async (newSettings) => {
+      // 진행 중인 쿼리들을 취소하여 낙관적 업데이트가 덮어씌워지지 않도록 함
+      await queryClient.cancelQueries({
+        queryKey: dashboardNotificationQueryKeys.settings(user),
+      });
+
+      // 이전 데이터를 백업
+      const previousSettings = queryClient.getQueryData(
+        dashboardNotificationQueryKeys.settings(user),
       );
-      setSettings(data);
+
+      // 낙관적으로 새 데이터를 설정
+      queryClient.setQueryData(
+        dashboardNotificationQueryKeys.settings(user),
+        newSettings,
+      );
+
+      // 롤백을 위한 컨텍스트 반환
+      return { previousSettings };
+    },
+    onError: (error, _newSettings, context) => {
+      // 에러 발생 시 이전 데이터로 롤백
+      queryClient.setQueryData(
+        dashboardNotificationQueryKeys.settings(user),
+        context?.previousSettings,
+      );
+      toast.error(`설정 저장에 실패했습니다: ${error.message}`);
+    },
+    onSuccess: () => {
       toast.success("알림 설정이 성공적으로 저장되었습니다.");
     },
-    onError: (error) => {
-      toast.error(`설정 저장에 실패했습니다: ${error.message}`);
-      // 실패 시, 서버 데이터로 UI를 되돌림
-      setSettings(serverSettings ?? null);
+    onSettled: () => {
+      // 성공/실패 여부와 관계없이 최신 데이터를 다시 가져옴
+      queryClient.invalidateQueries({
+        queryKey: dashboardNotificationQueryKeys.settings(user),
+      });
     },
   });
 
-  // 4. 토글 스위치 핸들러
+  // 토글 스위치 핸들러
   const handleToggle = (key: keyof DashboardNotification, value: boolean) => {
     if (!settings) return;
 
@@ -79,10 +99,7 @@ function SettingsPage() {
       [key]: value,
     };
 
-    // UI 즉시 업데이트
-    setSettings(newSettings);
-
-    // API 요청
+    // 낙관적 업데이트로 API 요청
     updateSettingsMutation.mutate(newSettings);
   };
 

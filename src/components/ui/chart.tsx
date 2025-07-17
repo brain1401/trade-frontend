@@ -3,7 +3,7 @@ import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils/cn";
 
-// Format: { THEME_NAME: CSS_SELECTOR }
+// 형식 : { 테마_이름: CSS_선택자 }
 const THEMES = { light: "", dark: ".dark" } as const;
 
 export type ChartConfig = {

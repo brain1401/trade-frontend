@@ -196,3 +196,67 @@ export const formatRelativeTime = (
     return rtf.format(-Math.floor(diffInSeconds / 31536000), "year");
   }
 };
+
+/**
+ * 시간을 HH:MM 형식으로 포매팅하는 함수
+ *
+ * @param date - 포매팅할 날짜
+ * @param use24Hour - 24시간 형식 사용 여부 (기본값: true)
+ * @returns 포매팅된 시간 문자열
+ *
+ * @example
+ * ```typescript
+ * const date = new Date('2023-01-01T14:30:00');
+ * formatTime(date); // "14:30"
+ * formatTime(date, false); // "2:30 PM"
+ * ```
+ */
+export const formatTime = (date: Date, use24Hour: boolean = true): string => {
+  return date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: !use24Hour,
+  });
+};
+
+/**
+ * 날짜를 YYYY-MM-DD 형식으로 포매팅하는 함수
+ *
+ * @param date - 포매팅할 날짜
+ * @returns 포매팅된 날짜 문자열
+ *
+ * @example
+ * ```typescript
+ * const date = new Date('2023-01-01');
+ * formatDate(date); // "2023-01-01"
+ * ```
+ */
+export const formatDate = (date: Date): string => {
+  return date.toISOString().split("T")[0];
+};
+
+/**
+ * 날짜와 시간을 함께 포매팅하는 함수
+ *
+ * @param date - 포매팅할 날짜
+ * @param options - 포매팅 옵션
+ * @returns 포매팅된 날짜시간 문자열
+ *
+ * @example
+ * ```typescript
+ * const date = new Date('2023-01-01T14:30:00');
+ * formatDateTime(date); // "2023년 1월 1일 오후 2:30"
+ * ```
+ */
+export const formatDateTime = (
+  date: Date,
+  options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  },
+): string => {
+  return date.toLocaleDateString("ko-KR", options);
+};

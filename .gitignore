@@ -11,5 +11,7 @@ cursor-memory-bank
 memory-bank
 .cursor
 
+.kiro
+
 # TanStack Router
 .tanstack/

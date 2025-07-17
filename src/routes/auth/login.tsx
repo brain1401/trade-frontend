@@ -32,8 +32,8 @@ import type { OAuthProvider } from "@/types/auth";
 import { requireGuest } from "@/lib/utils/authGuard";
 
 export const Route = createFileRoute("/auth/login")({
-  beforeLoad: ({ context }) => {
-    requireGuest(context);
+  beforeLoad: () => {
+    requireGuest();
   },
   component: LoginPage,
 });
