@@ -58,9 +58,9 @@ function RootLayout() {
       <main className="flex flex-1 flex-col overflow-y-auto px-[2.5rem]">
         <Outlet />
       </main>
-      <TanStackQueryLayout />
+      {/* <TanStackQueryLayout /> */}
       <Toaster />
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
     </div>
   );
 }
