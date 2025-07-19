@@ -206,7 +206,61 @@ export async function fetchCategoryDataWithError(
  */
 
 /**
- * 빠른 통계 목 데이터 생성
+ * 통합 대시보드 메트릭 mock 데이터 생성 (실제 API 구조와 일치)
+ * API 응답 구조: DashBoardData + BookmarkData를 기반으로 생성
+ * @param overrides 특정 값들을 오버라이드하기 위한 옵션
+ * @returns DashboardMetrics 형태의 통합 메트릭 데이터
+ */
+export function generateUnifiedMockMetrics(overrides?: {
+  totalBookmarks?: number;
+  activeMonitoring?: number;
+  unreadFeeds?: number;
+  totalSessions?: number;
+  totalMessages?: number;
+  recentSessions30d?: number;
+}): {
+  totalBookmarks: number;
+  activeMonitoring: number;
+  unreadFeeds: number;
+  totalSessions: number;
+  totalMessages: number;
+  recentSessions30d: number;
+} {
+  // 실제 API 구조를 반영한 기본값 생성 (DashBoardData + BookmarkData 구조 기반)
+  const totalBookmarks =
+    overrides?.totalBookmarks ?? Math.floor(Math.random() * 200) + 50;
+  const activeMonitoring =
+    overrides?.activeMonitoring ??
+    Math.min(
+      Math.floor(Math.random() * 50) + 10,
+      Math.floor(totalBookmarks * 0.7), // activeMonitoring은 totalBookmarks의 70% 이하
+    );
+  const unreadFeeds =
+    overrides?.unreadFeeds ?? Math.floor(Math.random() * 30) + 5;
+  const totalSessions =
+    overrides?.totalSessions ?? Math.floor(Math.random() * 150) + 25;
+  const totalMessages =
+    overrides?.totalMessages ??
+    Math.floor(Math.random() * 500) + totalSessions * 2; // 세션당 평균 2-5개 메시지
+  const recentSessions30d =
+    overrides?.recentSessions30d ??
+    Math.min(
+      Math.floor(Math.random() * 80) + 15,
+      Math.floor(totalSessions * 0.8), // recentSessions30d는 totalSessions의 80% 이하
+    );
+
+  return {
+    totalBookmarks,
+    activeMonitoring,
+    unreadFeeds,
+    totalSessions,
+    totalMessages,
+    recentSessions30d,
+  };
+}
+
+/**
+ * 빠른 통계 목 데이터 생성 (실제 API 구조와 일치하도록 개선)
  * @param metrics 실제 메트릭 데이터 (선택사항)
  * @returns StatItem 배열
  */
@@ -218,83 +272,86 @@ export function generateMockQuickStats(metrics?: {
   totalMessages?: number;
   recentSessions30d?: number;
 }): StatItem[] {
+  // 통합 메트릭 데이터 생성 (API 구조와 일치)
+  const unifiedMetrics = generateUnifiedMockMetrics(metrics);
+
   const stats: StatItem[] = [
     {
       id: "total-bookmarks",
       label: "전체 북마크",
-      value: metrics?.totalBookmarks || Math.floor(Math.random() * 500) + 100,
+      value: unifiedMetrics.totalBookmarks,
       icon: Package,
       description: "저장된 북마크 수",
       href: "/dashboard/bookmarks",
       trend: {
-        value: `+${Math.floor(Math.random() * 20) + 1}%`,
+        value: `활성 ${unifiedMetrics.activeMonitoring}개`,
         direction: "up",
       },
     },
     {
       id: "active-monitoring",
       label: "활성 모니터링",
-      value: metrics?.activeMonitoring || Math.floor(Math.random() * 50) + 10,
+      value: unifiedMetrics.activeMonitoring,
       icon: Activity,
       description: "모니터링 중인 항목",
       href: "/dashboard/monitoring",
       trend: {
-        value: `${Math.random() > 0.5 ? "+" : "-"}${Math.floor(Math.random() * 10) + 1}%`,
-        direction: Math.random() > 0.5 ? ("up" as const) : ("down" as const),
+        value: `${Math.round((unifiedMetrics.activeMonitoring / Math.max(unifiedMetrics.totalBookmarks, 1)) * 100)}%`,
+        direction:
+          unifiedMetrics.activeMonitoring > 0
+            ? ("up" as const)
+            : ("neutral" as const),
       },
     },
     {
       id: "unread-feeds",
       label: "읽지 않은 피드",
-      value: metrics?.unreadFeeds || Math.floor(Math.random() * 100) + 5,
+      value: unifiedMetrics.unreadFeeds,
       icon: Bell,
       description: "새로운 피드 항목",
       href: "/dashboard/feeds",
       trend: {
-        value: `+${Math.floor(Math.random() * 30) + 5}%`,
-        direction: "up",
+        value:
+          unifiedMetrics.unreadFeeds > 0
+            ? `+${unifiedMetrics.unreadFeeds}개`
+            : "없음",
+        direction:
+          unifiedMetrics.unreadFeeds > 5
+            ? ("up" as const)
+            : ("neutral" as const),
       },
     },
     {
       id: "total-sessions",
       label: "총 채팅 세션",
-      value: metrics?.totalSessions || Math.floor(Math.random() * 200) + 50,
+      value: unifiedMetrics.totalSessions,
       icon: MessageSquare,
       description: "전체 채팅 세션 수",
       href: "/dashboard/chat",
       trend: {
-        value: `+${Math.floor(Math.random() * 15) + 2}%`,
-        direction: "up",
-      },
-    },
-    {
-      id: "monthly-growth",
-      label: "월간 성장률",
-      value: `${Math.floor(Math.random() * 20) + 5}%`,
-      icon: TrendingUp,
-      description: "지난 30일 대비 성장률",
-      trend: {
-        value: `+${Math.floor(Math.random() * 5) + 1}%`,
+        value: `최근 30일 ${unifiedMetrics.recentSessions30d}건`,
         direction: "up",
       },
     },
     {
       id: "active-users",
       label: "활성 사용자",
-      value:
-        metrics?.recentSessions30d || Math.floor(Math.random() * 1000) + 100,
+      value: unifiedMetrics.recentSessions30d,
       icon: Users,
       description: "최근 30일 활성 사용자",
       href: "/dashboard/users",
       trend: {
-        value: `${Math.random() > 0.7 ? "+" : "-"}${Math.floor(Math.random() * 8) + 1}%`,
-        direction: Math.random() > 0.7 ? ("up" as const) : ("down" as const),
+        value: `${Math.round((unifiedMetrics.recentSessions30d / Math.max(unifiedMetrics.totalSessions, 1)) * 100)}%`,
+        direction:
+          unifiedMetrics.recentSessions30d > 0
+            ? ("up" as const)
+            : ("neutral" as const),
       },
     },
   ];
 
-  // 상위 4-5개 통계만 반환 (사이드바 공간 고려)
-  return stats.slice(0, Math.floor(Math.random() * 2) + 4);
+  // 실제 사용되는 4개 통계 반환 (API 구조와 일치)
+  return stats.slice(0, 4);
 }
 
 /**
@@ -432,6 +489,210 @@ export async function fetchQuickStatsWithError(
   }
 
   return generateMockQuickStats();
+}
+
+/**
+ * 실제 API 구조를 모방한 mock 대시보드 데이터 생성
+ * DashBoardData 타입과 일치하는 구조로 생성
+ * @param overrides 특정 값들을 오버라이드하기 위한 옵션
+ * @returns API 구조와 일치하는 mock 대시보드 데이터
+ */
+export function generateMockDashboardApiData(overrides?: {
+  totalBookmarks?: number;
+  activeMonitoring?: number;
+  unreadFeeds?: number;
+  totalSessions?: number;
+  totalMessages?: number;
+  recentSessions30d?: number;
+}): {
+  dashboardData: {
+    user: {
+      name: string;
+      email: string;
+      phoneVerified: boolean;
+      rememberMe: boolean;
+    };
+    bookmarks: {
+      total: number;
+      activeMonitoring: number;
+      sseGenerated: number;
+    };
+    chatHistory: {
+      totalSessions: number;
+      recentSessions30d: number;
+      totalMessages: number;
+    };
+    notifications: {
+      unreadFeeds: number;
+      highImportanceFeeds: number;
+      smsEnabled: boolean;
+      emailEnabled: boolean;
+      notificationTime: string;
+    };
+  };
+  bookmarkData: {
+    content: Array<{
+      id: number;
+      type: string;
+      targetValue: string;
+      displayName: string;
+      sseGenerated: boolean;
+      sseEventData: null;
+      smsNotificationEnabled: boolean;
+      emailNotificationEnabled: boolean;
+      monitoringActive: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  };
+} {
+  const metrics = generateUnifiedMockMetrics(overrides);
+
+  // 북마크 mock 데이터 생성 (실제 API 구조와 일치)
+  const bookmarkTypes = [
+    "HS_CODE",
+    "COUNTRY",
+    "REGULATION",
+    "COMPANY",
+    "LOGISTICS",
+    "DOCUMENT",
+  ];
+  const mockBookmarks = Array.from(
+    { length: metrics.totalBookmarks },
+    (_, index) => ({
+      id: index + 1,
+      type: bookmarkTypes[Math.floor(Math.random() * bookmarkTypes.length)],
+      targetValue: `MOCK_VALUE_${index + 1}`,
+      displayName: `Mock Bookmark ${index + 1}`,
+      sseGenerated: Math.random() > 0.7,
+      sseEventData: null,
+      smsNotificationEnabled: Math.random() > 0.5,
+      emailNotificationEnabled: Math.random() > 0.3,
+      monitoringActive: index < metrics.activeMonitoring, // 처음 N개만 활성 모니터링
+      createdAt: new Date(
+        Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
+      updatedAt: new Date(
+        Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
+    }),
+  );
+
+  return {
+    dashboardData: {
+      user: {
+        name: "Mock User",
+        email: "mock@example.com",
+        phoneVerified: true,
+        rememberMe: false,
+      },
+      bookmarks: {
+        total: metrics.totalBookmarks,
+        activeMonitoring: metrics.activeMonitoring,
+        sseGenerated: Math.floor(metrics.totalBookmarks * 0.3), // 30% 정도가 SSE 생성
+      },
+      chatHistory: {
+        totalSessions: metrics.totalSessions,
+        recentSessions30d: metrics.recentSessions30d,
+        totalMessages: metrics.totalMessages,
+      },
+      notifications: {
+        unreadFeeds: metrics.unreadFeeds,
+        highImportanceFeeds: Math.floor(metrics.unreadFeeds * 0.2), // 20% 정도가 중요 피드
+        smsEnabled: true,
+        emailEnabled: true,
+        notificationTime: "09:00",
+      },
+    },
+    bookmarkData: {
+      content: mockBookmarks,
+      totalElements: metrics.totalBookmarks,
+      totalPages: Math.ceil(metrics.totalBookmarks / 20),
+      size: 20,
+      number: 0,
+    },
+  };
+}
+
+/**
+ * Mock 데이터와 실제 API 데이터 간 일관성 검증
+ * @param mockMetrics Mock으로 생성된 메트릭
+ * @param apiMetrics API에서 받은 메트릭 (선택사항)
+ * @returns 일관성 검증 결과
+ */
+export function validateMockDataConsistency(
+  mockMetrics: {
+    totalBookmarks: number;
+    activeMonitoring: number;
+    unreadFeeds: number;
+    totalSessions: number;
+    totalMessages: number;
+    recentSessions30d: number;
+  },
+  apiMetrics?: {
+    totalBookmarks: number;
+    activeMonitoring: number;
+    unreadFeeds: number;
+    totalSessions: number;
+    totalMessages: number;
+    recentSessions30d: number;
+  },
+): {
+  isConsistent: boolean;
+  issues: string[];
+  recommendations: string[];
+} {
+  const issues: string[] = [];
+  const recommendations: string[] = [];
+
+  // Mock 데이터 내부 일관성 검증
+  if (mockMetrics.activeMonitoring > mockMetrics.totalBookmarks) {
+    issues.push("활성 모니터링 수가 전체 북마크 수를 초과합니다");
+    recommendations.push("activeMonitoring을 totalBookmarks 이하로 조정하세요");
+  }
+
+  if (mockMetrics.recentSessions30d > mockMetrics.totalSessions) {
+    issues.push("최근 30일 세션 수가 전체 세션 수를 초과합니다");
+    recommendations.push("recentSessions30d를 totalSessions 이하로 조정하세요");
+  }
+
+  if (mockMetrics.totalMessages < mockMetrics.totalSessions) {
+    issues.push("전체 메시지 수가 전체 세션 수보다 적습니다");
+    recommendations.push(
+      "일반적으로 세션당 최소 1개 이상의 메시지가 있어야 합니다",
+    );
+  }
+
+  // API 데이터와의 일관성 검증 (API 데이터가 있는 경우)
+  if (apiMetrics) {
+    const tolerance = 0.1; // 10% 허용 오차
+
+    Object.entries(mockMetrics).forEach(([key, mockValue]) => {
+      const apiValue = apiMetrics[key as keyof typeof apiMetrics];
+      if (apiValue !== undefined) {
+        const difference =
+          Math.abs(mockValue - apiValue) / Math.max(apiValue, 1);
+        if (difference > tolerance) {
+          issues.push(
+            `${key} 값이 API 데이터와 크게 다릅니다 (Mock: ${mockValue}, API: ${apiValue})`,
+          );
+          recommendations.push(
+            `${key} Mock 데이터를 API 데이터에 더 가깝게 조정하세요`,
+          );
+        }
+      }
+    });
+  }
+
+  return {
+    isConsistent: issues.length === 0,
+    issues,
+    recommendations,
+  };
 }
 
 /**
