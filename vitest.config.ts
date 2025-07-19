@@ -27,7 +27,7 @@ export default defineConfig({
     globals: true,
 
     // 설정 파일
-    setupFiles: ["./src/test/setup.ts"],
+    setupFiles: ["./src/test-setup.ts"],
 
     // 테스트 파일 패턴
     include: [
