@@ -123,24 +123,6 @@ function BookmarksPage() {
     {},
   );
 
-  const cardData = [
-    {
-      title: "총 북마크",
-      value: bookmarks.length,
-      icon: <Bookmark className="h-4 w-4 text-primary-600" />,
-    },
-    {
-      title: "활성 모니터링",
-      value: activeBookmarks.length,
-      icon: <Monitor className="h-4 w-4 text-success-600" />,
-    },
-    {
-      title: "카테고리",
-      value: Object.keys(bookmarksByCategory).length,
-      icon: <Badge className="h-4 w-4 text-info-600" />,
-    },
-  ];
-
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
