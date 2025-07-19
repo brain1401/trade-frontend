@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { cn } from "@/lib/utils/cn";
 import type { LucideIcon } from "lucide-react";
 
-type MetricCardProps = {
+export type MetricCardData = {
   title: string;
   value: string | number;
   change?: {
@@ -17,6 +17,8 @@ type MetricCardProps = {
   href?: string;
   className?: string;
 };
+
+type MetricCardProps = MetricCardData;
 
 /**
  * 접근성과 디자인 모범 사례를 따르는 간소화된 메트릭 카드 컴포넌트

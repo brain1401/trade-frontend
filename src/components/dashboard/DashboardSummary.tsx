@@ -1,118 +1,74 @@
-import { Bell, Bookmark, MessageSquare, Search } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { bookmarkQueries } from "@/lib/api";
-import { dashboardQueries } from "@/lib/api/dashboard/queries";
+import { useDashboardSummaryData } from "@/hooks/useDashboardMetrics";
 import { MetricCard } from "./MetricCard";
+import { DashboardErrorDisplay } from "./DashboardErrorDisplay";
 
 /**
  * 대시보드 요약 통계 컴포넌트
  * 사용자의 활동 현황을 한눈에 보여줌
  *
  * 개선사항
- * - 과도한 그라데이션과 애니메이션 제거
+ * - 통합 데이터 훅 사용으로 데이터 일관성 보장
+ * - 데이터 변환 로직을 유틸리티 함수로 분리
+ * - 통합된 에러 처리 및 상태 관리 (Requirements: 3.1, 3.2, 3.3)
  * - 접근성 개선 (ARIA 라벨, 키보드 네비게이션)
  * - 일관된 색상 스키마 사용
- * - 로딩 및 에러 상태 처리
+ * - 일관된 에러 표시 및 재시도 기능
+ *
+ * Requirements: 1.1, 1.2, 3.1, 3.2, 3.3
  */
 export default function DashboardSummary() {
   const {
-    data: paginatedData,
-    isLoading: bookmarksLoading,
-    isError: bookmarksError,
-  } = useQuery(bookmarkQueries.list());
+    metricsData,
+    isLoading,
+    isError,
+    hasPartialError,
+    error,
+    refetch,
+    canRetry,
+    isRecurringError,
+    errorCount,
+  } = useDashboardSummaryData();
 
-  const {
-    data: dashboardSummaryResponse,
-    isLoading: dashboardLoading,
-    isError: dashboardError,
-  } = useQuery(dashboardQueries.data());
-
-  const bookmarks = paginatedData?.content ?? [];
-  const activeBookmarks = bookmarks.filter(
-    (bookmark) => bookmark.monitoringActive,
-  );
-
-  const totalSessions =
-    dashboardSummaryResponse?.chatHistory.totalSessions ?? 0;
-  const recentSessions30d =
-    dashboardSummaryResponse?.chatHistory.recentSessions30d ?? 0;
-  const totalMessages =
-    dashboardSummaryResponse?.chatHistory.totalMessages ?? 0;
-  const unreadFeeds = dashboardSummaryResponse?.notifications.unreadFeeds ?? 0;
-
-  // Calculate change percentages based on meaningful data
-  const getBookmarkChange = () => {
-    if (activeBookmarks.length === 0)
-      return { value: "0%", trend: "neutral" as const };
-    const percentage = Math.round(
-      (activeBookmarks.length / bookmarks.length) * 100,
+  // 전체 실패 시 통합 에러 표시 (Requirements: 3.1, 3.2)
+  if (isError && error) {
+    return (
+      <div className="col-span-full">
+        <DashboardErrorDisplay
+          error={error}
+          onRetry={canRetry ? refetch : undefined}
+          title="대시보드 요약"
+          canRetry={canRetry}
+          isRecurringError={isRecurringError}
+          errorCount={errorCount}
+          compact={false}
+        />
+      </div>
     );
-    return { value: `${percentage}% 활성`, trend: "up" as const };
-  };
+  }
 
-  const getSessionChange = () => {
-    if (recentSessions30d === 0)
-      return { value: "0%", trend: "neutral" as const };
-    return { value: `최근 30일`, trend: "up" as const };
-  };
-
-  const getFeedChange = () => {
-    if (unreadFeeds === 0)
-      return { value: "모두 읽음", trend: "neutral" as const };
-    return {
-      value: `${unreadFeeds}개 신규`,
-      trend: unreadFeeds > 5 ? ("up" as const) : ("neutral" as const),
-    };
-  };
-
-  const getMessageChange = () => {
-    if (totalMessages === 0) return { value: "0%", trend: "neutral" as const };
-    const avgPerSession =
-      totalSessions > 0 ? Math.round(totalMessages / totalSessions) : 0;
-    return { value: `평균 ${avgPerSession}개/세션`, trend: "neutral" as const };
-  };
-
-  const metricsData = [
-    {
-      title: "총 북마크",
-      value: bookmarks.length,
-      description: `활성 모니터링: ${activeBookmarks.length}개`,
-      icon: Bookmark,
-      change: getBookmarkChange(),
-      loading: bookmarksLoading,
-      error: bookmarksError,
-    },
-    {
-      title: "읽지 않은 피드",
-      value: unreadFeeds,
-      description: "새로운 업데이트",
-      icon: Bell,
-      change: getFeedChange(),
-      loading: dashboardLoading,
-      error: dashboardError,
-    },
-    {
-      title: "총 채팅 세션",
-      value: totalSessions,
-      description: `최근 30일: ${recentSessions30d}건`,
-      icon: Search,
-      change: getSessionChange(),
-      loading: dashboardLoading,
-      error: dashboardError,
-    },
-    {
-      title: "총 메시지",
-      value: totalMessages,
-      description: `전체 채팅 세션: ${totalSessions}건`,
-      icon: MessageSquare,
-      change: getMessageChange(),
-      loading: dashboardLoading,
-      error: dashboardError,
-    },
-  ];
+  // 부분 에러가 있는 경우 경고 표시 (Requirements: 3.1)
+  if (hasPartialError && error && !isError) {
+    console.warn("Dashboard partial error:", error.message);
+  }
 
   return (
     <>
+      {/* 부분 에러 알림 (선택적) */}
+      {hasPartialError && error && !isError && (
+        <div className="col-span-full mb-4">
+          <DashboardErrorDisplay
+            error={error}
+            onRetry={canRetry ? refetch : undefined}
+            title="일부 데이터"
+            canRetry={canRetry}
+            isRecurringError={isRecurringError}
+            errorCount={errorCount}
+            compact={true}
+          />
+        </div>
+      )}
+
+      {/* 메트릭 카드들 */}
       {metricsData.map((metric) => (
         <MetricCard
           key={metric.title}
@@ -123,6 +79,7 @@ export default function DashboardSummary() {
           change={metric.change}
           loading={metric.loading}
           error={metric.error}
+          onClick={metric.error && canRetry ? refetch : undefined}
         />
       ))}
     </>

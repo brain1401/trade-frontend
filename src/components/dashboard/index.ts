@@ -27,7 +27,4 @@ export {
   ManagementActions,
   default as ManagementActionsDefault,
 } from "./ManagementActions";
-export {
-  NotificationSummary,
-  default as NotificationSummaryDefault,
-} from "./NotificationSummary";
+export { default as NotificationSummaryDefault } from "./NotificationSummary";
