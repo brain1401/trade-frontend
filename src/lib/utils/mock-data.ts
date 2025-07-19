@@ -684,12 +684,12 @@ export function generateMockNotifications(count = 10): NotificationItem[] {
       title: "북마크 동기화 완료",
       message: "모든 북마크가 성공적으로 동기화되었습니다.",
     },
-    {
-      type: "error" as const,
-      title: "시스템 오류",
-      message:
-        "일시적인 시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-    },
+    // {
+    //   type: "error" as const,
+    //   title: "시스템 오류",
+    //   message:
+    //     "일시적인 시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    // },
     {
       type: "info" as const,
       title: "새로운 기능 안내",
@@ -719,9 +719,8 @@ export function generateMockNotifications(count = 10): NotificationItem[] {
       href: `/dashboard/notifications/${i + 1}`,
       metadata: {
         priority:
-          sample.type === "error" || sample.type === "warning"
-            ? "high"
-            : "normal",
+          // sample.type === "error" || sample.type === "warning"
+          sample.type === "warning" ? "high" : "normal",
         category: sample.type,
       },
     };

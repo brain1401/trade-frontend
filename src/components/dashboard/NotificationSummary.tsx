@@ -207,7 +207,7 @@ function NotificationSummary({
         </div>
 
         {displayItems.length > 0 ? (
-          <div className="space-y-1">
+          <div className="space-y-4">
             {displayItems.map((notification) =>
               renderNotificationItem(notification, isImportant),
             )}
