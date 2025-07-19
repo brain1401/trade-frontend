@@ -162,7 +162,7 @@ function BookmarksPage() {
               {activeBookmarks.length}
             </div>
             <p className="text-xs text-neutral-500">
-              모니터링 비활성화: {bookmarks.length - activeBookmarks.length}개
+              모니터링 비활성화 : {bookmarks.length - activeBookmarks.length}개
             </p>
           </CardContent>
         </Card>

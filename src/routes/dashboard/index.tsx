@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { requireAuth } from "@/lib/utils/authGuard";
 
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { CategorySummary } from "@/components/dashboard/CategorySummary";
-import { QuickStats } from "@/components/dashboard/QuickStats";
+import { IntegratedQuickStats } from "@/components/dashboard/IntegratedQuickStats";
+import {
+  CacheStatusIndicator,
+  OfflineDataStatus,
+} from "@/components/dashboard/CacheStatusIndicator";
 import { ManagementActions } from "@/components/dashboard/ManagementActions";
 import NotificationSummary from "@/components/dashboard/NotificationSummary";
 import { useAuth } from "@/stores/authStore";
@@ -20,7 +25,6 @@ import {
 import {
   generateMockActivities,
   generateMockCategoryData,
-  generateMockQuickStats,
   generateMockManagementActions,
   generateMockNotificationGroups,
 } from "@/lib/utils/mock-data";
@@ -31,7 +35,6 @@ import { SectionLoadingWrapper } from "@/components/ui/loading-wrapper";
 import {
   ActivityFeedSkeleton,
   CategorySummarySkeleton,
-  QuickStatsSkeleton,
   NotificationSummarySkeleton,
   DashboardHeaderSkeleton,
 } from "@/components/ui/skeleton-variants";
@@ -59,7 +62,7 @@ export const Route = createFileRoute("/dashboard/")({
 /**
  * 보호된 대시보드 페이지
  *
- * 개선사항:
+ * 개선사항
  * - 새로운 DashboardHeader 컴포넌트 사용
  * - ActionCard로 기존 DashboardCard 교체
  * - 과도한 배경 장식과 그라데이션 제거
@@ -80,7 +83,7 @@ export default function DashboardPage() {
   // 최적화된 데이터 로딩
   const dashboardData = useDashboardData();
 
-  // 통합 로딩 상태 관리
+  // 통합 로딩 상태 관리 (메트릭 데이터는 각 컴포넌트에서 개별 처리)
   const loadingStates = useLoadingStates([
     {
       isLoading: dashboardData.bookmarks.isLoading,
@@ -102,10 +105,12 @@ export default function DashboardPage() {
     },
   ]);
 
-  // Generate mock data for new components
+  // 통합 메트릭 데이터는 이제 IntegratedQuickStats 컴포넌트에서 직접 처리됨
+  // Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3 - 모든 통계 컴포넌트가 동일한 데이터 소스와 에러 처리 사용
+
+  // 통합 메트릭 데이터를 기반으로 일관된 mock 데이터 생성
   const mockActivities = generateMockActivities(15);
   const mockCategories = generateMockCategoryData();
-  const mockQuickStats = generateMockQuickStats();
   const mockManagementActions = generateMockManagementActions();
   const mockNotificationGroups = generateMockNotificationGroups();
 
@@ -130,6 +135,12 @@ export default function DashboardPage() {
           >
             <DashboardHeader user={user} />
           </SectionLoadingWrapper>
+
+          {/* 캐시 상태 및 오프라인 알림 (Requirements: 4.1, 4.2, 4.3) */}
+          <div className="col-span-full">
+            <OfflineDataStatus />
+            <CacheStatusIndicator compact className="ml-auto w-fit" />
+          </div>
 
           {/* 메트릭 그리드 - 핵심 요약 지표들을 시각적으로 강조 */}
           <section aria-labelledby="metrics-heading">
@@ -201,30 +212,16 @@ export default function DashboardPage() {
             {/* 사이드바 (1/3 너비) - QuickStats, ManagementActions, NotificationSummary 배치 */}
             <Sidebar collapsible defaultCollapsed={false}>
               <div className="space-y-6">
-                {/* 빠른 통계 요약 - 사이드바 상단 */}
+                {/* 빠른 통계 요약 - 사이드바 상단 (통합 에러 처리) */}
                 <section aria-labelledby="quick-stats-heading">
-                  <SectionLoadingWrapper
-                    title="빠른 통계"
-                    loadingConfig={{
-                      isLoading: dashboardData.dashboardData.isLoading,
-                      isError: dashboardData.dashboardData.isError,
-                      isSuccess: dashboardData.dashboardData.isSuccess,
-                      error: dashboardData.dashboardData.error,
-                    }}
-                    onRetry={() => dashboardData.dashboardData.refetch?.()}
-                    skeleton={<QuickStatsSkeleton />}
-                    compact
-                  >
-                    <QuickStats
-                      stats={mockQuickStats}
-                      loading={dashboardData.dashboardData.isLoading}
-                      error={dashboardData.dashboardData.isError}
+                  <ErrorBoundary>
+                    <IntegratedQuickStats
                       onStatClick={(stat) => {
                         // TODO: Implement stat click handler
                         console.log("Stat clicked:", stat);
                       }}
                     />
-                  </SectionLoadingWrapper>
+                  </ErrorBoundary>
                 </section>
 
                 {/* 주요 관리 기능 - 사이드바 중간 */}
